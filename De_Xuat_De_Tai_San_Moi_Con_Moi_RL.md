@@ -149,23 +149,10 @@ Hàm phần thưởng được thiết kế nhằm khuyến khích tối đa hó
 
 ## 6. Kế hoạch Triển khai Dự kiến (Roadmap)
 
-```mermaid
-gantt
-    title Lộ trình Triển khai Dự án MazeHunter-RL (Nhóm 6 thành viên)
-    dateFormat  YYYY-MM-DD
-    section Tuần 1-2: Chuẩn bị & Môi trường
-    Khảo sát tài liệu & Chốt kiến trúc nhóm     :done, t1, 2026-10-05, 4d
-    TV1: Xây dựng Core Environment & API        :active, t2, 2026-10-09, 7d
-    TV2: Viết thuật toán Baseline A* Search     :active, t3, 2026-10-11, 5d
-    section Tuần 3-4: Phát triển Thuật toán RL
-    TV2: Cài đặt & Huấn luyện Q-Learning, SARSA :t4, 2026-10-16, 8d
-    TV3: Cài đặt mạng DQN & Target Network       :t5, 2026-10-16, 9d
-    TV4: Cài đặt mạng PPO Actor-Critic          :t6, 2026-10-16, 9d
-    TV6: Dựng khung giao diện UI cơ bản         :t7, 2026-10-20, 6d
-    section Tuần 5-6: Huấn luyện Đối kháng & Benchmark
-    TV5: Viết pipeline Tournament & Self-play   :t8, 2026-10-25, 7d
-    Chạy thực nghiệm chéo (DQN vs PPO vs Tabular):t9, 2026-11-01, 8d
-    section Tuần 7: Hoàn thiện Sản phẩm
-    TV6: Ghép model vào UI (Chế độ Human vs AI) :t10, 2026-11-08, 5d
-    Cả nhóm: Viết báo cáo, làm slide & Video demo:t11, 2026-11-13, 6d
-```
+| Giai đoạn | Thời gian | Thành viên phụ trách | Nhiệm vụ chính | Kết quả đầu ra |
+| :--- | :---: | :--- | :--- | :--- |
+| **Giai đoạn 1: Chuẩn bị & Môi trường** | Tuần 1 - 2 | Cả nhóm, TV1, TV2 | - Chốt kiến trúc và phân công kỹ thuật.<br>- **TV1**: Xây dựng Core Environment (`maze_env.py`) và quy chuẩn API.<br>- **TV2**: Xây dựng thuật toán Baseline A* Search. | Module môi trường hoàn chỉnh, API Specs cho nhóm. |
+| **Giai đoạn 2: Thuật toán RL** | Tuần 3 - 4 | TV2, TV3, TV4, TV6 | - **TV2**: Cài đặt & Huấn luyện Tabular RL (Q-Learning, SARSA).<br>- **TV3**: Xây dựng mạng DQN + Replay Buffer + Target Net.<br>- **TV4**: Xây dựng mạng Actor-Critic + thuật toán PPO.<br>- **TV6**: Dựng khung giao diện UI 2D sơ bộ. | Các module agent độc lập (`tabular_q.py`, `dqn_agent.py`, `ppo_agent.py`). |
+| **Giai đoạn 3: Huấn luyện Đối kháng & Benchmark** | Tuần 5 - 6 | TV5, TV3, TV4 | - **TV5**: Xây dựng pipeline tự động thi đấu chéo (Tournament Runner).<br>- Huấn luyện đối kháng (Self-Play / Alternate training).<br>- Thu thập log, vẽ biểu đồ Reward, Win-rate, Heatmap. | Checkpoints mô hình tối ưu, Bảng số liệu Benchmark đa thuật toán. |
+| **Giai đoạn 4: Hoàn thiện & Báo cáo** | Tuần 7 | Cả nhóm, TV6 | - **TV6**: Tích hợp các model vào UI, hoàn thiện chế độ `Human vs AI`.<br>- Cả nhóm: Hoàn thiện báo cáo kỹ thuật, slide thuyết trình và video demo. | Ứng dụng mô phỏng hoàn chỉnh, Báo cáo & Slide nghiệm thu đồ án. |
+
