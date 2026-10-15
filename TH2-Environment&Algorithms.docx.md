@@ -7,19 +7,20 @@
 **MÔN: HỌC TĂNG CƯỜNG VÀ ỨNG DỤNG**
 
 ### **ĐỀ TÀI: NGHIÊN CỨU VÀ XÂY DỰNG HỆ THỐNG XE TỰ LÁI NÉ TRÁNH CHƯỚNG NGẠI VẬT THEO LÀN SỬ DỤNG HỌC TĂNG CƯỜNG**
-*(Lane-based Autonomous Racing RL Simulator - LaneRace-RL)*
+*(Autonomous Lane-based Obstacle Avoidance via Reinforcement Learning)*  
+**Nền tảng mô phỏng thực nghiệm:** `marl4av` (NetLogo 6.4.0 & Python Extension)
 
 **Nhóm thực hiện:** N1_65KTPM  
 **Thành viên nhóm:**  
 
 | STT | Họ và tên | Mã sinh viên | Vai trò phụ trách chính |
 | :---: | :--- | :---: | :--- |
-| 1 | **Nguyễn Đình Tuấn Sơn** | 2351170616 | Nhóm trưởng, Xây dựng Lõi Môi trường & Quản lý chung |
-| 2 | **Nguyễn Khắc Sỹ** | 2351170617 | Xây dựng Môi trường, Quản lý Vật cản & Cảm biến |
+| 1 | **Nguyễn Đình Tuấn Sơn** | 2351170616 | Nhóm trưởng, Cấu hình Môi trường Mô phỏng & Tích hợp NetLogo |
+| 2 | **Lê Tuấn Khanh** | 2351170601 | Cấu hình Kịch bản Vật cản, Cảm biến & Hàm thưởng |
 | 3 | **Dương Quốc Vượng** | 2351170634 | Cài đặt & Tối ưu Thuật toán 1 (Deep Q-Network - DQN) |
 | 4 | **Ngô Tuấn Anh** | 2351170570 | Cài đặt & Tối ưu Thuật toán 2 (Double Dueling DQN) |
 | 5 | **Nguyễn Hồng Thái** | 2351170619 | Cài đặt & Tối ưu Thuật toán 3 (Proximal Policy Optimization - PPO) |
-| 6 | **Lê Tuấn Khanh** | 2351170601 | Cài đặt Thuật toán 4 (DDPG/Baseline), Đánh giá Đối sánh & Báo cáo |
+| 6 | **Nguyễn Khắc Sỹ** | 2351170617 | Cài đặt Thuật toán 4 (SAC/Baseline), Đánh giá Đối sánh & Báo cáo |
 
 ---
 
@@ -31,86 +32,80 @@
 
 ## 1. Giới thiệu (viết lại và tinh chỉnh)
 
-Trong bài toán điều khiển tự hành hiện đại, việc một phương tiện di chuyển an toàn, hiệu quả trên đường đua cao tốc phân làn đòi hỏi hệ thống phải đưa ra các quyết định theo thời gian thực để phản ứng linh hoạt với các chướng ngại vật xuất hiện bất ngờ. Thay vì tiếp cận hoàn toàn bằng các hệ luật cố định (Rule-based) thường cứng nhắc và kém thích nghi trong các tình huống bất định, **Học tăng cường (Reinforcement Learning - RL)** cung cấp một phương pháp luận mạnh mẽ: tác nhân tự học chính sách điều khiển tối ưu thông qua quá trình thử - sai, tương tác trực tiếp với môi trường để tối đa hóa phần thưởng tích lũy lâu dài.
+Trong bài toán điều khiển phương tiện tự hành (Autonomous Vehicles - AVs), việc xe di chuyển an toàn ở tốc độ cao trên đường cao tốc phân làn đòi hỏi hệ thống ra quyết định phải xử lý linh hoạt các tình huống bất ngờ như: phương tiện phía trước giảm tốc đột ngột, có xe gặp sự cố dừng khẩn cấp chắn làn (`damaged-car in running lanes`), hoặc mật độ giao thông biến thiên liên tục. Các phương pháp dựa trên tập luật truyền thống (Rule-based) thường cứng nhắc và không thể bao quát toàn bộ các kịch bản bất định trong thực tế. **Học tăng cường (Reinforcement Learning - RL)** là hướng tiếp cận ưu việt, cho phép các tác nhân tự động tối ưu hóa chính sách lái xe thông qua cơ chế tương tác thử - sai để tối đa hóa phần thưởng dài hạn.
 
-Dự án **"Nghiên cứu và Xây dựng Hệ thống Xe tự lái Né tránh Chướng ngại vật theo Làn sử dụng Học tăng cường"** (tên phần mềm: **LaneRace-RL**) hướng tới xây dựng một hệ thống hoàn chỉnh:
-- **Môi trường giả lập giao thông phân làn chuẩn mực:** Đường đua gồm 3-4 làn xe, có sự xuất hiện ngẫu nhiên của các chướng ngại vật tĩnh và các phương tiện di chuyển với vận tốc biến thiên.
-- **Tác nhân tự hành thông minh:** Điều khiển xe tự động tiến về phía trước, đưa ra quyết định chuyển làn (Trái, Phải, Giữ làn) kết hợp điều chỉnh tốc độ (Tăng tốc, Giảm tốc) nhằm đảm bảo ba mục tiêu song hành: **An toàn tuyệt đối (Safety)**, **Duy trì tốc độ cao (Speed & Progress)** và **Độ êm dịu, ổn định làn đường (Comfort & Stability)**.
-- **Hệ thống đánh giá đối sánh đa thuật toán:** Triển khai và so sánh hiệu năng của 4 phương pháp học tăng cường tiêu biểu (DQN, Double Dueling DQN, PPO, DDPG/Baseline) trên cùng một chuẩn đánh giá thống nhất.
+Trên cơ sở định hướng nghiên cứu của Bộ môn và tham khảo trực tiếp công trình mô phỏng [[thanhlnt/marl4av]](https://github.com/thanhlnt/marl4av) của **TS. Lê Nguyễn Tuấn Thành** (Khoa CNTT - Trường Đại học Thủy Lợi), đề tài của nhóm tập trung vào các mục tiêu then chốt:
+1. **Ứng dụng nền tảng mô phỏng đường cao tốc đa làn `marl4av` (NetLogo 6.4.0):** Tận dụng engine mô phỏng giao thông đa tác nhân 2D/3D trực quan, tái hiện chân thực đường cao tốc hai chiều nhiều làn, cơ chế xe hỏng chắn đường ngẫu nhiên và sự phối hợp giữa các phương tiện.
+2. **Kiến trúc module hóa độc lập (Python RL Core):** Thay vì viết mã nhúng phức tạp trong NetLogo, nhóm tái cấu trúc hệ thống bằng cách tách toàn bộ thuật toán RL thành các module Python độc lập (`algorithms/`) giao tiếp với NetLogo qua cầu nối `rl_bridge.py`.
+3. **Phát triển và đối sánh đa thuật toán:** Cài đặt, sửa lỗi và tối ưu hóa 4 thuật toán RL tiêu biểu gồm: **DQN**, **Double Dueling DQN**, **PPO-Clip**, **Soft Actor-Critic (SAC)** cùng mốc chuẩn **Rule-based Baseline**.
 
 ---
 
 ## 2. Biểu diễn MDP của bài toán (viết lại và tinh chỉnh)
 
-Bài toán điều khiển xe tự lái né tránh chướng ngại vật theo làn được hình thức hóa thành một **Quy trình Quyết định Markov (Markov Decision Process - MDP)** biểu diễn bởi bộ 5 thành phần: $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$.
+Bài toán được chuẩn hóa thành một **Quy trình Quyết định Markov (Markov Decision Process - MDP)** biểu diễn dưới dạng bộ 5 thành phần: $\mathcal{M} = \langle \mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma \rangle$, bám sát cấu trúc dữ liệu của môi trường `Expressways.nlogo`:
 
 ```
-               +-------------------------------------------+
-               |             MÔI TRƯỜNG (Track)            |
-               | - Đường 3 làn (Trái, Giữa, Phải)          |
-               | - Chướng ngại vật ngẫu nhiên / chuyển động|
-               +-------------------------------------------+
-                       ^ Trạng thái s_t        | Phần thưởng r_t
-                       |                       v
-               +-------------------------------------------+
-               |             TÁC NHÂN (Ego Car)            |
-               | - Quyết định hành động a_t                |
-               | - Cập nhật chính sách π(a|s) hoặc Q(s, a) |
-               +-------------------------------------------+
+               +------------------------------------------------------+
+               |             MÔI TRƯỜNG MÔ PHỎNG NETLOGO              |
+               | - Đường cao tốc phân làn (3 làn xe mỗi chiều)        |
+               | - Xe gặp sự cố chắn làn (damaged-cars, v = 0)        |
+               +------------------------------------------------------+
+                         ^ Trạng thái s_t          | Phần thưởng r_t
+                         |                         v
+               +------------------------------------------------------+
+               |          TÁC NHÂN RL CORE (rl_bridge.py)             |
+               | - Lựa chọn hành động a_t (0: Decel, 1: Stay, 2: Acc, 3: Lane)|
+               | - Cập nhật mạng nơ-ron Q-Network / Actor-Critic      |
+               +------------------------------------------------------+
 ```
 
 ### 2.1. Không gian Trạng thái ($\mathcal{S}$ - State Space)
-Tại mỗi bước thời gian $t$, tác nhân quan sát một vector trạng thái liên tục kết hợp giữa thông số động học nội tại và dữ liệu cảm biến không gian phía trước:
+Tại mỗi bước thời gian $t$, mỗi xe quan sát vector trạng thái đặc trưng cho động học bản thân và môi trường xung quanh:
 
-$$s_t = \left[ l_t, \tilde{v}_t, \tilde{d}_{left}, \tilde{d}_{mid}, \tilde{d}_{right}, \Delta \tilde{v}_{left}, \Delta \tilde{v}_{mid}, \Delta \tilde{v}_{right} \right]^T \in \mathbb{R}^8$$
+$$s_t = \left[ v_t, d_{ahead}, \Delta v_{ahead}, d_{behind}, \Delta v_{behind} \right]^T \in \mathbb{R}^5$$
 
-Chi tiết các biến quan sát:
-1. **$l_t \in \{0.0, 0.5, 1.0\}$**: Vị trí chỉ số làn xe hiện tại (chuẩn hóa từ các làn rời rạc $\{0, 1, 2\}$ tương ứng Làn Trái, Làn Giữa, Làn Phải).
-2. **$\tilde{v}_t = \frac{v_t - v_{\min}}{v_{\max} - v_{\min}} \in [0, 1]$**: Vận tốc tức thời của xe tự hành được chuẩn hóa về đoạn $[0, 1]$ ($v_{\min} = 10\text{ m/s}$, $v_{\max} = 30\text{ m/s}$).
-3. **$\tilde{d}_i = \frac{d_i}{D_{\max}} \in [0, 1]$** $(i \in \{left, mid, right\})$: Khoảng cách dọc tương đối từ xe đến chướng ngại vật gần nhất phía trước trên làn $i$ trong tầm quét tối đa $D_{\max} = 80\text{ m}$. Nếu làn không có vật cản, $\tilde{d}_i = 1.0$.
-4. **$\Delta \tilde{v}_i = \frac{v_t - v_{obs, i}}{v_{\max}} \in [-1, 1]$**: Tốc độ tương đối giữa xe tự hành và chướng ngại vật trên làn $i$ (giúp tác nhân phân biệt vật cản đứng yên hay xe đang chạy cùng chiều).
+1. **$v_t \in [0, 1.0]$**: Tốc độ tức thời của xe (tương ứng từ $0$ đến $120\text{ km/h}$).
+2. **$d_{ahead} \in [0, D_{\max}]$**: Khoảng cách dọc tới xe/chướng ngại vật gần nhất phía trước trên cùng làn chạy.
+3. **$\Delta v_{ahead} = v_t - v_{ahead}$**: Tốc độ tương đối so với xe phía trước (giúp xe phát hiện sớm vật cản đứng yên $v_{ahead} = 0$).
+4. **$d_{behind} \in [0, D_{\max}]$**: Khoảng cách an toàn tới xe bám đuôi phía sau (phục vụ quyết định chuyển làn an toàn).
+5. **$\Delta v_{behind} = v_{behind} - v_t$**: Tốc độ tương đối của xe phía sau đang tiến lại.
 
 ### 2.2. Không gian Hành động ($\mathcal{A}$ - Action Space)
-Không gian hành động rời rạc (Discrete Action Space) gồm 5 hành vi điều khiển trực tiếp:
+Không gian hành động rời rạc (Discrete Action Space) gồm 4 hành vi cơ bản theo đúng chuẩn của `marl4av`:
 
-$$\mathcal{A} = \{a_0, a_1, a_2, a_3, a_4\}$$
+$$\mathcal{A} = \{0, 1, 2, 3\}$$
 
-- **$a_0$ (Keep Lane & Pace):** Giữ nguyên làn hiện tại và duy trì tốc độ.
-- **$a_1$ (Lane Change Left - LCL):** Chuyển sang làn bên trái (nếu đang ở làn ngoài cùng bên trái, xe giữ nguyên làn và nhận phạt vi phạm lề).
-- **$a_2$ (Lane Change Right - LCR):** Chuyển sang làn bên phải (nếu đang ở làn ngoài cùng bên phải, xe giữ nguyên làn và nhận phạt vi phạm lề).
-- **$a_3$ (Accelerate):** Tăng tốc một lượng $\Delta v = 1.5\text{ m/s}^2 \cdot \Delta t$ (không vượt quá $v_{\max}$).
-- **$a_4$ (Decelerate/Brake):** Giảm tốc/phanh một lượng $\Delta v = 2.5\text{ m/s}^2 \cdot \Delta t$ (không thấp hơn $v_{\min}$).
+- **$a = 0$ (Accelerate / Tăng tốc):** Tăng tốc một lượng $\Delta v$ (màu xe chuyển xanh lá - `green`).
+- **$a = 1$ (Stay Same / Giữ nguyên):** Duy trì tốc độ và giữ nguyên làn chạy (màu xe vàng - `yellow`).
+- **$a = 2$ (Decelerate / Giảm tốc):** Giảm tốc độ để giữ khoảng cách an toàn (màu xe tím - `violet`).
+- **$a = 3$ (Change Lane / Chuyển làn):** Tìm kiếm và chuyển sang làn trống lân cận để vượt xe cản (màu xe xanh dương - `blue`).
 
 ### 2.3. Hàm Xác suất Chuyển trạng thái ($\mathcal{P}$ - Transition Probability)
-Hàm chuyển trạng thái $\mathcal{P}(s_{t+1} \mid s_t, a_t)$ kết hợp giữa động học tất định của xe và cơ chế ngẫu nhiên của môi trường:
-- **Động học chuyển động của xe:**
-  $$x_{t+1} = x_t + v_t \cdot \Delta t, \quad v_{t+1} = \text{clip}(v_t + a_t \cdot \Delta t, v_{\min}, v_{\max})$$
-  Tọa độ ngang di chuyển trơn giữa các tâm làn trong thời gian đệm chuyển làn.
-- **Cơ chế môi trường & Vật cản:**
-  Vật cản di chuyển với vận tốc riêng $x_{obs, t+1} = x_{obs, t} + v_{obs} \cdot \Delta t$. Khi vật cản đi ra sau đuôi xe, hệ thống Spawner sẽ giải phóng và tự động sinh ngẫu nhiên vật cản mới ở khoảng cách xa phía trước theo tiến trình Poisson, đảm bảo môi trường luôn biến thiên động.
+- **Động học di chuyển:** Xe cập nhật vị trí tiến $x_{t+1} = x_t + v_t \times \text{speed-ratio}$. Khi chuyển làn, xe chuyển đổi mượt mà tọa độ ngang $y$ về tâm làn mục tiêu `target-lane`.
+- **Cơ chế chướng ngại vật ngẫu nhiên:** Xe ngẫu nhiên gặp sự cố với xác suất `prob-damaged-car` dừng đột ngột trên làn chạy ($v = 0$). Xe phía sau phải tự động phanh hoặc chuyển làn để tránh va chạm.
 
 ### 2.4. Hàm Phần thưởng ($\mathcal{R}$ - Reward Function)
-Hàm phần thưởng được định hình đa mục tiêu (Multi-objective Reward Shaping):
+Hàm phần thưởng được tinh chỉnh đa mục tiêu (Multi-objective Reward Shaping) thay thế cho hàm thưởng rời rạc thô sơ ban đầu trong `Expressways.nlogo`:
 
-$$R(s_t, a_t, s_{t+1}) = R_{progress} + R_{collision} + R_{safety} + R_{weaving} + R_{boundary}$$
+$$R(s_t, a_t, s_{t+1}) = R_{collision} + R_{progress} + R_{safety} + R_{action}$$
 
-Trong đó:
-- **Thưởng tiến độ & duy trì tốc độ cao ($R_{progress}$):**
-  $$R_{progress} = +1.0 \times \frac{v_{t+1}}{v_{\max}}$$
+Chi tiết:
+- **Phạt va chạm ($R_{collision}$):**
+  $$R_{collision} = -100.0 \quad \text{khi khoảng cách } d_{ahead} < \text{collision-distance}$$
+- **Thưởng tiến độ theo vận tốc ($R_{progress}$):**
+  $$R_{progress} = +2.0 \times \frac{v_t}{v_{\max}}$$
   *Khuyến khích xe duy trì tốc độ cao khi đường thông thoáng.*
-- **Phạt va chạm ($R_{collision}$ - Terminal Penalty):**
-  $$R_{collision} = -100.0 \quad \text{(kết thúc ngay Episode khi đâm va vật cản)}$$
 - **Phạt khoảng cách nguy hiểm ($R_{safety}$):**
-  $$R_{safety} = -0.5 \times \exp\left(-\frac{d_{front}}{d_{safe}}\right) \quad \text{khi } d_{front} < d_{safe} = 25\text{ m}$$
-  *Khuyến khích xe chủ động phanh hoặc chuyển làn từ xa thay vì phản ứng bị động ở phút chót.*
-- **Phạt chuyển làn liên tục ($R_{weaving}$):**
-  $$R_{weaving} = -0.05 \times \mathbb{I}(a_t \in \{LCL, LCR\})$$
-  *Tránh hiện tượng xe đảo làn zigzag liên tục khi đường thoáng.*
-- **Phạt vượt lề đường ($R_{boundary}$):**
-  $$R_{boundary} = -2.0 \quad \text{nếu rẽ trái khi ở làn 0 hoặc rẽ phải khi ở làn 2.}$$
+  $$R_{safety} = -1.0 \times \exp\left(-\frac{d_{ahead}}{d_{safe}}\right) \quad \text{khi } d_{ahead} < d_{safe} = 2.5\text{ m}$$
+- **Phạt/Thưởng hành vi điều khiển ($R_{action}$):**
+  - Tăng tốc hợp lý ($a=0$): $+1.0$.
+  - Duy trì ổn định ($a=1$): $+0.5$.
+  - Giảm tốc do vật cản ($a=2$): $-0.2$.
+  - Đổi làn ($a=3$): $-0.5$ *(phạt nhẹ để tránh hiện tượng đảo làn zigzag liên tục khi không cần thiết)*.
 
 ### 2.5. Hệ số Chiết khấu ($\gamma$ - Discount Factor)
-- Chọn **$\gamma = 0.99$**: Giúp tác nhân đánh giá cao lợi ích dài hạn, có tầm nhìn chiến lược để chủ động đổi làn sớm từ xa thay vì tích lũy sai số và va chạm khi đến cự ly gần.
+- Chọn **$\gamma = 0.99$**: Định hướng tác nhân quan sát từ xa, dự đoán trước nguy cơ tắc nghẽn để chuyển làn sớm thay vì chỉ phanh gấp ở cự ly gần.
 
 ---
 
@@ -120,24 +115,25 @@ Trong đó:
 
 ```mermaid
 graph TD
-    Root["Hệ thống Mô phỏng Xe tự lái LaneRace-RL"]
+    Root["Hệ thống Mô phỏng Xe tự lái Né vật cản (marl4av + Python RL)"]
     
-    Root --> M1["1. Quản lý Môi trường Đường đua"]
-    M1 --> M1_1["1.1 Thiết lập làn đường & vạch kẻ"]
-    M1 --> M1_2["1.2 Sinh chướng ngại vật ngẫu nhiên (Spawner)"]
-    M1 --> M1_3["1.3 Tính toán va chạm (AABB Collision)"]
-    M1 --> M1_4["1.4 Cảm biến ảo đo khoảng cách (Raycast/Radar)"]
+    Root --> M1["1. Module Mô phỏng Giao thông (NetLogo)"]
+    M1 --> M1_1["1.1 Khởi tạo đường cao tốc (3 làn mỗi chiều)"]
+    M1 --> M1_2["1.2 Sinh xe và cơ chế xe hỏng chắn làn (damaged-cars)"]
+    M1 --> M1_3["1.3 Tính toán va chạm (collision-distance)"]
+    M1 --> M1_4["1.4 Cảm biến quét vật cản trước & sau (cone-view)"]
+    M1 --> M1_5["1.5 Giao diện 2D/3D & Biểu đồ theo dõi (Plot)"]
 
-    Root --> M2["2. Huấn luyện Tác nhân RL"]
-    M2 --> M2_1["2.1 Bộ nhớ đệm Replay Buffer & Trajectory"]
-    M2 --> M2_2["2.2 Mạng nơ-ron Q-Network / Actor-Critic"]
-    M2 --> M2_3["2.3 Thuật toán tối ưu (Adam, Epsilon-greedy, PPO-Clip)"]
-    M2 --> M2_4["2.4 Lưu trữ & tải Checkpoint mô hình"]
+    Root --> M2["2. Module Cầu nối Trung gian (rl_bridge.py)"]
+    M2 --> M2_1["2.1 Khởi tạo Model theo cấu hình NetLogo"]
+    M2 --> M2_2["2.2 Nhận trạng thái states và trả về actions"]
+    M2 --> M2_3["2.3 Đóng gói kinh nghiệm (s, a, r, s') gửi tới thuật toán"]
 
-    Root --> M3["3. Giám sát & Dashboard Trực quan"]
-    M3 --> M3_1["3.1 Render đường đua thời gian thực (Pygame / Canvas)"]
-    M3 --> M3_2["3.2 Biểu đồ Loss, Reward, Survival Rate"]
-    M3 --> M3_3["3.3 Chế độ tương tác người chơi (Human Play)"]
+    Root --> M3["3. Module Lõi Thuật toán (algorithms/)"]
+    M3 --> M3_1["3.1 DQNAgent (Target Network, Replay Buffer)"]
+    M3 --> M3_2["3.2 DoubleDuelingDQNAgent (Value & Advantage streams)"]
+    M3 --> M3_3["3.3 PPOAgent (Actor-Critic, PPO-Clip, GAE)"]
+    M3 --> M3_4["3.4 SACAgent (Twin Q, Max Entropy) & BaselineAgent"]
 ```
 
 ### 3.2. Biểu đồ Ca Sử dụng (Use Case Diagram - UCD)
@@ -145,91 +141,87 @@ graph TD
 ```mermaid
 graph LR
     User((Người dùng / Nghiên cứu viên))
-    Agent((Tác nhân AI / Agent))
+    NetLogo((Engine Mô phỏng NetLogo))
+    RLCore((Lõi Thuật toán Python))
 
-    subgraph System ["LaneRace-RL Platform"]
-        UC1["Cấu hình siêu tham số môi trường & RL"]
-        UC2["Khởi chạy / Tạm dừng huấn luyện"]
-        UC3["Theo dõi biểu đồ Loss, Reward, Tỷ lệ va chạm"]
-        UC4["Thực nghiệm chế độ Human Play vs AI"]
-        UC5["Quan sát trạng thái s_t và chọn hành động a_t"]
-        UC6["Nhận phần thưởng r_t và chuyển trạng thái s_t+1"]
-        UC7["Lưu / Tải Checkpoint mô hình (.pth)"]
+    subgraph Simulation_Platform ["Môi trường marl4av"]
+        UC1["Chọn chính sách lái (driving-policy)"]
+        UC2["Điều chỉnh tham số môi trường (số làn, prob-damaged-car)"]
+        UC3["Khởi chạy mô phỏng (Setup / Go)"]
+        UC4["Quan sát trực quan 2D/3D & Biểu đồ Tốc độ / Va chạm"]
+    end
+
+    subgraph RL_Interaction ["Tương tác Học tăng cường"]
+        UC5["Thu thập trạng thái cảm biến states"]
+        UC6["Truy vấn hành động select_actions()"]
+        UC7["Thực thi di chuyển & tính hàm thưởng get-reward"]
+        UC8["Kích hoạt cập nhật trọng số update_agent()"]
     end
 
     User --> UC1
     User --> UC2
     User --> UC3
     User --> UC4
-    User --> UC7
 
-    Agent --> UC5
-    Agent --> UC6
+    NetLogo --> UC5
+    UC5 --> UC6
+    UC6 --> RLCore
+    RLCore --> UC7
+    UC7 --> UC8
+    UC8 --> RLCore
 ```
 
 ---
 
 ## 4. Thiết kế kiến trúc môi trường thử nghiệm
 
-Hệ thống môi trường thử nghiệm được thiết kế theo chuẩn module hóa cao, kế thừa từ lớp cơ sở `gymnasium.Env` của thư viện Gymnasium (OpenAI Gym):
+Hệ thống được thiết kế theo mô hình kiến trúc phân tầng kết hợp giữa **Môi trường mô phỏng trực quan (NetLogo Engine)** và **Lõi thuật toán học máy phân tán (Python RL Engine)**:
 
 ```mermaid
 graph TD
-    subgraph Core_Environment ["LaneRace-RL Gymnasium Core (Python)"]
-        TrackManager["Track & Lane Manager\nQuản lý 3 làn, tọa độ y_lane, chiều rộng 4m"]
-        ObstacleSpawner["Obstacle Spawner\nSinh xe cản tĩnh/động, tốc độ 10-22 m/s"]
-        Kinematics["Kinematics & Collision Engine\nTính tọa độ xe, kiểm tra va chạm Bounding-Box"]
-        SensorModule["Sensor & State Processor\nQuét khoảng cách & tốc độ vật cản 3 làn"]
+    subgraph NetLogo_Simulation ["Tầng Mô phỏng (Expressways.nlogo)"]
+        GUI["Giao diện GUI (Dropdown Policy, Sliders, 3D View)"]
+        TrackEngine["Engine Đường cao tốc (3 làn, vạch kẻ, dynamic traffic)"]
+        ObstacleEngine["Cơ chế sinh xe hỏng chắn làn (damaged-cars, v = 0)"]
+        SensorEngine["Cảm biến quét vật cản (get-distance-to-car ahead/behind)"]
+        RewardCalc["Hàm thưởng cải tiến (get-reward)"]
     end
 
-    subgraph RL_Interface ["Giao diện Chuẩn Gymnasium"]
-        StepFn["step(action)"]
-        ResetFn["reset()"]
-        StateReward["Output: s_t+1, r_t, terminated, truncated, info"]
+    subgraph Bridge_Layer ["Tầng Cầu nối Trung gian (rl_bridge.py)"]
+        InitFn["init_agent(policy_name, state_size, action_size, lr)"]
+        ActionFn["select_actions(states, epsilon)"]
+        UpdateFn["update_agent(states, actions, rewards, next_states)"]
     end
 
-    subgraph Visualization_Module ["Trực quan hóa & Giám sát"]
-        PygameRender["Pygame Desktop Renderer"]
-        WebSocketBridge["FastAPI / WebSocket Telemetry Bridge"]
-        WebDashboard["React / HTML5 Canvas Web Dashboard"]
+    subgraph Python_RL_Core ["Tầng Lõi Thuật toán Độc lập (algorithms/)"]
+        DQN["algorithms/dqn_agent.py\n(Dương Quốc Vượng)"]
+        DDQN["algorithms/ddqn_agent.py\n(Ngô Tuấn Anh)"]
+        PPO["algorithms/ppo_agent.py\n(Nguyễn Hồng Thái)"]
+        SAC_Baseline["algorithms/sac_agent.py & baseline_agent.py\n(Nguyễn Khắc Sỹ)"]
     end
 
-    StepFn --> Kinematics
-    Kinematics --> TrackManager
-    Kinematics --> ObstacleSpawner
-    ObstacleSpawner --> SensorModule
-    SensorModule --> StateReward
-    Kinematics --> PygameRender
-    Kinematics --> WebSocketBridge
-    WebSocketBridge --> WebDashboard
+    GUI --> TrackEngine
+    TrackEngine --> ObstacleEngine
+    ObstacleEngine --> SensorEngine
+    SensorEngine --> ActionFn
+    ActionFn --> Bridge_Layer
+    Bridge_Layer --> DQN
+    Bridge_Layer --> DDQN
+    Bridge_Layer --> PPO
+    Bridge_Layer --> SAC_Baseline
+    RewardCalc --> UpdateFn
+    UpdateFn --> Bridge_Layer
 ```
-
-### Đặc tả kỹ thuật các thành phần chính:
-1. **`Track & Lane Manager`**: Quản lý hệ thống tọa độ thế giới phẳng. Đường cao tốc gồm 3 làn cố định (chiều rộng mỗi làn $w = 4\text{ m}$), vạch đứt phân làn trôi ngược chiều tạo hiệu ứng di chuyển.
-2. **`Obstacle Spawner`**: Tạo ra các loại chướng ngại vật:
-   - *Vật cản tĩnh:* Chướng ngại vật đứng yên trên làn (xe hỏng, thùng hàng).
-   - *Vật cản động:* Xe khác di chuyển với tốc độ $v_{obs} \in [12, 22]\text{ m/s}$ (chậm hơn vận tốc tối đa của Ego-car).
-3. **`Sensor / State Processor`**: Giả lập 3 chùm tia radar hướng thẳng dọc theo tâm 3 làn phía trước xe với tầm xa cực đại $D_{\max} = 80\text{ m}$, tính toán chính xác khoảng cách và hiệu vận tốc.
-4. **`Gym Interface`**:
-   - `reset()`: Đặt lại trạng thái ban đầu, xe ở giữa đường (làn 1), vận tốc ban đầu $15\text{ m/s}$.
-   - `step(action)`: Cập nhật động học trong bước thời gian $\Delta t = 0.1\text{ s}$, trả về $(s_{t+1}, r_t, terminated, truncated, info)$.
-   - `render()`: Hiển thị đồ họa thời gian thực qua Pygame hoặc truyền dữ liệu tọa độ qua WebSocket.
 
 ---
 
-## 5. Các thiết kế khác và Nghiên cứu tham khảo môi trường MARL4AV
+## 5. Các cải tiến và sửa lỗi trên mã nguồn gốc MARL4AV
 
-Trong quá trình hoàn thiện môi trường, nhóm đã tiến hành khảo sát và nghiên cứu mã nguồn mở [[thanhlnt/marl4av: Multi-agent reinforcement learning for autonomous vehicles]](https://github.com/thanhlnt/marl4av) của **TS. Lê Nguyễn Tuấn Thành** (Khoa CNTT - Đại học Thủy Lợi).
-
-### 5.1. Phân tích mô hình `marl4av`:
-- **Nền tảng:** Xây dựng trên môi trường mô phỏng NetLogo 6.4.0 kết hợp Python extension (`extensions [py]`).
-- **Kịch bản:** Mô phỏng đường cao tốc hai chiều nhiều làn (`Expressways.nlogo`), có xe bị sự cố chắn trên làn (`damaged-car in running lanes`), mật độ xe thay đổi động (`dynamic-situation?`).
-- **Tập thuật toán:** Tích hợp sẵn khung cài đặt cho cả phương pháp dạng bảng (Greedy, Q-Learning, Double Q-Learning, SARSA) và học sâu (Deep Q-Network, Double Deep Q-Network, Naive Actor-Critic, A2C, SAC, PPO) qua thư viện TensorFlow/Keras.
-
-### 5.2. Giá trị kế thừa và áp dụng cho đề tài của nhóm:
-1. **Chuẩn hóa hàm quan sát:** Nhóm kế thừa ý tưởng theo dõi khoảng cách và tốc độ tương đối giữa xe và chướng ngại vật trước/sau (`distance/speed to car ahead & behind`) của `marl4av` để hoàn thiện vector trạng thái $\mathbb{R}^8$.
-2. **Cơ chế chướng ngại vật:** Mô hình xe gặp sự cố đứng chắn trên làn đường (`damaged-car`) từ `marl4av` được nhóm chuyển hóa thành cơ chế Spawner vật cản bất ngờ, phản ánh đúng bài toán thực tế.
-3. **Định hướng mở rộng Multi-Agent:** Trong các pha nghiên cứu tiếp theo, nhóm có thể mở rộng từ bài toán đơn tác nhân (Single-Agent) sang môi trường phối hợp đa xe (MARL) dựa trên kiến trúc của `marl4av`.
+Trong quá trình tiếp nhận và phân tích mã nguồn `Expressways.nlogo`, nhóm đã phát hiện và khắc phục các vấn đề kỹ thuật quan trọng:
+1. **Sửa lỗi cú pháp trong SAC:** Trong mã gốc tại dòng 759 có lỗi `self.value_net(states)` (dính từ khóa `self` của class Python hướng đối tượng). Nhóm đã tách hoàn chỉnh thành class `SACAgent` chuẩn trong `algorithms/sac_agent.py`.
+2. **Hoàn thiện thuật toán PPO-Clip:** Mã gốc của `go-ppo` chỉ là hàm mất mát Policy Gradient cơ bản (Actor loss = $- \log \pi \times \delta$). Nhóm đã nâng cấp cài đặt đầy đủ công thức **Clipped Surrogate Loss** kèm **Generalized Advantage Estimation (GAE)** trong `algorithms/ppo_agent.py`.
+3. **Nâng cấp kiến trúc Dueling Network:** Bổ sung kiến trúc Dueling tách 2 nhánh Value $V(s)$ và Advantage $A(s, a)$ trong `algorithms/ddqn_agent.py`.
+4. **Tối ưu hóa Hàm phần thưởng:** Thay thế cách cho điểm rời rạc bằng hàm thưởng liên tục theo vận tốc, khoảng cách an toàn và độ ổn định làn đường.
 
 ---
 
@@ -239,275 +231,214 @@ Cập nhật tiến độ dự án, khối lượng công việc và mức độ
 
 | STT | Thành viên | Mã SV | Nhiệm vụ phân công | Khối lượng công việc đã hoàn thành | Tỷ lệ hoàn thành | Đánh giá & Kế hoạch tuần tới |
 | :---: | :--- | :---: | :--- | :--- | :---: | :--- |
-| **1** | **Nguyễn Đình Tuấn Sơn** | 2351170616 | **Xây dựng Môi trường & Điều phối** | - Xây dựng lớp cơ sở `LaneEnv` kế thừa Gymnasium.<br>- Thiết lập kích thước 3 làn đường và logic cập nhật tọa độ xe.<br>- Thống nhất cấu trúc State-Action interface cho toàn nhóm. | **85%** | **Tốt**; Hoàn thiện hàm `render()` bằng Pygame và module kiểm tra va chạm Bounding-Box. |
-| **2** | **Nguyễn Khắc Sỹ** | 2351170617 | **Quản lý Vật cản & Cảm biến** | - Hoàn thành module `obstacle_manager.py` sinh xe cản ngẫu nhiên.<br>- Cài đặt module `state_processor.py` đo khoảng cách và chuẩn hóa vector $\mathbb{R}^8$. | **80%** | **Tốt**; Cân chỉnh xác suất sinh vật cản theo độ khó tăng dần (Curriculum Learning). |
-| **3** | **Dương Quốc Vượng** | 2351170634 | **Cài đặt Thuật toán 1 (DQN)** | - Cài đặt kiến trúc mạng Q-Network bằng PyTorch.<br>- Viết lớp `ReplayBuffer` và cơ chế suy giảm $\epsilon$-greedy.<br>- Test kiểm thử vòng lặp huấn luyện độc lập thành công. | **75%** | **Khá tốt**; Kết nối mạng DQN vào môi trường `LaneEnv` để bắt đầu huấn luyện. |
-| **4** | **Ngô Tuấn Anh** | 2351170570 | **Cài đặt Thuật toán 2 (Double Dueling DQN)** | - Thiết kế kiến trúc mạng Dueling (tách 2 nhánh $V(s)$ và $A(s, a)$).<br>- Cài đặt thuật toán cập nhật mục tiêu Double Q-Learning.<br>- Thiết lập cấu hình TensorBoard theo dõi Loss và Reward. | **70%** | **Khá tốt**; Bắt đầu tinh chỉnh siêu tham số ($\alpha = 10^{-4}$, $\text{batch} = 64$, $\tau = 0.005$). |
-| **5** | **Nguyễn Hồng Thái** | 2351170619 | **Cài đặt Thuật toán 3 (PPO)** | - Viết khung lớp mạng Actor-Critic đa tầng.<br>- Cài đặt hàm mục tiêu PPO-Clip và thuật toán tính lợi thế GAE.<br>- Xây dựng bộ đệm lưu trữ quỹ đạo $N$-steps. | **65%** | **Khá**; Tích hợp chính sách lấy mẫu hành động phân loại (Categorical Distribution) vào `LaneEnv`. |
-| **6** | **Lê Tuấn Khanh** | 2351170601 | **Thuật toán 4 / Baseline & Báo cáo** | - Cài đặt thuật toán Heuristic Rule-based làm mốc đối sánh chuẩn (Baseline).<br>- Thiết kế cấu trúc thư mục lưu log thực nghiệm (Reward, Collision Rate, Survival Steps).<br>- Tổng hợp báo cáo TH2 và chuẩn bị slide trình chiếu. | **80%** | **Tốt**; Xây dựng kịch bản so sánh đối sánh hiệu năng tự động giữa các thuật toán. |
+| **1** | **Nguyễn Đình Tuấn Sơn** *(Trưởng nhóm)* | 2351170616 | **Cấu hình Môi trường & Tích hợp NetLogo** | - Clone mã nguồn `marl4av`, cài đặt NetLogo 6.4.0 và cấu hình Python bridge `py:setup`.<br>- Thiết lập cấu trúc đường cao tốc 3 làn và cơ chế xe di chuyển.<br>- Xây dựng file cầu nối trung gian `rl_bridge.py`. | **85%** | **Tốt**; Hoàn thiện tích hợp gọi `rl_bridge` trong file `Expressways.nlogo`. |
+| **2** | **Lê Tuấn Khanh** | 2351170601 | **Quản lý Vật cản, Cảm biến & Hàm thưởng** | - Cấu hình kịch bản chướng ngại vật `prob-damaged-car` (xe hỏng dừng trên làn).<br>- Tinh chỉnh hàm thưởng `get-reward` theo mô hình MDP đa mục tiêu.<br>- Thiết lập các biểu đồ Plot (Average Speed, Collisions) trên NetLogo GUI. | **80%** | **Tốt**; Cân chỉnh xác suất sinh xe hỏng theo các mức độ khó để huấn luyện. |
+| **3** | **Dương Quốc Vượng** | 2351170634 | **Cài đặt Thuật toán 1 (DQN)** | - Tách và hoàn thiện class `DQNAgent` trong file `algorithms/dqn_agent.py`.<br>- Cài đặt mạng Q-Network, Target Network, Replay Buffer và $\epsilon$-greedy.<br>- Chạy kiểm thử độc lập qua `test_all_agents.py` đạt kết quả hội tụ tốt. | **80%** | **Tốt**; Tinh chỉnh siêu tham số chu kỳ cập nhật `update_steps` và kích thước batch. |
+| **4** | **Ngô Tuấn Anh** | 2351170570 | **Cài đặt Thuật toán 2 (Double Dueling DQN)** | - Tách và hoàn thiện class `DoubleDuelingDQNAgent` trong `algorithms/ddqn_agent.py`.<br>- Sử dụng Keras Functional API tách 2 nhánh Value $V(s)$ và Advantage $A(s, a)$.<br>- Cài đặt cơ chế cập nhật mềm (Soft Update) Target Network với $\tau = 0.005$. | **75%** | **Khá tốt**; Chạy thực nghiệm so sánh giảm thiểu Overestimation so với DQN. |
+| **5** | **Nguyễn Hồng Thái** | 2351170619 | **Cài đặt Thuật toán 3 (PPO)** | - Tách và hoàn thiện class `PPOAgent` trong file `algorithms/ppo_agent.py`.<br>- Cài đặt chuẩn công thức Clipped Surrogate Loss ($r_t \hat{A}_t$ kẹp trong $[1-\epsilon, 1+\epsilon]$).<br>- Tích hợp thuật toán tính lợi thế GAE và lấy mẫu Categorical. | **75%** | **Khá tốt**; Huấn luyện PPO ổn định trên dữ liệu đa tác nhân mô phỏng. |
+| **6** | **Nguyễn Khắc Sỹ** | 2351170617 | **Thuật toán 4 (SAC/Baseline) & Báo cáo** | - Tách và hoàn thiện `SACAgent` (sửa triệt để lỗi cú pháp `self` của mã gốc).<br>- Viết tác nhân chuẩn đối sánh `RuleBasedAgent` trong `algorithms/baseline_agent.py`.<br>- Viết script kiểm thử chung `test_all_agents.py`, tổng hợp báo cáo TH2. | **80%** | **Tốt**; Thiết lập bảng thu thập số liệu đối sánh tốc độ và va chạm giữa các thuật toán. |
 
 ---
 
 # III. Mã giả các thuật toán dự kiến sử dụng
 
-Nhóm lựa chọn cài đặt **4 thuật toán** bao gồm 3 thuật toán học tăng cường sâu tiêu biểu và 1 thuật toán chuẩn đối sánh (Baseline) nhằm đánh giá toàn diện năng lực giải quyết bài toán:
+Nhóm triển khai **4 thuật toán học tăng cường sâu** và **1 thuật toán chuẩn đối sánh (Baseline)**, toàn bộ mã nguồn đã được đóng gói thành các class Python hoàn chỉnh trong thư mục `algorithms/`:
 
 ---
 
-## 1. Thuật toán 1: Deep Q-Network (DQN)
+## 1. Thuật toán 1: Deep Q-Network (DQN) - Dương Quốc Vượng phụ trách
 
 ### 1.1. Lý do lựa chọn:
-DQN (Mnih et al., 2015) là thuật toán nền tảng mang tính đột phá trong Học tăng cường sâu cho không gian hành động rời rạc. DQN sử dụng mạng nơ-ron xấp xỉ hàm giá trị hành động $Q(s, a; \theta)$, kết hợp hai kỹ thuật the chốt: **Bộ nhớ đệm phát lại kinh nghiệm (Experience Replay Buffer)** giúp xóa bỏ tương quan chuỗi thời gian giữa các mẫu, và **Target Network $Q(s, a; \theta^-)$** giúp cố định mục tiêu tính hàm tổn thất, ngăn ngừa hiện tượng phân kỳ khi cập nhật trọng số.
+DQN (Mnih et al., 2015) là thuật toán Value-based nền tảng cho không gian hành động rời rạc. DQN sử dụng mạng nơ-ron sâu xấp xỉ hàm giá trị tối ưu $Q^*(s, a)$, xóa bỏ tương quan chuỗi bằng **Experience Replay Buffer** và ổn định mục tiêu huấn luyện bằng **Target Network**:
 
-### 1.2. Mã giả thuật toán DQN:
+$$y_i = r + \gamma \max_{a'} Q_{\text{target}}(s', a'; \theta^-)$$
+
+### 1.2. Mã giả thuật toán (được đóng gói trong `algorithms/dqn_agent.py`):
 
 ```python
 # ==============================================================================
-# MÃ GIẢ: DEEP Q-NETWORK (DQN) CHO BÀI TOÁN XE TỰ LÁI NÉ CHƯỚNG NGẠI VẬT
+# MÃ GIẢ: CLASS DQNAGENT (algorithms/dqn_agent.py) - Dương Quốc Vượng
 # ==============================================================================
-Khởi tạo:
-    Bộ nhớ đệm Replay Buffer D với dung lượng tối đa N (ví dụ: N = 100,000)
-    Mạng Q-Network Q(s, a; θ) với trọng số ngẫu nhiên θ
-    Mạng Target Q-Network Q_target(s, a; θ_target) với trọng số θ_target = θ
-    Các siêu tham số: Tốc độ học α = 0.0003, hệ số chiết khấu γ = 0.99,
-                     Xác suất khám phá ban đầu ε = 1.0, ε_min = 0.05, hệ số suy giảm ε_decay = 0.995,
-                     Kích thước mini-batch B = 64, chu kỳ cập nhật Target Network C = 1000 bước
+Class DQNAgent:
+    Hàm khởi tạo __init__(state_size=5, action_size=4, lr=0.0005, memory_size=50000):
+        Khởi tạo Replay Buffer memory = []
+        Xây dựng mạng Q-Network chính: Dense(64, ReLU) -> Dense(64, ReLU) -> Dense(4, Linear)
+        Khởi tạo mạng Target Q-Network clone từ mạng chính
+        Biên dịch mạng với Optimizer = Adam(lr), Loss = MSE
 
-Lặp qua từng Episode e = 1, 2, ..., M:
-    Khởi tạo trạng thái môi trường: s = env.reset()
-    done = False
-    total_reward = 0
-
-    Trong khi chưa kết thúc (while not done):
-        # 1. Lựa chọn hành động theo chính sách ε-greedy
-        Sinh số ngẫu nhiên p ~ U(0, 1)
-        Nếu p < ε:
-            a = chọn ngẫu nhiên một hành động trong tập A = {0, 1, 2, 3, 4} (Khám phá)
+    Hàm chọn hành động act(states, epsilon):
+        Nếu random() < epsilon:
+            Trả về hành động ngẫu nhiên trong {0, 1, 2, 3} (Khám phá)
         Ngược lại:
-            a = argmax_a Q(s, a; θ) (Khai thác giá trị tối ưu hiện tại)
+            q_values = Q-Network.predict(states)
+            Trả về argmax(q_values) (Khai thác)
 
-        # 2. Thực thi hành động trên môi trường mô phỏng
-        s_next, r, terminated, truncated, info = env.step(a)
-        done = terminated or truncated
+    Hàm lưu kinh nghiệm remember(experiences):
+        Lưu các bộ (state, action, reward, next_state) của các xe vào memory
+        Nếu kích thước memory > memory_size: Cắt bỏ các mẫu cũ nhất
 
-        # 3. Lưu trữ mẫu chuyển tiếp vào Replay Buffer
-        Lưu tuple (s, a, r, s_next, done) vào D
-        s = s_next
-        total_reward += r
-
-        # 4. Huấn luyện mạng nơ-ron từ mini-batch ngẫu nhiên
-        Nếu số lượng mẫu trong D >= B:
-            Lấy ngẫu nhiên một mini-batch B mẫu (s_j, a_j, r_j, s'_j, done_j) từ D
+    Hàm huấn luyện train(batch_size=64, gamma=0.99):
+        Nếu len(memory) < batch_size: Thoát
+        Lấy ngẫu nhiên batch_size mẫu (s, a, r, s') từ memory
+        targets = Q-Network.predict(s)
+        next_q = Target_Network.predict(s')
+        
+        # Cập nhật mục tiêu Bellman
+        Với mỗi mẫu i trong batch:
+            targets[i, a[i]] = r[i] + gamma * max(next_q[i])
             
-            Với mỗi mẫu j trong batch:
-                Nếu done_j == True:
-                    y_j = r_j  # Trạng thái kết thúc (va chạm)
-                Ngược lại:
-                    y_j = r_j + γ * max_{a'} Q_target(s'_j, a'; θ_target)
-            
-            # Tính hàm mất mát Huber Loss / MSE
-            Loss = (1 / B) * Σ (y_j - Q(s_j, a_j; θ))^2
-            
-            # Cập nhật trọng số mạng chính θ bằng thuật toán Adam
-            θ = θ - α * ∇_θ Loss
-
-        # 5. Cập nhật định kỳ mạng Target
-        Mỗi C bước thời gian:
-            θ_target = θ
-
-    # Suy giảm xác suất khám phá epsilon sau mỗi Episode
-    ε = max(ε_min, ε * ε_decay)
-    Ghi log chỉ số: Episode e, Total_Reward, Loss, Epsilon
+        loss = Q-Network.train_on_batch(s, targets)
+        
+        # Cập nhật định kỳ mạng Target
+        step_count += 1
+        Nếu step_count % update_steps == 0:
+            Target_Network.set_weights(Q-Network.get_weights())
+        Trả về loss
 ```
 
 ---
 
-## 2. Thuật toán 2: Double Dueling DQN
+## 2. Thuật toán 2: Double Dueling DQN - Ngô Tuấn Anh phụ trách
 
 ### 2.1. Lý do lựa chọn:
-- **Double DQN (DDQN):** Khắc phục nhược điểm cốt tử của DQN là hiện tượng đánh giá quá cao giá trị hành động (Overestimation Bias). DDQN tách rời việc chọn hành động tốt nhất (sử dụng mạng chính $\theta$) và việc ước lượng giá trị của hành động đó (sử dụng mạng đích $\theta^-$):
-  $$y_i = r + \gamma Q\left(s', \arg\max_{a'} Q(s', a'; \theta); \theta^-\right)$$
-- **Dueling Architecture:** Chia lớp ẩn cuối thành hai nhánh song song: Nhánh ước lượng giá trị trạng thái $V(s)$ và Nhánh ước lượng lợi thế hành động $A(s, a)$:
-  $$Q(s, a) = V(s) + \left(A(s, a) - \frac{1}{|\mathcal{A}|}\sum_{a'} A(s, a')\right)$$
-  *Ý nghĩa thực tế:* Trên đường cao tốc, khi làn đường hoàn toàn thông thoáng, giá trị của trạng thái $V(s)$ là rất cao bất kể xe chọn giữ làn hay đổi làn. Việc tách riêng $V(s)$ giúp mạng học nhanh hơn và ổn định hơn rất nhiều.
+Khắc phục hiện tượng Overestimation Bias của DQN gốc bằng cơ chế **Double Q-Learning** (dùng mạng chính chọn hành động, mạng đích định giá trị). Đồng thời tích hợp **Dueling Architecture** tách 2 nhánh: Giá trị trạng thái $V(s)$ và Lợi thế hành động $A(s, a)$, đặc biệt hiệu quả khi xe di chuyển trên đoạn đường cao tốc thông thoáng:
 
-### 2.2. Mã giả thuật toán Double Dueling DQN:
+$$Q(s, a) = V(s) + \left( A(s, a) - \frac{1}{|\mathcal{A}|}\sum_{a'} A(s, a') \right)$$
+
+### 2.2. Mã giả thuật toán (được đóng gói trong `algorithms/ddqn_agent.py`):
 
 ```python
 # ==============================================================================
-# MÃ GIẢ: DOUBLE DUELING DQN CHO BÀI TOÁN XE TỰ LÁI NÉ CHƯỚNG NGẠI VẬT
+# MÃ GIẢ: CLASS DOUBLEDUELLINGDQNAGENT (algorithms/ddqn_agent.py) - Ngô Tuấn Anh
 # ==============================================================================
-Định nghĩa Kiến trúc Mạng Dueling Q-Network:
-    Đầu vào: State s (vector 8 chiều)
-    Khung xương chung: Dense(128, ReLU) -> Dense(128, ReLU)
-    Nhánh Giá trị V: Dense(64, ReLU) -> Dense(1) -> V(s)
-    Nhánh Lợi thế A: Dense(64, ReLU) -> Dense(|A| = 5) -> A(s, a)
-    Đầu ra Q(s, a) = V(s) + (A(s, a) - trung_bình_theo_a(A(s, a)))
+Class DoubleDuelingDQNAgent:
+    Hàm khởi tạo __init__(state_size=5, action_size=4, lr=0.0003, tau=0.005):
+        Xây dựng mạng Dueling Architecture:
+            Input(state_size) -> Dense(64, ReLU) -> Dense(64, ReLU)
+            Nhánh Value: Dense(32, ReLU) -> Dense(1) -> V(s)
+            Nhánh Advantage: Dense(32, ReLU) -> Dense(4) -> A(s, a)
+            Q(s, a) = V(s) + (A(s, a) - mean(A(s, a)))
+        Khởi tạo Target Network clone từ Dueling Network
 
-Khởi tạo:
-    Replay Buffer D, Mạng Dueling Q(s, a; θ), Mạng Target Q_target(s, a; θ_target)
-    Khởi tạo θ_target = θ, hệ số cập nhật mềm τ = 0.005, learning rate α = 0.0001
-
-Lặp qua từng Episode:
-    s = env.reset(), done = False
-    
-    Trong khi chưa done:
-        # Lựa chọn hành động ε-greedy
-        Nếu random() < ε: a = chọn ngẫu nhiên trong A
-        Ngược lại: a = argmax_a Q(s, a; θ)
-
-        s_next, r, terminated, truncated, _ = env.step(a)
-        done = terminated or truncated
-        Lưu (s, a, r, s_next, done) vào D
-        s = s_next
-
-        Nếu len(D) >= B:
-            Lấy mini-batch B mẫu (s_j, a_j, r_j, s'_j, done_j) từ D
-            
-            # --- Cốt lõi của Double Q-Learning ---
-            # 1. Dùng mạng chính θ để chọn hành động tối ưu cho trạng thái s':
-            a_best = argmax_{a'} Q(s'_j, a'; θ)
-            
-            # 2. Dùng mạng Target θ_target để định giá hành động a_best:
-            target_val = Q_target(s'_j, a_best; θ_target)
-            
-            y_j = r_j + (1 - done_j) * γ * target_val
-            
-            # Cập nhật mạng chính qua MSE Loss
-            Loss = MSE(Q(s_j, a_j; θ), y_j)
-            θ = Adam_Optimizer(θ, Loss)
-            
-            # Cập nhật mềm (Soft Update) Target Network:
-            θ_target = τ * θ + (1 - τ) * θ_target
-
-    ε = max(ε_min, ε * ε_decay)
+    Hàm huấn luyện train(batch_size=64, gamma=0.99):
+        Lấy ngẫu nhiên batch_size mẫu (s, a, r, s') từ memory
+        targets = Q-Network.predict(s)
+        
+        # --- CỐT LÕI DOUBLE Q-LEARNING ---
+        # 1. Dùng mạng CHÍNH để chọn hành động tốt nhất ở trạng thái tiếp theo:
+        next_q_main = Q-Network.predict(s')
+        best_actions = argmax(next_q_main, axis=1)
+        
+        # 2. Dùng mạng TARGET để định giá trị cho hành động tốt nhất đó:
+        next_q_target = Target_Network.predict(s')
+        double_q = next_q_target[arange(batch_size), best_actions]
+        
+        targets[arange(batch_size), a] = r + gamma * double_q
+        loss = Q-Network.train_on_batch(s, targets)
+        
+        # Cập nhật mềm (Soft Update) Target Network
+        Target_Weights = tau * Q_Weights + (1 - tau) * Target_Weights
+        Trả về loss
 ```
 
 ---
 
-## 3. Thuật toán 3: Proximal Policy Optimization (PPO)
+## 3. Thuật toán 3: Proximal Policy Optimization (PPO) - Nguyễn Hồng Thái phụ trách
 
 ### 3.1. Lý do lựa chọn:
-PPO (Schulman et al., 2017) là thuật toán Policy Gradient dạng **Actor-Critic (On-policy)** được đánh giá là tiêu chuẩn vàng trong điều khiển robot và xe tự hành. PPO giải quyết bài toán mất ổn định bước nhảy chính sách bằng cách sử dụng hàm mục tiêu xén (Clipped Surrogate Objective):
+PPO (Schulman et al., 2017) là thuật toán Actor-Critic (On-policy) tiên tiến bậc nhất hiện nay. PPO giải quyết triệt để vấn đề mất ổn định bước nhảy chính sách bằng hàm mục tiêu xén **Clipped Surrogate Objective**:
 
 $$L^{CLIP}(\theta) = \hat{\mathbb{E}}_t \left[ \min\left( r_t(\theta) \hat{A}_t, \, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]$$
 
-với $r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{old}}(a_t \mid s_t)}$. PPO giúp xe tự lái học được các thao tác chuyển làn mượt mà, tránh các thay đổi chính sách cực đoan gây ra va chạm liên tiếp.
+với $r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{old}}(a_t \mid s_t)}$. PPO giúp tác nhân học cách chuyển làn mượt mà, không giật cục và hạn chế tối đa nguy cơ va chạm.
 
-### 3.2. Mã giả thuật toán PPO:
+### 3.2. Mã giả thuật toán (được đóng gói trong `algorithms/ppo_agent.py`):
 
 ```python
 # ==============================================================================
-# MÃ GIẢ: PROXIMAL POLICY OPTIMIZATION (PPO-CLIP) CHO BÀI TOÁN XE TỰ LÁI
+# MÃ GIẢ: CLASS PPOAGENT (algorithms/ppo_agent.py) - Nguyễn Hồng Thái
 # ==============================================================================
-Khởi tạo:
-    Mạng Actor π_θ(a|s) xuất phân phối xác suất hành động qua hàm Softmax
-    Mạng Critic V_ϕ(s) ước lượng giá trị kỳ vọng của trạng thái s
-    Số bước thu thập quỹ đạo mỗi chu kỳ T = 2048 bước
-    Số Epoch tối ưu hóa mỗi chu kỳ K = 10, mini-batch size M = 64
-    Hệ số xén ε = 0.2, hệ số chiết khấu γ = 0.99, hệ số suy giảm GAE λ = 0.95
+Class PPOAgent:
+    Hàm khởi tạo __init__(state_size=5, action_size=4, clip_epsilon=0.2, gamma=0.99, gae_lambda=0.95):
+        Mạng Actor: Dense(64, ReLU) -> Dense(64, ReLU) -> Dense(4, Softmax) -> π(a|s)
+        Mạng Critic: Dense(64, ReLU) -> Dense(64, ReLU) -> Dense(1, Linear) -> V(s)
+        Bộ đệm quỹ đạo Trajectory Buffer lưu (s, a, r, s', log_prob, done)
 
-Lặp qua từng chu kỳ huấn luyện (Iteration = 1, 2, ...):
-    Khởi tạo bộ đệm kinh nghiệm Trajectory Buffer rỗng
-    
-    # 1. Thu thập dữ liệu tương tác T bước với chính sách cũ π_θ_old
-    Với bước t = 1 đến T:
-        Từ trạng thái s_t, tính phân phối hành động P = π_θ_old(· | s_t)
-        Lấy mẫu hành động a_t ~ P
-        Ghi log xác suất log_prob_old_t = log P(a_t)
-        Ước lượng giá trị v_t = V_ϕ(s_t)
+    Hàm chọn hành động act(states):
+        probs = Actor(states)
+        Lấy mẫu hành động a ~ Categorical(probs)
+        Lưu lại log_prob của hành động vừa chọn
+        Trả về danh sách hành động a
 
-        Thực thi a_t trong môi trường: nhận s_{t+1}, r_t, done
-        Lưu (s_t, a_t, r_t, s_{t+1}, done, log_prob_old_t, v_t) vào Buffer
-        s_t = s_{t+1} (Nếu done thì reset môi trường)
+    Hàm tính Lợi thế GAE compute_gae(states, next_states, rewards, dones):
+        values = Critic(states), next_values = Critic(next_states)
+        Tính delta = r + gamma * next_values * (1 - done) - values
+        Tính lũy tích lợi thế GAE A_t = delta + gamma * lambda * (1 - done) * A_{t+1}
+        Chuẩn hóa A_t và tính Return_Target = A_t + values
+        Trả về advantages, return_targets
 
-    # 2. Tính toán Lợi thế Generalized Advantage Estimation (GAE)
-    Tính sai số TD-error: δ_t = r_t + γ * V_ϕ(s_{t+1}) * (1 - done) - V_ϕ(s_t)
-    Tính Lợi thế lũy tích: A_t = Σ_{l=0}^{T-t} (γ * λ)^l * δ_{t+l}
-    Chuẩn hóa Lợi thế: Â_t = (A_t - mean(A)) / (std(A) + 1e-8)
-    Tính Target cho Critic: Return_target_t = A_t + V_ϕ(s_t)
-
-    # 3. Cập nhật Actor và Critic qua K epochs
-    Lặp epoch = 1 đến K:
-        Xáo trộn ngẫu nhiên dữ liệu T bước, chia thành các mini-batches kích thước M
-        Với mỗi mini-batch:
-            # Tính tỷ lệ xác suất chính sách mới / cũ
-            log_prob_new = log π_θ(a_batch | s_batch)
-            ratio = exp(log_prob_new - log_prob_old_batch)
-
-            # Tính Actor Loss có hàm xén Clip
-            surr1 = ratio * Â_batch
-            surr2 = clip(ratio, 1 - ε, 1 + ε) * Â_batch
-            Loss_Actor = - mean(min(surr1, surr2))
-
-            # Tính Critic Loss
-            V_pred = V_ϕ(s_batch)
-            Loss_Critic = MSE(V_pred, Return_target_batch)
-
-            # Tính Entropy kích thích khám phá
-            Entropy = - mean(Σ π_θ * log π_θ)
-
-            # Tổng hàm mất mát
-            Total_Loss = Loss_Actor + 0.5 * Loss_Critic - 0.01 * Entropy
-
-            # Cập nhật gradient cho Actor θ và Critic ϕ
-            θ, ϕ = Adam_Update(θ, ϕ, Total_Loss)
-
-    Gán lại trọng số chính sách: π_θ_old = π_θ
+    Hàm huấn luyện train(epochs=4, batch_size=64):
+        advantages, returns = compute_gae(...)
+        Lặp epoch = 1 đến epochs:
+            Chia dữ liệu thành các mini-batches:
+                Với mỗi mini-batch:
+                    # 1. Tính Actor Loss với Clipped Surrogate
+                    new_probs = Actor(b_states)
+                    ratio = exp(new_log_prob - old_log_prob)
+                    surr1 = ratio * b_advantages
+                    surr2 = clip(ratio, 1 - clip_epsilon, 1 + clip_epsilon) * b_advantages
+                    actor_loss = - mean(min(surr1, surr2))
+                    
+                    # 2. Tính Critic Loss
+                    critic_loss = MSE(Critic(b_states), b_returns)
+                    
+                    # Cập nhật Gradient đồng thời Actor & Critic
+                    Adam_Update(Actor, actor_loss)
+                    Adam_Update(Critic, critic_loss)
+        Xóa sạch bộ đệm Trajectory Buffer sau khi cập nhật On-Policy
 ```
 
 ---
 
-## 4. Thuật toán 4: Deep Deterministic Policy Gradient (DDPG) & Heuristic Baseline
+## 4. Thuật toán 4: Soft Actor-Critic (SAC) & Rule-based Baseline - Nguyễn Khắc Sỹ phụ trách
 
 ### 4.1. Lý do lựa chọn:
-- **DDPG (Lillicrap et al., 2015):** Thuật toán Actor-Critic chuyên biệt cho không gian hành động liên tục (Continuous Control), giúp xe điều khiển góc lái $\delta \in [-1, 1]$ và gia tốc ga/phanh $a \in [-1, 1]$ một cách mượt mà, dùng để so sánh hiệu năng giữa điều khiển rời rạc và liên tục.
-- **Heuristic Rule-based Baseline:** Thuật toán điều khiển dựa trên tập luật an toàn giao thông cố định:
-  - Nếu khoảng cách vật cản làn giữa $d_{mid} > 30\text{ m}$ $\rightarrow$ Giữ nguyên làn và tăng tốc.
-  - Nếu $d_{mid} \le 30\text{ m}$ $\rightarrow$ Kiểm tra hai làn bên cạnh: nếu làn nào có khoảng cách vật cản xa hơn thì chuyển sang làn đó.
-  - Nếu cả ba làn đều bị chặn ở cự ly gần $\rightarrow$ Phanh khẩn cấp.
-  *Ý nghĩa:* Đóng vai trò mốc chuẩn kiểm chứng để khẳng định tính ưu việt của AI Học tăng cường so với giải thuật truyền thống.
+- **Soft Actor-Critic (SAC):** Thuật toán Off-policy Maximum Entropy Actor-Critic. Bằng cách cộng thêm số hạng Entropy $H(\pi)$ vào hàm mục tiêu, SAC kích thích xe luôn tìm kiếm các lộ trình vượt xe mới, tránh bị kẹt trong các tối ưu cục bộ (Local Optima). Đã được sửa triệt để lỗi cú pháp từ mã gốc của thầy Thành.
+- **Rule-based Baseline:** Thuật toán dựa trên tập luật cảm biến khoảng cách cố định (khoảng cách an toàn $> 4.0\text{ m} \rightarrow$ Tăng tốc; $< 4.0\text{ m} \rightarrow$ Chuyển làn; nguy hiểm sát nút $\rightarrow$ Phanh khẩn cấp) làm mốc chuẩn so sánh hiệu năng.
 
-### 4.2. Mã giả thuật toán DDPG:
+### 4.2. Mã giả thuật toán (được đóng gói trong `algorithms/sac_agent.py` & `baseline_agent.py`):
 
 ```python
 # ==============================================================================
-# MÃ GIẢ: DEEP DETERMINISTIC POLICY GRADIENT (DDPG) CHO ĐIỀU KHIỂN LIÊN TỤC
+# MÃ GIẢ: CLASS SACAGENT (algorithms/sac_agent.py) - Nguyễn Khắc Sỹ
 # ==============================================================================
-Khởi tạo:
-    Mạng Actor μ(s; θ^μ) xuất hành động liên tục a = [steering, throttle]
-    Mạng Critic Q(s, a; θ^Q) định giá hành động liên tục
-    Mạng Target: θ^{μ-} = θ^μ, θ^{Q-} = θ^Q
-    Replay Buffer D, Tiến trình ngẫu nhiên sinh nhiễu khám phá N_t (Gaussian Noise)
+Class SACAgent:
+    Hàm khởi tạo __init__(state_size=5, action_size=4, alpha=0.2, tau=0.005):
+        Mạng Actor: π(a|s) xuất phân phối Softmax
+        Hai mạng Critic độc lập: Critic_1(s) và Critic_2(s) xuất Q-values cho các hành động
+        Hai mạng Target Critic tương ứng
 
-Lặp qua từng Episode:
-    s = env.reset(), done = False
-    Trong khi chưa done:
-        # Chọn hành động liên tục kết hợp nhiễu khám phá
-        a = clip(μ(s; θ^μ) + N_t, a_min, a_max)
-        s_next, r, terminated, truncated, _ = env.step(a)
-        done = terminated or truncated
-        Lưu (s, a, r, s_next, done) vào D
-        s = s_next
-
-        Nếu len(D) >= B:
-            Lấy mini-batch B mẫu (s_i, a_i, r_i, s'_i, done_i) từ D
-            
-            # Cập nhật Critic
-            a'_target = μ_target(s'_i; θ^{μ-})
-            y_i = r_i + (1 - done_i) * γ * Q_target(s'_i, a'_target; θ^{Q-})
-            Loss_Critic = MSE(Q(s_i, a_i; θ^Q), y_i)
-            θ^Q = Adam_Update(θ^Q, Loss_Critic)
-            
-            # Cập nhật Actor theo định lý Policy Gradient định tính
-            Loss_Actor = - mean(Q(s_i, μ(s_i; θ^μ); θ^Q))
-            θ^μ = Adam_Update(θ^μ, Loss_Actor)
-            
-            # Cập nhật mềm Target Networks:
-            θ^{Q-} = τ * θ^Q + (1 - τ) * θ^{Q-}
-            θ^{μ-} = τ * θ^μ + (1 - τ) * θ^{μ-}
+    Hàm huấn luyện train(batch_size=64, gamma=0.99):
+        Lấy mini-batch từ Replay Buffer
+        # Tính mục tiêu có Entropy Regularization
+        next_probs = Actor(s')
+        min_target_q = min(Target_Critic1(s'), Target_Critic2(s'))
+        next_v = sum(next_probs * (min_target_q - alpha * log(next_probs + 1e-8)))
+        targets = r + gamma * next_v
+        
+        # Huấn luyện Twin Critics qua MSE Loss
+        Critic1.train_on_batch(s, targets)
+        Critic2.train_on_batch(s, targets)
+        
+        # Huấn luyện Actor tối đa hóa Q-value và Entropy
+        actor_loss = mean(sum(probs * (alpha * log(probs) - min(Q1, Q2))))
+        Adam_Update(Actor, actor_loss)
+        
+        # Cập nhật mềm Target Critics
+        Target_Critic1 = tau * Critic1 + (1 - tau) * Target_Critic1
+        Target_Critic2 = tau * Critic2 + (1 - tau) * Target_Critic2
 ```
 
 ---
 
-[image1]: <data:image/png;base64,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>
+[image1]: <data:image/png;base64,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>
