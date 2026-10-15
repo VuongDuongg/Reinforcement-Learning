@@ -14,6 +14,8 @@ globals [
   car-lanes
   car-lanes-left        ; a list of the y coordinates of different lanes for cars (from left to right)
   car-lanes-right       ; a list of the y coordinates of different lanes for cars (from right to left)
+  main-lanes            ; [KIẾN TRÚC MỚI] Danh sách tọa độ Y của 3 làn chạy chính [3 1 -1]
+  emergency-lane        ; [KIẾN TRÚC MỚI] Tọa độ Y của làn dừng khẩn cấp [-3]
   ;rescue-lanes         ; a list of the y coordinates of rescue lanes
 
   speed-max
@@ -67,8 +69,15 @@ cars-own [
 to setup
   clear-all
 
-  set number-of-lanes (number-of-lanes-way * 2 + 3)
-  set nb-cars-max round (number-of-lanes-way * 1.5 * world-width * 0.25)
+  ; [KIẾN TRÚC MỚI] Thiết lập đường 1 chiều: 3 làn chạy chính + 1 làn dừng khẩn cấp
+  set main-lanes (list 3 1 -1)          ; 3 làn xe chạy chính (làn 3: y=3, làn 2: y=1, làn 1: y=-1)
+  set emergency-lane -3                 ; Làn dừng khẩn cấp ở mép phải ngoài cùng (y=-3)
+  set car-lanes (list 3 1 -1 -3)        ; Danh sách tất cả các làn
+  set car-lanes-left main-lanes         ; Tương thích với các biểu đồ cũ (xe chạy sang phải heading 90)
+  set car-lanes-right []                ; Đường 1 chiều nên không có chiều ngược lại
+  set lanes (list 3 1 -1 -3)
+  set number-of-lanes 4
+  set nb-cars-max round (length main-lanes * world-width * 0.35)
 
   set speed-max 1.0 ; ~ 120 km/h
   set speed-min 0.0 ;
@@ -921,67 +930,31 @@ to go-ppo
     "c_optimizer.apply_gradients(zip(grads2, Critic_network.trainable_variables))")
 end
 
-;; forward car according greedy algorithm
+;; forward car according greedy algorithm (Xe nền)
 to move-forward-greedy ; car procedure
-  ifelse speed > 0 [ ; for car with speed > 0
+  ifelse speed > 0 [
     ifelse (prob-damaged-car <= random-float 1) [
-      if (pycor < 0) [ set heading 90 ]
-      if (pycor > 0) [ set heading 270 ]
+      set heading 90 ; Chạy 1 chiều từ trái sang phải
 
       set color get-car-default-color self
 
-      speed-up-car ; tentatively speed up, but might have to slow down
+      speed-up-car
 
       handle-blocking-cars
 
       forward speed * speed-ratio
 
-      if patience <= 0  [ choose-new-lane ]  ; want to change lane
+      if patience <= 0 [ choose-new-lane ]
       if ycor != target-lane [ move-to-target-lane ]
 
-      set nb-collisions (nb-collisions + count other cars in-radius collision-distance)
-      ;set nb-collisions (nb-collisions / 2)
-    ][
-      if (damaged-nb-cars-inlane < max-damaged-cars) [ ; this car will stop
-        set speed 0
-        set color damaged-color
-        set damaged-inlane-duration 1
-        set damaged-nb-cars-inlane (damaged-nb-cars-inlane + 1)
+      ; [RE-ENTRY LOOP] - Khi chạy đến cuối đường, tuần hoàn tái sinh về đầu đường
+      ifelse (xcor >= max-pxcor - 1) [
+        re-enter-car
+      ][
+        set nb-collisions (nb-collisions + count other cars in-radius collision-distance)
       ]
-    ]
-  ][ ; for car with speed = 0
-    handle-damaged-car
-  ]
-end
-
-;; forward car according rl algorithms
-to move-forward-rl ; car procedure
-  ifelse speed > 0 [
-    ifelse (prob-damaged-car <= random-float 1) [
-      ;ifelse (member? pycor car-lanes-left) [ set heading 90 ][ set heading 270 ]
-      if (pycor < 0) [ set heading 90 ]
-      if (pycor > 0) [ set heading 270 ]
-
-      if action = 0 [ speed-up-car set color green ]   ; 0 = accelerate, green
-      if action = 1 [ set color yellow ]               ; 1 = stay same, yellow
-      if action = 2 [ slow-down-car set color violet]  ; 2 = decelerate, violet
-      if action = 3 [                                  ; 3 = change lane, blue
-        choose-new-lane
-        set color blue
-        if ycor != target-lane [
-          move-to-target-lane
-        ]
-      ]
-
-      handle-blocking-cars
-
-      forward speed * speed-ratio
-
-      set reward get-reward
-
-      set nb-collisions (nb-collisions + count other cars in-radius collision-distance)
     ][
-      if (damaged-nb-cars-inlane < max-damaged-cars) [ ; this car will stop
+      if (damaged-nb-cars-inlane < max-damaged-cars) [ ; Xe gặp sự cố hỏng hóc
         set speed 0
         set color damaged-color
         set damaged-inlane-duration 1
@@ -989,31 +962,69 @@ to move-forward-rl ; car procedure
       ]
     ]
   ][
-    ; for car with speed = 0
+    handle-damaged-car
+  ]
+end
+
+;; forward car according rl algorithms (Xe học tăng cường)
+to move-forward-rl ; car procedure
+  ifelse speed > 0 [
+    ifelse (prob-damaged-car <= random-float 1) [
+      set heading 90 ; Chạy 1 chiều từ trái sang phải
+
+      if action = 0 [ speed-up-car set color green ]   ; 0 = Tăng tốc (xanh lá)
+      if action = 1 [ set color yellow ]               ; 1 = Giữ tốc (vàng)
+      if action = 2 [ slow-down-car set color violet]  ; 2 = Giảm tốc (tím)
+      if action = 3 [                                  ; 3 = Đổi làn (xanh dương)
+        choose-new-lane
+        set color blue
+      ]
+
+      if ycor != target-lane [
+        move-to-target-lane
+      ]
+
+      handle-blocking-cars
+
+      forward speed * speed-ratio
+
+      ; [RE-ENTRY LOOP & EPISODE REWARD]
+      ; Khi xe AI chạy thông suốt an toàn đến cuối đường -> Thưởng lớn (+50) và tái sinh về đầu đường
+      ifelse (xcor >= max-pxcor - 1) [
+        re-enter-car
+      ][
+        set reward get-reward
+        set nb-collisions (nb-collisions + count other cars in-radius collision-distance)
+      ]
+    ][
+      if (damaged-nb-cars-inlane < max-damaged-cars) [ ; Xe gặp sự cố hỏng hóc
+        set speed 0
+        set color damaged-color
+        set damaged-inlane-duration 1
+        set damaged-nb-cars-inlane (damaged-nb-cars-inlane + 1)
+      ]
+    ]
+  ][
     handle-damaged-car
   ]
 end
 
 ;; car procedure, get reward
 to-report get-reward
-  ifelse get-distance-to-car get-car-ahead < collision-distance ; a collission
-  [
-    report -100  ; if having a collision: -100
+  ifelse get-distance-to-car get-car-ahead < collision-distance [
+    report -100  ; Phạt cực nặng nếu xảy ra va chạm: -100
   ][
-    ; if having a hard-brake: -10
-    if action = 0 [ report 3 ]  ; 0 = accelerate
-    if action = 1 [ report 1 ]  ; 1 = stay same
-    if action = 2 [ report -1 ] ; 2 = decelerate
-    if action = 3 [ report -2 ] ; 3 = change lane
+    ; Phạt nếu xe AI lạm dụng lấn vào làn dừng khẩn cấp (ycor <= -2.5)
+    if ycor <= -2.5 [ report -5 ]
+
+    ; Thưởng/phạt điều khiển bình thường trên các làn chính
+    if action = 0 [ report 3 ]  ; Thưởng +3 khi tăng tốc di chuyển thông suốt
+    if action = 1 [ report 1 ]  ; Thưởng +1 khi duy trì tốc độ
+    if action = 2 [ report -1 ] ; Phạt nhẹ -1 khi phải giảm tốc
+    if action = 3 [ report -2 ] ; Phạt -2 khi đổi làn (hạn chế lạng lách)
 
     report 0
   ]
-
-
-
-  ;report speed + (patience-top - patience) / patience-top
-  ;report (log (speed + 1e-8) 2) + (log ((patience - patience-current) / patience + 1e-8) 2) ; reward can be positive or negative
-  ;set reward (log (speed + (max-patience - patience) / max-patience + 1e-8) 2) ; reward can be positive or negative
 end
 
 
@@ -1044,37 +1055,37 @@ end
 ;; handle the damaged cars, with speed = 0
 to handle-damaged-car ; car procedure
   if (dynamic-situation?) [
-    ifelse ((ycor > 1 - number-of-lanes) and (ycor < number-of-lanes - 1))[
+    ifelse (ycor != emergency-lane) [
+      ; Xe đang đỗ chết máy chắn trên 3 làn chạy chính (đóng vai trò vật cản tĩnh)
       set damaged-inlane-duration (damaged-inlane-duration + 1)
-      if damaged-inlane-duration >= damaged-inlane-duration-max [ ; move car to rescue lane
-        if (ycor < 0) [ set heading 180 ]
-        if (ycor > 0) [ set heading 0 ]
-
-        if not any? cars-on patch-ahead 1 [
-          forward move-rescue-lane-step
-        ]
-
-        if ( (ycor <= 1 - number-of-lanes) or (ycor >= number-of-lanes - 1) ) [
+      if damaged-inlane-duration >= damaged-inlane-duration-max [ 
+        ; Cứu hộ dạt xe hỏng sang làn dừng khẩn cấp (emergency-lane = -3)
+        let dy (emergency-lane - ycor)
+        ifelse abs dy <= move-rescue-lane-step [
+          set ycor emergency-lane
           set damaged-inlane-duration 0
           set damaged-inrescue-duration 1
           set damaged-nb-cars-inlane (damaged-nb-cars-inlane - 1)
-          ifelse (ycor <= 1 - number-of-lanes) [set heading 90][set heading 270]
-
+        ][
+          set ycor (ycor - move-rescue-lane-step)
         ]
       ]
     ][
-      ; for cars in rescue lanes
+      ; Xe đã nằm an toàn trong làn dừng khẩn cấp
       ifelse (random-float 1 <= prob-remove-car) [
-        die ; remove a damaged car
+        ; Xe cứu hộ cẩu xe đi -> Tái sinh xe mới về đầu đường
+        set damaged-inlane-duration 0
+        set damaged-inrescue-duration 0
+        set color get-car-default-color self
+        re-enter-car
       ][
         set damaged-inrescue-duration (damaged-inrescue-duration + 1)
         if damaged-inrescue-duration >= damaged-inrescue-duration-max [
-          ; restore car to normal situation
-          set speed 0.06
-          if ycor <= 1 - number-of-lanes [set target-lane (3 - number-of-lanes) ]
-          if ycor >= number-of-lanes - 1 [set target-lane (number-of-lanes - 3) ]
-          move-to-target-lane
+          ; Xe đã sửa chữa xong -> Tái nhập cuộc từ đầu tuyến
+          set damaged-inlane-duration 0
           set damaged-inrescue-duration 0
+          set color get-car-default-color self
+          re-enter-car
         ]
       ]
     ]
@@ -1106,8 +1117,8 @@ to-report convert-state-int [ aState ]
 end
 
 to create-or-remove-cars
-  ; make sure we don't have too many cars for the room we have on the road
-  let car-road-patches patches with [ member? pycor car-lanes ]
+  ; Xe chỉ được sinh ra trên 3 làn xe chạy chính (main-lanes: [3 1 -1])
+  let car-road-patches patches with [ member? pycor main-lanes ]
   if number-of-cars > count car-road-patches [
     set number-of-cars count car-road-patches
   ]
@@ -1115,18 +1126,14 @@ to create-or-remove-cars
   let car-speed-seed 0.75
 
   create-cars (number-of-cars - count cars) [
-    set size 1.0 ;0.9
+    set size 1.0
     set color get-car-default-color self
     move-to one-of free-car car-road-patches
     set target-lane pycor
     set shape "car-top"
-    ifelse (member? pycor car-lanes-left) [
-      set heading 90
-    ][
-      set heading 270
-    ]
+    set heading 90                    ; TẤT CẢ XE ĐỀU CHẠY 1 CHIỀU SANG PHẢI (heading 90)
     set speed car-speed-seed + random-float (speed-max - car-speed-seed)
-    set speed-top  speed-max ;(2 * speed + random-float (speed-max - 2 * speed)) ;(speed-max / 2) + random-float (speed-max / 2)
+    set speed-top speed-max
     set patience (max-patience / 2) + random (max-patience / 2)
     set damaged-inlane-duration 0
     set damaged-inrescue-duration 0
@@ -1140,6 +1147,22 @@ to create-or-remove-cars
   ]
 end
 
+;; [RE-ENTRY LOOP] - Tái sinh xe tuần hoàn về đầu đường cao tốc (không cần hủy/tạo đối tượng)
+to re-enter-car ; car procedure
+  set xcor (min-pxcor + 1 + random-float 1.0)
+  set target-lane one-of main-lanes
+  set ycor target-lane
+  set heading 90
+  let car-speed-seed 0.75
+  set speed car-speed-seed + random-float (speed-max - car-speed-seed)
+  set patience (max-patience / 2) + random (max-patience / 2)
+  set action -1
+  if self = selected-car [
+    set color pink
+    set reward 50  ; Thưởng lớn vì Ego Car đã hoàn thành chặng đường an toàn về đích!
+  ]
+end
+
 to-report free-car [ car-road-patches ] ; car procedure
   let this-car self
   report car-road-patches with [
@@ -1148,50 +1171,39 @@ to-report free-car [ car-road-patches ] ; car procedure
 end
 
 to draw-road
+  ; 1. Tô màu nền đất/cỏ xung quanh đường cao tốc
   ask patches [
-    set pcolor brown - random-float 0.5 ; the road is surrounded by brown ground of varying shades
+    set pcolor brown - random-float 0.5
   ]
-  set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
 
-  set car-lanes n-values (number-of-lanes - 2) [ n -> number-of-lanes - (n * 2) - 3]
-  set car-lanes remove-item number-of-lanes-way car-lanes
-  set car-lanes-right n-values number-of-lanes-way [ n -> 2 * (number-of-lanes-way - n)]
-  set car-lanes-left n-values number-of-lanes-way [ n -> 2 * (n - number-of-lanes-way)]
-  ;set rescue-lanes list (number-of-lanes - 1) (1 - number-of-lanes)
-  ask patches with [ abs pycor <= number-of-lanes  ] [ ; member? pycor car-lanes
-    set pcolor grey - 2.5 + random-float 0.25 ; the road itself is varying shades of grey
+  ; 2. Mặt đường 3 làn chạy chính (từ y = -2 đến y = 4)
+  ask patches with [ pycor >= -2 and pycor <= 4 ] [
+    set pcolor grey - 2.5 + random-float 0.25
   ]
-  ask patches with [abs pycor = (number-of-lanes - 1) ] [
-    set pcolor white - 4 ; rescue lane
+
+  ; 3. Mặt đường làn dừng khẩn cấp (từ y = -4 đến y < -2, tâm làn tại y = -3)
+  ask patches with [ pycor >= -4 and pycor < -2 ] [
+    set pcolor grey - 1.8  ; Màu hơi sáng hơn để phân biệt làn dừng khẩn cấp
   ]
-  ask patches with [pycor = 0 ] [
-    set pcolor green - 2.5 + random-float 0.25 ; median strip
-  ]
-  ;print (word "rescue-lanes: " rescue-lanes)
-  ;print (word "car-lanes: " car-lanes)
-  ;print (word "car-lanes-right: " car-lanes-right)
-  ;print (word "car-lanes-left: " car-lanes-left)
 
   draw-road-lines
 end
 
 to draw-road-lines
-  let y (last lanes) - 1 ; start below the "lowest" lane
-  while [ y <= first lanes + 1 ] [
-    if not member? y lanes [
-      ; draw lines on road patches that are not part of a lane
-      ifelse abs y = number-of-lanes [
-        draw-line y yellow 0 ; yellow for the sides of the road
-      ][
-        ifelse ( (abs y = (number-of-lanes - 2)) or (abs y = 1) ) [
-          draw-line y white 0 ; for rescue lane
-        ][
-          draw-line y white 0.5 ; dashed white between lanes
-        ]
-      ]
-    ]
-    set y y + 1 ; move up one patch
-  ]
+  ; Vạch vàng liền mép trên ngoài cùng (y = 4)
+  draw-line 4 yellow 0
+
+  ; Vạch trắng đứt đoạn giữa làn 3 và làn 2 (y = 2)
+  draw-line 2 white 0.5
+
+  ; Vạch trắng đứt đoạn giữa làn 2 và làn 1 (y = 0)
+  draw-line 0 white 0.5
+
+  ; Vạch trắng liền phân cách làn chính và làn khẩn cấp (y = -2)
+  draw-line -2 white 0
+
+  ; Vạch vàng liền mép dưới ngoài cùng của làn khẩn cấp (y = -4)
+  draw-line -4 yellow 0
 end
 
 ;; We use a temporary car to draw the line:
@@ -1213,44 +1225,29 @@ to draw-line [ y line-color gap ]
   ]
 end
 
-;; choose a new lane among those with the minimum distance to your current lane (i.e., your ycor).
+;; choose a new lane among those with the minimum distance to your current lane in main-lanes
 to choose-new-lane ; car procedure
-  let other-lanes []
-  if (pycor < 0) [ set other-lanes remove ycor car-lanes-left ]
-  if (pycor > 0) [ set other-lanes remove ycor car-lanes-right ]
-  ;let other-lanes remove ycor car-lanes
-
+  let other-lanes remove ycor main-lanes
   if not empty? other-lanes [
     let min-dist min map [ y -> abs (y - ycor) ] other-lanes
     let closest-lanes filter [ y -> abs (y - ycor) = min-dist ] other-lanes
     set target-lane one-of closest-lanes
     set patience max-patience
   ]
-  ;if target-lane = 0 [print ( word "choose-new-lane: target-lane = 0 !" )]
 end
 
 to move-to-target-lane ; car procedure
-  ifelse (pycor < 0) [
-    set heading ifelse-value target-lane < ycor [ 135 ] [ 45 ]
+  let dy (target-lane - ycor)
+  ifelse abs dy <= change-lane-step [
+    set ycor target-lane
   ][
-    if (pycor > 0) [ set heading ifelse-value target-lane < ycor [ 225 ] [ 315 ] ]
+    ifelse dy > 0 [
+      set ycor (ycor + change-lane-step)
+    ][
+      set ycor (ycor - change-lane-step)
+    ]
   ]
-
-  ;set observation-distance get-safe-distance
-  let blocking-cars other cars in-cone (observation-distance + abs (ycor - target-lane)) observation-angle with [ get-y-distance <= observation-distance ]
-  let blocking-car-nearest min-one-of blocking-cars [ distance myself ]
-  ifelse blocking-car-nearest = nobody [
-    forward change-lane-step
-    if (precision ycor 1 != 0) [set ycor precision ycor 1] ; to avoid floating point errors
-  ][
-    ; slow down if the car blocking us is behind, otherwise speed up
-    ifelse towards blocking-car-nearest < 180 [ slow-down-car ] [ speed-up-car ]
-  ]
-  set color get-car-default-color self
-  if (pycor < 0) [ set heading 90 ]
-  if (pycor > 0) [ set heading 270 ]
-
-  ;if ycor = 0 [print ( word "move-car-to-target-lane: current lane = 0 !" )]
+  set heading 90
 end
 
 ;; allow the user to select a different car by clicking on it with the mouse

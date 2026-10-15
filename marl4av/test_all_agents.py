@@ -7,6 +7,10 @@ Cách chạy:
 python test_all_agents.py
 """
 
+import sys
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 import numpy as np
 from algorithms.dqn_agent import DQNAgent
 from algorithms.ddqn_agent import DoubleDuelingDQNAgent
