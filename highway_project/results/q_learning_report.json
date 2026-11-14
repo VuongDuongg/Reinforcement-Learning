@@ -1,0 +1,677 @@
+{
+  "algorithm": "tabular_q_learning",
+  "model": "D:\\Hoc_Tang_Cuong\\highway_project\\models\\q_learning.npz",
+  "training_steps": 23994,
+  "visited_states": 153,
+  "state_count": 648,
+  "training_history": [],
+  "evaluation": [
+    {
+      "before": {
+        "traffic": 0,
+        "episodes": 10,
+        "success_rate": 0.0,
+        "collision_rate": 1.0,
+        "mean_reward": -21.46,
+        "mean_speed_kmh": 71.96923076923078,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000001,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000002,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000003,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000004,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000005,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000006,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000007,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000008,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000009,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          }
+        ]
+      },
+      "after": {
+        "traffic": 0,
+        "episodes": 10,
+        "success_rate": 0.0,
+        "collision_rate": 0.0,
+        "mean_reward": 0.40692056583242586,
+        "mean_speed_kmh": 9.581523394994559,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000001,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000002,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000003,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000004,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000005,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000006,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000007,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000008,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000009,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          }
+        ]
+      }
+    },
+    {
+      "before": {
+        "traffic": 6,
+        "episodes": 10,
+        "success_rate": 0.0,
+        "collision_rate": 1.0,
+        "mean_reward": -21.46,
+        "mean_speed_kmh": 71.96923076923078,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000001,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000002,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000003,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000004,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000005,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000006,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000007,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000008,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000009,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          }
+        ]
+      },
+      "after": {
+        "traffic": 6,
+        "episodes": 10,
+        "success_rate": 0.0,
+        "collision_rate": 0.1,
+        "mean_reward": -1.6847922388184735,
+        "mean_speed_kmh": 13.746013617027938,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000001,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000002,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000003,
+            "success": false,
+            "crashed": true,
+            "distance_m": 154.99769468470333,
+            "reward": -20.645207480676568,
+            "mean_speed_kmh": 51.31642561532836,
+            "lane_change_requests": 6,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000004,
+            "success": false,
+            "crashed": false,
+            "distance_m": 155.7397658518508,
+            "reward": 0.5419205658324255,
+            "mean_speed_kmh": 9.491523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000005,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000006,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000007,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000008,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000009,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          }
+        ]
+      }
+    },
+    {
+      "before": {
+        "traffic": 12,
+        "episodes": 10,
+        "success_rate": 0.0,
+        "collision_rate": 1.0,
+        "mean_reward": -21.46,
+        "mean_speed_kmh": 71.96923076923078,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000001,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000002,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000003,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000004,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000005,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000006,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000007,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000008,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000009,
+            "success": false,
+            "crashed": true,
+            "distance_m": 155.0,
+            "reward": -21.46,
+            "mean_speed_kmh": 71.96923076923078,
+            "lane_change_requests": 0,
+            "end_reason": "collision"
+          }
+        ]
+      },
+      "after": {
+        "traffic": 12,
+        "episodes": 10,
+        "success_rate": 0.1,
+        "collision_rate": 0.2,
+        "mean_reward": -2.341032730168639,
+        "mean_speed_kmh": 20.33360238371732,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000001,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000002,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000003,
+            "success": false,
+            "crashed": false,
+            "distance_m": 156.84473715080193,
+            "reward": 0.5569205658324269,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000004,
+            "success": false,
+            "crashed": false,
+            "distance_m": 155.7397658518508,
+            "reward": 0.5419205658324255,
+            "mean_speed_kmh": 9.491523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000005,
+            "success": false,
+            "crashed": true,
+            "distance_m": 154.9983637184453,
+            "reward": -20.946591918695542,
+            "mean_speed_kmh": 47.61443252967258,
+            "lane_change_requests": 6,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000006,
+            "success": true,
+            "crashed": false,
+            "distance_m": 652.0184586442035,
+            "reward": 14.029174498919586,
+            "mean_speed_kmh": 53.67046680742268,
+            "lane_change_requests": 26,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000007,
+            "success": false,
+            "crashed": true,
+            "distance_m": 154.94036814037537,
+            "reward": -19.76135384273741,
+            "mean_speed_kmh": 35.16046073511605,
+            "lane_change_requests": 8,
+            "end_reason": "collision"
+          },
+          {
+            "seed": 1000008,
+            "success": false,
+            "crashed": false,
+            "distance_m": 155.7397658518508,
+            "reward": 0.5419205658324255,
+            "mean_speed_kmh": 9.491523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          },
+          {
+            "seed": 1000009,
+            "success": false,
+            "crashed": false,
+            "distance_m": 157.38423009968122,
+            "reward": 0.40692056583242586,
+            "mean_speed_kmh": 9.581523394994559,
+            "lane_change_requests": 7,
+            "end_reason": "time_limit"
+          }
+        ]
+      }
+    }
+  ],
+  "elapsed_s": 126.8203556999797
+}

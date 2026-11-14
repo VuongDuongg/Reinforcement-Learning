@@ -1,7 +1,7 @@
-# Danh sách thư viện cần thiết cho bài toán Xe tự lái Học tăng cường (N1_65KTPM)
-# Chạy lệnh: pip install -r requirements.txt
-
+# Thư viện cho dự án Học tăng cường xe tự hành cao tốc (highway_project)
+highway-env>=1.12.1
+gymnasium>=1.4.0
+torch>=2.1.0
 numpy>=1.26.0
 matplotlib>=3.8.0
-tensorflow>=2.15.0
-tensorflow-probability>=0.20.0
+pygame-ce>=2.5.0

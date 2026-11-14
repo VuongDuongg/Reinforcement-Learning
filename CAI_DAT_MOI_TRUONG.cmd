@@ -10,7 +10,7 @@ if not exist ".venv-highway\Scripts\python.exe" (
 )
 ".venv-highway\Scripts\python.exe" -m ensurepip --upgrade
 if errorlevel 1 goto failed
-".venv-highway\Scripts\python.exe" -m pip install -r highway_project\requirements.txt
+".venv-highway\Scripts\python.exe" -m pip install -r highway_project\requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 if errorlevel 1 goto failed
 echo.
 echo Cai xong. Mo CHAY_MOI_TRUONG.cmd de xem xe.

@@ -1,2 +1,7 @@
-highway-env==1.12.1
-gymnasium==1.4.0
+# Danh sách thư viện phụ thuộc cho highway_project (Học tăng cường xe tự hành)
+highway-env>=1.12.1
+gymnasium>=1.4.0
+torch>=2.1.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+pygame-ce>=2.5.0

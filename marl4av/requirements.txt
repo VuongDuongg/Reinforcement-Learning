@@ -1,0 +1,6 @@
+# Thư viện cho mô phỏng NetLogo marl4av (Yêu cầu Python 3.10 - 3.12)
+numpy>=1.26.0
+matplotlib>=3.8.0
+tensorflow>=2.15.0
+tensorflow-probability>=0.20.0
+

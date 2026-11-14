@@ -1,7 +1,25 @@
-"""Môi trường xe tự lái; các thuật toán học sẽ được bổ sung sau."""
+"""highway_project: Gói bài toán học tăng cường điều khiển xe tự hành trên cao tốc."""
 
-import os
-from pathlib import Path
+from .environment.environment import LaneObstacleEnv, make_env, ACTIONS, ENV_ID, BrokenCar
+from .algorithms.agent import CustomAgent
+from .algorithms.dqn_agent import DQNAgent, QNetwork, ReplayBuffer, DEFAULT_MODEL as DEFAULT_DQN_MODEL
+from .algorithms.q_agent import QLearningAgent, DEFAULT_MODEL as DEFAULT_Q_MODEL
+from .gui.view import HighwayView
+from .gui.motion import MotionBuffer
 
-os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
-os.environ.setdefault("MPLCONFIGDIR", str(Path(__file__).parent / "results" / ".matplotlib"))
+__all__ = [
+    "LaneObstacleEnv",
+    "make_env",
+    "ACTIONS",
+    "ENV_ID",
+    "BrokenCar",
+    "CustomAgent",
+    "DQNAgent",
+    "QNetwork",
+    "ReplayBuffer",
+    "DEFAULT_DQN_MODEL",
+    "QLearningAgent",
+    "DEFAULT_Q_MODEL",
+    "HighwayView",
+    "MotionBuffer",
+]
