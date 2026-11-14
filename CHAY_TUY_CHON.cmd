@@ -15,3 +15,4 @@ exit /b
 echo [ERROR] Virtual environment not found. Please run CAI_DAT_MOI_TRUONG.cmd first.
 pause
 exit /b 1
+

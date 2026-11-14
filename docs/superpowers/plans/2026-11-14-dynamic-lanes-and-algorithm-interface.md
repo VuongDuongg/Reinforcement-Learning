@@ -296,3 +296,29 @@ Run:
 & "d:\Hoc_Tang_Cuong\.venv-highway\Scripts\python.exe" -m highway_project.run --lanes 4 --traffic none --speed 90 --algo dqn --mode agent --headless --steps 30
 ```
 Expected: Cả 3 kịch bản đều hoàn thành thành công, xuất JSON kết quả đầy đủ thông số `distance_m`, `speed`, `speed_kmh`.
+
+---
+
+### Task 6: Xây dựng GUI Dashboard Chuyên Nghiệp & Chuyển Đổi Kịch Bản Trực Tiếp Không Reset Xe (Live Reconfiguration)
+
+**Files:**
+- Modify: `highway_project/gui/view.py`
+- Modify: `highway_project/run.py`
+- Test: `highway_project/tests/test_environment.py`
+
+**Interfaces:**
+- Giao diện `HighwayView`:
+  - 4 Thẻ chỉ số chính: Vận tốc hiện tại & mục tiêu, Quãng đường đã đi & còn lại, Vật cản đã vượt & khoảng cách xe trước, Thời gian & Reward tích lũy.
+  - Bảng đo cảm biến Radar: Khoảng cách xe trước, khoảng cách xe sau, radar cảnh báo an toàn chuyển làn Trái/Phải.
+  - Bảng trạng thái AI: Lệnh hành động thời gian thực (`LANE_LEFT`, `IDLE`, `LANE_RIGHT`, `FASTER`, `SLOWER`), trạng thái chuyển làn / nguy hiểm.
+  - 12 Nút bấm tương tác phân theo 2 hàng với hiệu ứng hover đổi màu:
+    - Hàng 1: Đổi làn (`L`), Đổi mật độ xe (`T`), Đổi tốc độ (`S`), Đổi tốc độ dòng xe (`F`), 4 Kịch bản mẫu (`1`, `2`, `3`, `4`).
+    - Hàng 2: Tạm dừng (`Space`), Đổi chế độ lái (`Tab`), Chạy lại từ đầu (`R`), Hạt giống mới (`N`), Thông báo nổi Toast Notification.
+- Logic `live_reconfigure()` trong `run.py`:
+  - Cập nhật trực tiếp mạng lưới `road.network`, số làn, mật độ xe và dải vận tốc.
+  - Kẹp làn hợp lệ cho xe và vật cản mà **KHÔNG gọi `reset()`**, xe tiếp tục hành trình mượt mà từ tọa độ hiện tại, không reset quãng đường hay thời gian.
+
+- [x] **Step 1: Viết test cho chuyển đổi trực tiếp (live reconfigure) và 12 nút bấm giao diện**
+- [x] **Step 2: Triển khai bảng điều khiển HUD và nút bấm trong `view.py`**
+- [x] **Step 3: Triển khai logic `live_reconfigure()` trong `run.py`**
+- [x] **Step 4: Kiểm thử tự động 21/21 tests PASS và chụp ảnh demo giao diện**

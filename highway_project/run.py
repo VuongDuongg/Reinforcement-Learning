@@ -74,7 +74,10 @@ def main():
 
     import pygame
     from pathlib import Path
-    from .environment.environment import ACTIONS, make_env
+    import numpy as np
+    from highway_env.road.road import RoadNetwork
+    from highway_env.vehicle.behavior import IDMVehicle
+    from .environment.environment import ACTIONS, make_env, TRAFFIC_PRESETS
     from .gui.motion import MotionBuffer
     from .algorithms.q_agent import DEFAULT_MODEL as DEFAULT_Q_MODEL, QLearningAgent
     from .algorithms.dqn_agent import DEFAULT_MODEL as DEFAULT_DQN_MODEL, DQNAgent
@@ -154,42 +157,105 @@ def main():
 
         traffic_cycle = ["sparse", "normal", "dense", "none"]
         speed_cycle = [54.0, 72.0, 90.0, 108.0]
+        traffic_speed_cycle = ["slow", "normal", "fast"]
         current_lanes = args.lanes
         current_traffic = args.traffic
         current_speed = args.speed
         current_traffic_speed = args.traffic_speed
 
-        def rebuild_env(*, lanes=None, traffic=None, speed=None, traffic_speed=None):
-            nonlocal env, current_lanes, current_traffic, current_speed, current_traffic_speed, step_dt
-            if lanes is not None:
-                current_lanes = lanes
-            if traffic is not None:
-                current_traffic = traffic
+        def live_reconfigure(*, lanes=None, traffic=None, speed=None, traffic_speed=None, toast=None):
+            nonlocal current_lanes, current_traffic, current_speed, current_traffic_speed, obs, info
+            unwrapped = env.unwrapped
+            road = unwrapped.road
+
+            # 1. Cập nhật làn đường trực tiếp trên mạng lưới road.network (KHÔNG RESET XE)
+            if lanes is not None and lanes != current_lanes:
+                current_lanes = int(lanes)
+                unwrapped.config["lanes_count"] = current_lanes
+                route_len = float(unwrapped.config.get("route_length", 1000.0))
+                road_length = max(route_len + 2500.0, float(unwrapped.goal_x + 1500.0))
+                road.network = RoadNetwork.straight_road_network(current_lanes, length=road_length)
+
+                for v in [*road.vehicles, *road.objects]:
+                    v.road = road
+                    curr_lane_id = int(v.lane_index[2]) if hasattr(v, "lane_index") else 0
+                    clamped_lane = min(curr_lane_id, current_lanes - 1)
+                    v.lane_index = ("0", "1", clamped_lane)
+                    if hasattr(v, "target_lane_index"):
+                        v.target_lane_index = ("0", "1", clamped_lane)
+                    if hasattr(v, "lane"):
+                        v.lane = road.network.get_lane(v.lane_index)
+
+                    if v is unwrapped.vehicle or v in unwrapped.road.objects:
+                        if curr_lane_id >= current_lanes:
+                            v.position[1] = clamped_lane * 4.0
+                    else:
+                        if v.position[1] > (current_lanes - 1) * 4.0 + 2.0:
+                            v.position[1] = clamped_lane * 4.0
+
+            # 2. Cập nhật tốc độ xe của bạn (KHÔNG RESET XE)
             if speed is not None:
-                current_speed = speed
+                current_speed = float(speed)
+                new_speed_ms = current_speed / 3.6
+                unwrapped.config["initial_speed"] = new_speed_ms
+                unwrapped.vehicle.target_speed = new_speed_ms
+                unwrapped.vehicle.speed = new_speed_ms
+
+            # 3. Cập nhật tốc độ dòng xe xung quanh
             if traffic_speed is not None:
                 current_traffic_speed = traffic_speed
+                spd_min, spd_max = traffic_ranges.get(current_traffic_speed, (14.0, 26.5))
+                unwrapped.config["traffic_speed_min"] = spd_min
+                unwrapped.config["traffic_speed_max"] = spd_max
+                for v in road.vehicles:
+                    if v is not unwrapped.vehicle:
+                        v.target_speed = float(np.random.uniform(spd_min, max(spd_min + 1.0, spd_max)))
 
-            t_min, t_max = traffic_ranges.get(current_traffic_speed, (14.0, 26.5))
-            env.close()
-            env = make_env(
-                seed=seed,
-                config={
-                    "lanes_count": current_lanes,
-                    "vehicles_count": current_traffic,
-                    "initial_speed": current_speed / 3.6,
-                    "max_speed": max(args.max_speed, current_speed) / 3.6,
-                    "traffic_speed_min": t_min,
-                    "traffic_speed_max": t_max,
-                    "obstacle_count": args.obstacles,
-                    "route_length": args.route_length,
-                    "duration": max(75.0, args.route_length / 10.0),
-                    "unpredictable_traffic": not args.predictable,
-                    "random_obstacles": not args.fixed_obstacles,
-                },
-            )
-            step_dt = 1 / env.unwrapped.config["policy_frequency"]
-            reset()
+            # 4. Cập nhật mật độ xe giao thông trực tiếp (KHÔNG RESET XE)
+            if traffic is not None:
+                current_traffic = traffic
+                target_count = TRAFFIC_PRESETS.get(current_traffic, 20)
+                unwrapped.config["vehicles_count"] = target_count
+                unwrapped.traffic_density = current_traffic
+
+                traffic_vehicles = [v for v in road.vehicles if v is not unwrapped.vehicle]
+                if target_count == 0:
+                    road.vehicles = [unwrapped.vehicle]
+                elif target_count < len(traffic_vehicles):
+                    ego_x = unwrapped.vehicle.position[0]
+                    traffic_vehicles.sort(key=lambda v: abs(v.position[0] - ego_x))
+                    road.vehicles = [unwrapped.vehicle, *traffic_vehicles[:target_count]]
+                elif target_count > len(traffic_vehicles):
+                    needed = target_count - len(traffic_vehicles)
+                    spd_min, spd_max = traffic_ranges.get(current_traffic_speed, (14.0, 26.5))
+                    ego_x = unwrapped.vehicle.position[0]
+                    for _ in range(needed):
+                        lane_id = int(np.random.randint(0, current_lanes))
+                        side = np.random.choice([1, -1], p=[0.7, 0.3])
+                        if side == 1:
+                            spawn_x = ego_x + float(np.random.uniform(35.0, 220.0))
+                        else:
+                            spawn_x = max(unwrapped.start_x, ego_x - float(np.random.uniform(35.0, 140.0)))
+
+                        all_objs = [*road.vehicles, *road.objects]
+                        if any(abs(obj.position[0] - spawn_x) < 22.0 and abs(obj.position[1] - lane_id * 4.0) < 2.0 for obj in all_objs):
+                            continue
+
+                        v_spd = float(np.random.uniform(spd_min, spd_max))
+                        new_v = IDMVehicle.make_on_lane(
+                            road, ("0", "1", lane_id), spawn_x, speed=v_spd
+                        )
+                        new_v.target_speed = float(np.random.uniform(spd_min, max(spd_min + 1.0, spd_max)))
+                        new_v.randomize_behavior()
+                        new_v.enable_lane_change = True
+                        road.vehicles.append(new_v)
+
+            # 5. Cập nhật tức thời trạng thái quan sát và cảm biến (Xe tiếp tục tiến trình)
+            obs = unwrapped.observation_type.observe()
+            info = unwrapped._info(obs)
+            motion.reset(unwrapped)
+            if toast and view:
+                view.show_toast(toast)
 
         def reset():
             nonlocal episode, obs, info, done, total_reward, last_action, accumulator, pending_action, finished_at
@@ -248,6 +314,7 @@ def main():
                         pygame.K_l: "lanes",
                         pygame.K_t: "traffic",
                         pygame.K_s: "speed",
+                        pygame.K_f: "traffic_speed",
                         pygame.K_1: "preset_1",
                         pygame.K_2: "preset_2",
                         pygame.K_3: "preset_3",
@@ -260,33 +327,48 @@ def main():
                 if command == "pause":
                     paused = not paused
                     accumulator, pending_action = 0.0, 1
+                    if view:
+                        view.show_toast("Đã tạm dừng" if paused else "Đang chạy tiếp", color=(255, 204, 0) if paused else (46, 213, 162))
                 elif command in ("reset", "new"):
                     if command == "new":
                         seed += 1
+                        if view:
+                            view.show_toast(f"Đã tạo kịch bản mới (Seed {seed})", color=(255, 204, 0))
+                    elif view:
+                        view.show_toast("Đã khởi động lại từ đầu", color=(255, 204, 0))
                     reset()
                 elif command == "mode":
                     mode = "agent" if mode == "keyboard" else "keyboard"
                     agent.reset(seed=seed)
                     pending_action = 1
+                    if view:
+                        m_str = "AI tự lái (DQN)" if mode == "agent" else "Người tự lái (Phím)"
+                        view.show_toast(f"Chế độ: {m_str}")
                 elif command == "lanes":
                     next_lanes = 2 if current_lanes >= 6 else current_lanes + 1
-                    rebuild_env(lanes=next_lanes)
+                    live_reconfigure(lanes=next_lanes, toast=f"Đã chuyển sang {next_lanes} làn (Xe tiếp tục chạy)")
                 elif command == "traffic":
                     idx = traffic_cycle.index(current_traffic) if current_traffic in traffic_cycle else 1
                     next_traffic = traffic_cycle[(idx + 1) % len(traffic_cycle)]
-                    rebuild_env(traffic=next_traffic)
+                    d_vi = {"sparse": "Thưa", "normal": "Vừa", "dense": "Dày", "none": "Không có xe"}.get(next_traffic, next_traffic)
+                    live_reconfigure(traffic=next_traffic, toast=f"Mật độ xe: {d_vi} (Xe tiếp tục chạy)")
                 elif command == "speed":
                     idx = min(range(len(speed_cycle)), key=lambda i: abs(speed_cycle[i] - current_speed))
                     next_speed = speed_cycle[(idx + 1) % len(speed_cycle)]
-                    rebuild_env(speed=next_speed)
+                    live_reconfigure(speed=next_speed, toast=f"Vận tốc xe: {int(next_speed)} km/h (Xe tiếp tục chạy)")
+                elif command == "traffic_speed":
+                    idx = traffic_speed_cycle.index(current_traffic_speed) if current_traffic_speed in traffic_speed_cycle else 1
+                    next_flow = traffic_speed_cycle[(idx + 1) % len(traffic_speed_cycle)]
+                    f_vi = {"slow": "Chậm", "normal": "Vừa", "fast": "Nhanh"}.get(next_flow, next_flow)
+                    live_reconfigure(traffic_speed=next_flow, toast=f"Dòng xe: {f_vi} (Xe tiếp tục chạy)")
                 elif command == "preset_1":
-                    rebuild_env(lanes=2, traffic="sparse", speed=90.0, traffic_speed="normal")
+                    live_reconfigure(lanes=2, traffic="sparse", speed=90.0, traffic_speed="normal", toast="Kịch bản 1: 2 làn · Thưa (8 xe) · 90 km/h (Xe tiếp tục chạy)")
                 elif command == "preset_2":
-                    rebuild_env(lanes=3, traffic="normal", speed=72.0, traffic_speed="normal")
+                    live_reconfigure(lanes=3, traffic="normal", speed=72.0, traffic_speed="normal", toast="Kịch bản 2: 3 làn · Chuẩn (20 xe) · 72 km/h (Xe tiếp tục chạy)")
                 elif command == "preset_3":
-                    rebuild_env(lanes=5, traffic="dense", speed=80.0, traffic_speed="fast")
+                    live_reconfigure(lanes=5, traffic="dense", speed=80.0, traffic_speed="fast", toast="Kịch bản 3: 5 làn · Dày (38 xe) · Nhanh (Xe tiếp tục chạy)")
                 elif command == "preset_4":
-                    rebuild_env(lanes=4, traffic="none", speed=90.0, traffic_speed="normal")
+                    live_reconfigure(lanes=4, traffic="none", speed=90.0, traffic_speed="normal", toast="Kịch bản 4: 4 làn · Đường vắng (Xe tiếp tục chạy)")
             if not running:
                 break
             if not paused and not done:

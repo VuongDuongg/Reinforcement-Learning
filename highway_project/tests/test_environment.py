@@ -125,9 +125,41 @@ class EnvironmentTests(unittest.TestCase):
             obs, info = env.reset(seed=42)
             view = HighwayView(headless=True)
             view.draw(env.unwrapped, info, paused=False, mode="agent", last_action="IDLE", total_reward=0.0, episode=1)
-            for expected_btn in ("pause", "reset", "new", "mode", "lanes", "traffic", "speed"):
+            for expected_btn in ("pause", "reset", "new", "mode", "lanes", "traffic", "speed", "traffic_speed", "preset_1", "preset_2", "preset_3", "preset_4"):
                 self.assertIn(expected_btn, view.buttons)
                 self.assertGreater(view.buttons[expected_btn].width, 0)
+
+    def test_live_reconfiguration_preserves_vehicle_progress(self):
+        from highway_env.road.road import RoadNetwork
+        env = self.create(lanes_count=3, vehicles_count="normal")
+        obs, info = env.reset(seed=42)
+        for _ in range(10):
+            obs, reward, terminated, truncated, info = env.step(1)
+        dist_before = info["distance_m"]
+        self.assertGreater(dist_before, 0.0)
+
+        # Chuyển động trực tiếp sang 5 làn không reset xe
+        env.unwrapped.config["lanes_count"] = 5
+        length = float(env.unwrapped.config.get("route_length", 1000.0) + 1500.0)
+        env.unwrapped.road.network = RoadNetwork.straight_road_network(5, length=length)
+        for v in [*env.unwrapped.road.vehicles, *env.unwrapped.road.objects]:
+            v.road = env.unwrapped.road
+            tl = min(int(v.lane_index[2]), 4)
+            v.lane_index = ("0", "1", tl)
+            if hasattr(v, "target_lane_index"):
+                v.target_lane_index = ("0", "1", tl)
+            if hasattr(v, "lane"):
+                v.lane = env.unwrapped.road.network.get_lane(v.lane_index)
+
+        obs = env.unwrapped.observation_type.observe()
+        info = env.unwrapped._info(obs)
+
+        # Xe tiếp tục tiến tới bước tiếp theo
+        for _ in range(5):
+            obs, reward, terminated, truncated, info = env.step(1)
+        dist_after = info["distance_m"]
+        self.assertGreater(dist_after, dist_before)
+        self.assertEqual(info["sensors"]["lanes_count"], 5)
 
     def test_parse_traffic_and_cli_options(self):
         from ..run import parse_traffic
