@@ -1,6 +1,9 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+chcp 65001 >nul 2>&1
+set PYTHONUTF8=1
+set PYTHONIOENCODING=utf-8
 
 if not exist ".venv-highway\Scripts\python.exe" goto missing
 
