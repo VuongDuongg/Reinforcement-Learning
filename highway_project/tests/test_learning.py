@@ -8,9 +8,9 @@ import unittest
 
 import numpy as np
 
-from .environment import make_env
-from .motion import MotionBuffer
-from .q_agent import QLearningAgent
+from ..environment.environment import make_env
+from ..gui.motion import MotionBuffer
+from ..algorithms.q_agent import QLearningAgent
 
 
 class LearningTests(unittest.TestCase):

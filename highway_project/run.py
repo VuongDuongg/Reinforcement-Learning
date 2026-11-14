@@ -7,41 +7,140 @@ import json
 import os
 
 
+def parse_traffic(value: str) -> str:
+    val = value.strip().lower()
+    mapping = {
+        "sparse": "sparse", "thua": "sparse", "thua_thot": "sparse",
+        "normal": "normal", "vua": "normal", "binh_thuong": "normal",
+        "dense": "dense", "day": "dense", "day_dac": "dense",
+        "none": "none", "khong": "none",
+    }
+    if val in mapping:
+        return mapping[val]
+    try:
+        num = int(val)
+        if 0 <= num <= 60:
+            return str(num)
+    except ValueError:
+        pass
+    raise argparse.ArgumentTypeError(
+        f"Mật độ giao thông không hợp lệ: '{value}'. Chọn: sparse (thưa), normal (bình thường), dense (dày đặc), none hoặc số 0..60."
+    )
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Môi trường xe né vật cản và Q-learning.")
+    parser = argparse.ArgumentParser(description="Môi trường xe né vật cản và Q-learning / Deep Q-Network.")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--traffic", type=int, default=12, choices=range(0, 41), metavar="0..40")
-    parser.add_argument("--obstacles", type=int, default=1, choices=range(0, 4))
+    parser.add_argument("--lanes", type=int, choices=range(2, 7), default=3, metavar="2..6", help="Số làn đường cao tốc (2..6, mặc định 3)")
+    parser.add_argument(
+        "--traffic",
+        type=parse_traffic,
+        default="normal",
+        help="Mật độ xe giao thông: sparse (thưa thớt: 8 xe), normal (bình thường: 20 xe), dense (dày đặc: 38 xe), none hoặc số 0..60",
+    )
+    parser.add_argument("--speed", type=float, default=72.0, help="Vận tốc xuất phát xe của bạn theo km/h (mặc định 72 km/h)")
+    parser.add_argument("--max-speed", type=float, default=108.0, help="Vận tốc tối đa cho phép theo km/h (mặc định 108 km/h)")
+    parser.add_argument(
+        "--traffic-speed",
+        choices=["slow", "normal", "fast"],
+        default="normal",
+        help="Dải tốc độ dòng xe giao thông (slow: 36-65 km/h, normal: 50-95 km/h, fast: 75-115 km/h)",
+    )
+    parser.add_argument("--obstacles", type=int, default=2, choices=range(0, 4), help="Số xe hỏng chắn đường (mặc định 2)")
+    parser.add_argument("--fixed-obstacles", action="store_true", help="Cố định vị trí xe hỏng thay vì sinh ngẫu nhiên")
+    parser.add_argument("--route-length", type=float, default=1000.0, help="Độ dài quãng đường tới đích theo mét (mặc định 1000m)")
+    parser.add_argument("--predictable", action="store_true", help="Tắt tính năng xe khó đoán (trở về mặc định cũ)")
     parser.add_argument("--mode", choices=["keyboard", "agent"], default="keyboard")
     parser.add_argument("--paused", action="store_true")
     parser.add_argument("--headless", action="store_true", help="Chạy kiểm tra không mở cửa sổ")
     parser.add_argument("--steps", type=int, default=100, help="Số bước tối đa cho chế độ headless")
     parser.add_argument("--screenshot", help="Lưu ảnh PNG giao diện")
-    parser.add_argument("--model", help="Đường dẫn bảng Q đã huấn luyện")
+    parser.add_argument("--algo", choices=["auto", "dqn", "q_learning"], default="auto", help="Thuật toán sử dụng")
+    parser.add_argument("--model", help="Đường dẫn mô hình (bảng Q hoặc checkpoint DQN .pth)")
     parser.add_argument("--auto-reset", action="store_true", help="Agent tự chuyển episode sau 2 giây")
     args = parser.parse_args()
     if args.steps <= 0:
         parser.error("--steps phải lớn hơn 0")
+    if args.speed <= 0:
+        parser.error("--speed phải lớn hơn 0")
+    if args.max_speed < args.speed:
+        parser.error("--max-speed phải lớn hơn hoặc bằng --speed")
     os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
+    import tempfile
+    os.environ.setdefault("MPLCONFIGDIR", tempfile.gettempdir())
     if args.headless:
         os.environ["SDL_VIDEODRIVER"] = "dummy"
         os.environ["SDL_AUDIODRIVER"] = "dummy"
 
     import pygame
-    from .environment import ACTIONS, make_env
-    from .motion import MotionBuffer
-    from .q_agent import DEFAULT_MODEL, QLearningAgent
-    from .view import HighwayView
+    from pathlib import Path
+    from .environment.environment import ACTIONS, make_env
+    from .gui.motion import MotionBuffer
+    from .algorithms.q_agent import DEFAULT_MODEL as DEFAULT_Q_MODEL, QLearningAgent
+    from .algorithms.dqn_agent import DEFAULT_MODEL as DEFAULT_DQN_MODEL, DQNAgent
+    from .gui.view import HighwayView
 
-    env = make_env(seed=args.seed, config={"vehicles_count": args.traffic, "obstacle_count": args.obstacles})
-    model_path = args.model or DEFAULT_MODEL
-    try:
-        agent = QLearningAgent.load(model_path)
-    except FileNotFoundError:
-        if args.mode == "agent":
-            parser.error("Chưa có bảng Q. Chạy python -m highway_project.train trước.")
-        agent = QLearningAgent()
-        agent.label = "Q-LEARNING chưa huấn luyện (giữ tốc khi bằng điểm)"
+    traffic_ranges = {
+        "slow": (10.0, 18.0),
+        "normal": (14.0, 26.5),
+        "fast": (21.0, 32.0),
+    }
+    t_min, t_max = traffic_ranges.get(args.traffic_speed, (14.0, 26.5))
+
+    env = make_env(
+        seed=args.seed,
+        config={
+            "lanes_count": args.lanes,
+            "vehicles_count": args.traffic,
+            "initial_speed": args.speed / 3.6,
+            "max_speed": args.max_speed / 3.6,
+            "traffic_speed_min": t_min,
+            "traffic_speed_max": t_max,
+            "obstacle_count": args.obstacles,
+            "route_length": args.route_length,
+            "duration": max(75.0, args.route_length / 10.0),
+            "unpredictable_traffic": not args.predictable,
+            "random_obstacles": not args.fixed_obstacles,
+        },
+    )
+
+    algo = args.algo
+    model_path = Path(args.model) if args.model else None
+
+    # Tự động nhận diện thuật toán nếu chọn auto
+    if algo == "auto":
+        if model_path:
+            algo = "dqn" if model_path.suffix in (".pth", ".pt") else "q_learning"
+        elif DEFAULT_DQN_MODEL.exists():
+            algo = "dqn"
+            model_path = DEFAULT_DQN_MODEL
+        elif DEFAULT_Q_MODEL.exists():
+            algo = "q_learning"
+            model_path = DEFAULT_Q_MODEL
+        else:
+            algo = "dqn"
+            model_path = DEFAULT_DQN_MODEL
+
+    if algo == "dqn":
+        target_path = model_path or DEFAULT_DQN_MODEL
+        try:
+            agent = DQNAgent.load(target_path)
+            agent.epsilon = 0.0
+        except FileNotFoundError:
+            if args.mode == "agent":
+                parser.error(f"Chưa có mô hình DQN tại {target_path}. Chạy python -m highway_project.train_dqn trước.")
+            agent = DQNAgent()
+            agent.label = "DQN (PyTorch) chưa huấn luyện"
+    else:
+        target_path = model_path or DEFAULT_Q_MODEL
+        try:
+            agent = QLearningAgent.load(target_path)
+        except FileNotFoundError:
+            if args.mode == "agent":
+                parser.error(f"Chưa có bảng Q tại {target_path}. Chạy python -m highway_project.train trước.")
+            agent = QLearningAgent()
+            agent.label = "Q-LEARNING chưa huấn luyện (giữ tốc khi bằng điểm)"
+
     motion = MotionBuffer()
     seed, episode, mode = args.seed, 0, args.mode
     view = None
