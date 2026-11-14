@@ -1,4 +1,9 @@
 
 .venv-highway/
 .tmp-highway/
-highway_project/results/
+__pycache__/
+*.py[cod]
+*$py.class
+.superpowers/
+highway_project/results/.matplotlib/
+
