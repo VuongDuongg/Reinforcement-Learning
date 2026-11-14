@@ -152,6 +152,45 @@ def main():
         finished_at = None
         step_dt = 1 / env.unwrapped.config["policy_frequency"]
 
+        traffic_cycle = ["sparse", "normal", "dense", "none"]
+        speed_cycle = [54.0, 72.0, 90.0, 108.0]
+        current_lanes = args.lanes
+        current_traffic = args.traffic
+        current_speed = args.speed
+        current_traffic_speed = args.traffic_speed
+
+        def rebuild_env(*, lanes=None, traffic=None, speed=None, traffic_speed=None):
+            nonlocal env, current_lanes, current_traffic, current_speed, current_traffic_speed, step_dt
+            if lanes is not None:
+                current_lanes = lanes
+            if traffic is not None:
+                current_traffic = traffic
+            if speed is not None:
+                current_speed = speed
+            if traffic_speed is not None:
+                current_traffic_speed = traffic_speed
+
+            t_min, t_max = traffic_ranges.get(current_traffic_speed, (14.0, 26.5))
+            env.close()
+            env = make_env(
+                seed=seed,
+                config={
+                    "lanes_count": current_lanes,
+                    "vehicles_count": current_traffic,
+                    "initial_speed": current_speed / 3.6,
+                    "max_speed": max(args.max_speed, current_speed) / 3.6,
+                    "traffic_speed_min": t_min,
+                    "traffic_speed_max": t_max,
+                    "obstacle_count": args.obstacles,
+                    "route_length": args.route_length,
+                    "duration": max(75.0, args.route_length / 10.0),
+                    "unpredictable_traffic": not args.predictable,
+                    "random_obstacles": not args.fixed_obstacles,
+                },
+            )
+            step_dt = 1 / env.unwrapped.config["policy_frequency"]
+            reset()
+
         def reset():
             nonlocal episode, obs, info, done, total_reward, last_action, accumulator, pending_action, finished_at
             obs, info = env.reset(seed=seed)
@@ -201,7 +240,19 @@ def main():
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     command = next((key for key, rect in view.buttons.items() if rect.collidepoint(event.pos)), None)
                 elif event.type == pygame.KEYDOWN:
-                    command = {pygame.K_SPACE: "pause", pygame.K_r: "reset", pygame.K_n: "new", pygame.K_TAB: "mode"}.get(event.key)
+                    command = {
+                        pygame.K_SPACE: "pause",
+                        pygame.K_r: "reset",
+                        pygame.K_n: "new",
+                        pygame.K_TAB: "mode",
+                        pygame.K_l: "lanes",
+                        pygame.K_t: "traffic",
+                        pygame.K_s: "speed",
+                        pygame.K_1: "preset_1",
+                        pygame.K_2: "preset_2",
+                        pygame.K_3: "preset_3",
+                        pygame.K_4: "preset_4",
+                    }.get(event.key)
                     if event.key == pygame.K_ESCAPE:
                         running = False
                     if mode == "keyboard" and not paused and not done:
@@ -217,6 +268,25 @@ def main():
                     mode = "agent" if mode == "keyboard" else "keyboard"
                     agent.reset(seed=seed)
                     pending_action = 1
+                elif command == "lanes":
+                    next_lanes = 2 if current_lanes >= 6 else current_lanes + 1
+                    rebuild_env(lanes=next_lanes)
+                elif command == "traffic":
+                    idx = traffic_cycle.index(current_traffic) if current_traffic in traffic_cycle else 1
+                    next_traffic = traffic_cycle[(idx + 1) % len(traffic_cycle)]
+                    rebuild_env(traffic=next_traffic)
+                elif command == "speed":
+                    idx = min(range(len(speed_cycle)), key=lambda i: abs(speed_cycle[i] - current_speed))
+                    next_speed = speed_cycle[(idx + 1) % len(speed_cycle)]
+                    rebuild_env(speed=next_speed)
+                elif command == "preset_1":
+                    rebuild_env(lanes=2, traffic="sparse", speed=90.0, traffic_speed="normal")
+                elif command == "preset_2":
+                    rebuild_env(lanes=3, traffic="normal", speed=72.0, traffic_speed="normal")
+                elif command == "preset_3":
+                    rebuild_env(lanes=5, traffic="dense", speed=80.0, traffic_speed="fast")
+                elif command == "preset_4":
+                    rebuild_env(lanes=4, traffic="none", speed=90.0, traffic_speed="normal")
             if not running:
                 break
             if not paused and not done:

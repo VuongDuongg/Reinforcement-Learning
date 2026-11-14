@@ -23,15 +23,17 @@ Hoc_Tang_Cuong/
 │   └── KIEN_THUC_CHUNG_MOI_TRUONG_THAY_THANH.md
 ├── marl4av/                   # Mô phỏng đa tác nhân NetLogo (Báo cáo TH2)
 ├── CAI_DAT_MOI_TRUONG.cmd     # Script cài đặt môi trường tự động
+├── CHAY_MOI_TRUONG.cmd        # Mở ngay giao diện mô phỏng Pygame (DQN AI tự lái)
 ├── CHAY_XE_DQN.cmd            # Chạy xe tự lái mô hình Deep Q-Network
+├── CHAY_TUY_CHON.cmd          # Menu tương tác chọn số làn, mật độ xe, tốc độ trong console
 └── CHAY_XE_TU_HOC.cmd         # Chạy xe tự lái mô hình Tabular Q-learning
 ```
 
 1. **`highway_project/` (Khuyên dùng - Nền tảng Gymnasium & Highway-Env):**
    - Triển khai thuật toán **Deep Q-Network (Double DQN với PyTorch)** và **Tabular Q-learning**.
-   - Môi trường cao tốc linh hoạt tùy chỉnh từ **2 đến 6 làn đường** (`--lanes`), mật độ giao thông 3 cấp trực quan: **thưa thớt / bình thường / dày đặc** (`--traffic`), tùy biến vận tốc xuất phát và dòng xe (`--speed`, `--traffic-speed`).
-   - Giao diện trực quan Pygame mượt mà 60 FPS, hệ thống HUD hiển thị vận tốc, quãng đường, vật cản, mật độ và quyết định tức thời của AI.
-   - Hỗ trợ chạy một chạm qua [`CHAY_XE_DQN.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_XE_DQN.cmd) và [`CHAY_XE_TU_HOC.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_XE_TU_HOC.cmd).
+   - Môi trường cao tốc linh hoạt tùy chỉnh từ **2 đến 6 làn đường** (`--lanes` hoặc phím **`L`**), mật độ giao thông 3 cấp trực quan: **thưa thớt / bình thường / dày đặc** (`--traffic` hoặc phím **`T`**), tùy biến vận tốc xuất phát và dòng xe (`--speed` hoặc phím **`S`**).
+   - Giao diện trực quan Pygame mượt mà 60 FPS, hệ thống HUD hiển thị vận tốc, quãng đường, vật cản, mật độ và nút bấm tương tác trực tiếp trên màn hình.
+   - Hỗ trợ chạy một chạm qua [`CHAY_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd) và [`CHAY_XE_DQN.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_XE_DQN.cmd).
    - Xem chi tiết tại [**`highway_project/README.md`**](file:///d:/Hoc_Tang_Cuong/highway_project/README.md) và tài liệu thuật toán [**`highway_project/DQN.md`**](file:///d:/Hoc_Tang_Cuong/highway_project/DQN.md).
 
 2. **`docs/` (Kho lưu trữ tài liệu & báo cáo):**

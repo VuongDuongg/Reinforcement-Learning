@@ -13,7 +13,11 @@ if not exist "highway_project\models\dqn_model.pth" (
     if errorlevel 1 goto failed
 )
 
-".venv-highway\Scripts\python.exe" -m highway_project.launcher %*
+if "%~1"=="" (
+    ".venv-highway\Scripts\python.exe" -m highway_project.run --algo dqn --mode agent --auto-reset
+) else (
+    ".venv-highway\Scripts\python.exe" -m highway_project.run %*
+)
 if errorlevel 1 goto failed
 exit /b
 

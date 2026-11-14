@@ -23,7 +23,7 @@ class HighwayView:
         pygame.init()
         self.screen = pygame.Surface((self.WIDTH, self.HEIGHT)) if headless else pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         pygame.display.set_caption("RL | Môi trường xe né vật cản")
-        self.fonts = {size: pygame.font.SysFont("segoeui,arial", size) for size in (14, 16, 18, 22, 28, 36)}
+        self.fonts = {size: pygame.font.SysFont("segoeui,arial", size) for size in (12, 14, 15, 16, 18, 22, 28, 36)}
         self.buttons: dict[str, pygame.Rect] = {}
 
     def text(self, text, x, y, size=18, color=TEXT):
@@ -145,14 +145,43 @@ class HighwayView:
         self.text(f"Chế độ: {mode_text}", 38, hud_info_y, 18, MINT)
         self.text(f"Episode {episode}  ·  Còn {info['remaining_m']:.0f} m  ·  Reward {total_reward:.2f}", 38, hud_info_y + 26, 16, MUTED)
         self.text(f"Lệnh gần nhất: {last_action}", 38, hud_info_y + 52, 16, MUTED)
-        labels = [("pause", "Chạy / Dừng", 36, 190), ("reset", "R · Chạy lại", 240, 175),
-                  ("new", "N · Kịch bản mới", 429, 215), ("mode", "Tab · Đổi chế độ", 658, 225)]
+
+        # Nhãn mật độ giao thông hiển thị gọn
+        density_label_short = {
+            "sparse": "Thưa",
+            "normal": "Vừa",
+            "dense": "Dày",
+            "none": "Không",
+        }.get(density, "Vừa")
+
+        pause_label = "Space · Tiếp tục" if paused else "Space · Dừng"
+        mode_label = "Tab · DQN (AI)" if mode == "agent" else "Tab · Tự lái"
+        lanes_label = f"L · {lanes_count} Làn"
+        traffic_label = f"T · Xe: {density_label_short}"
+
+        current_cfg_speed = int(round(env.config.get("initial_speed", 20.0) * 3.6))
+        speed_label = f"S · {current_cfg_speed} km/h"
+
+        labels = [
+            ("pause", pause_label, 36, 150),
+            ("reset", "R · Chạy lại", 202, 140),
+            ("new", "N · Hạt giống", 358, 150),
+            ("mode", mode_label, 524, 170),
+            ("lanes", lanes_label, 710, 145),
+            ("traffic", traffic_label, 871, 165),
+            ("speed", speed_label, 1052, 180),
+        ]
         for key, label, x, width in labels:
             rect = pygame.Rect(x, 689, width, 46)
             self.buttons[key] = rect
             pygame.draw.rect(self.screen, PANEL, rect, border_radius=8)
-            self.text(label, x + 14, 700, 18)
-        self.text("← / → đổi làn    ↑ tăng tốc    ↓ giảm tốc    Space tạm dừng    Esc thoát", 38, 759, 16, MUTED)
+            pygame.draw.rect(self.screen, (45, 62, 80), rect, width=1, border_radius=8)
+            self.text(label, x + 12, 701, 16)
+
+        if mode == "keyboard":
+            self.text("Lái xe: ← / → đổi làn  ·  ↑ tăng tốc  ·  ↓ giảm tốc  |  Phím tắt: L đổi làn  ·  T mật độ  ·  S tốc độ", 38, 757, 15, MINT)
+        else:
+            self.text("Phím tắt: L đổi số làn (2..6)  ·  T đổi mật độ  ·  S đổi tốc độ  ·  1-4 kịch bản mẫu  ·  Tab đổi AI/Phím  ·  Space dừng", 38, 757, 15, MUTED)
 
     def save(self, path: str | Path):
         target = Path(path)

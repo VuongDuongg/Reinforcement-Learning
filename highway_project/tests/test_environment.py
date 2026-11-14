@@ -125,6 +125,9 @@ class EnvironmentTests(unittest.TestCase):
             obs, info = env.reset(seed=42)
             view = HighwayView(headless=True)
             view.draw(env.unwrapped, info, paused=False, mode="agent", last_action="IDLE", total_reward=0.0, episode=1)
+            for expected_btn in ("pause", "reset", "new", "mode", "lanes", "traffic", "speed"):
+                self.assertIn(expected_btn, view.buttons)
+                self.assertGreater(view.buttons[expected_btn].width, 0)
 
     def test_parse_traffic_and_cli_options(self):
         from ..run import parse_traffic

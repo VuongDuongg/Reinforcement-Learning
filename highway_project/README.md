@@ -59,10 +59,26 @@ pip install -r highway_project\requirements.txt
 ## 3. Hướng dẫn Chạy Mô phỏng
 
 ### 3.1. Chạy nhanh một chạm bằng file `.cmd`
-- Chạy xe tự lái với mô hình **Deep Q-Network (DQN)**: Click đúp `CHAY_XE_DQN.cmd`.
-- Chạy xe tự lái với mô hình **Q-learning dạng bảng**: Click đúp `CHAY_XE_TU_HOC.cmd`.
+- **Chạy môi trường ngay lập tức (DQN AI tự lái)**: Click đúp [`CHAY_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd) hoặc [`CHAY_XE_DQN.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_XE_DQN.cmd). Cửa sổ Pygame sẽ bật lên ngay lập tức trong vòng chưa đến 1 giây!
+- **Chạy menu kịch bản tương tác trong Console**: Click đúp [`CHAY_TUY_CHON.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_TUY_CHON.cmd) để trả lời trắc nghiệm chọn làn, mật độ xe, vận tốc trước khi chạy.
+- **Chạy xe tự lái Q-learning dạng bảng**: Click đúp [`CHAY_XE_TU_HOC.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_XE_TU_HOC.cmd).
 
-### 3.2. Chạy từ dòng lệnh với các kịch bản tùy chọn
+### 3.2. Điều khiển trực tiếp trên giao diện Pygame (Nút bấm & Phím tắt)
+Bạn có thể tùy biến số làn, mật độ xe và kịch bản **trực tiếp khi đang xem mô phỏng** bằng chuột hoặc phím tắt:
+- **Phím `L`** hoặc nút **`[L · Làn]`**: Đổi số làn đường cao tốc theo vòng lặp: `2 -> 3 -> 4 -> 5 -> 6 -> 2` làn.
+- **Phím `T`** hoặc nút **`[T · Xe]`**: Đổi mật độ xe theo vòng lặp: `Thưa (8 xe) -> Vừa (20 xe) -> Dày (38 xe) -> Không (0 xe)`.
+- **Phím `S`** hoặc nút **`[S · Tốc độ]`**: Đổi dải tốc độ xuất phát: `54 -> 72 -> 90 -> 108 km/h`.
+- **Phím `1`**: Kịch bản 1 — Cao tốc hẹp 2 làn, xe thưa 8 xe, 90 km/h.
+- **Phím `2`**: Kịch bản 2 — Cao tốc 3 làn chuẩn, xe vừa 20 xe, 72 km/h.
+- **Phím `3`**: Kịch bản 3 — Cao tốc 5 làn mở rộng, xe dày đặc 38 xe, dòng xe nhanh.
+- **Phím `4`**: Kịch bản 4 — Cao tốc vắng 4 làn, không có xe giao thông (0 xe), 90 km/h.
+- **Phím `Tab`** hoặc nút **`[Tab · Đổi chế độ]`**: Chuyển đổi tức thì giữa **AI tự lái (DQN)** và **Người tự lái bằng phím**.
+- **Phím `Space`** hoặc nút **`[Space · Dừng]`**: Tạm dừng / Tiếp tục mô phỏng.
+- **Phím `R`** hoặc nút **`[R · Chạy lại]`**: Khởi động lại tập mô phỏng hiện tại.
+- **Phím `N`** hoặc nút **`[N · Hạt giống]`**: Sinh tình huống giao thông ngẫu nhiên mới.
+- **Phím mũi tên `← / → / ↑ / ↓`**: Chuyển làn và tăng/giảm tốc độ khi tự lái.
+
+### 3.3. Chạy từ dòng lệnh với các tham số tùy chọn
 
 Người dùng có thể linh hoạt điều chỉnh cấu hình kịch bản: **số làn đường (2..6)**, **mật độ xe (thưa thớt / bình thường / dày đặc)**, **vận tốc xe** và **dải tốc độ giao thông**:
 

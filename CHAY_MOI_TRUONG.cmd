@@ -7,7 +7,11 @@ set PYTHONIOENCODING=utf-8
 
 if not exist ".venv-highway\Scripts\python.exe" goto missing
 
-".venv-highway\Scripts\python.exe" -m highway_project.launcher %*
+if "%~1"=="" (
+    ".venv-highway\Scripts\python.exe" -m highway_project.run --algo dqn --mode agent --auto-reset
+) else (
+    ".venv-highway\Scripts\python.exe" -m highway_project.run %*
+)
 if errorlevel 1 pause
 exit /b
 
