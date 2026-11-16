@@ -58,10 +58,8 @@ pip install -r highway_project\requirements.txt
 
 ## 3. Hướng dẫn Chạy Mô phỏng
 
-### 3.1. Chạy nhanh một chạm bằng file `.cmd`
-- **Chạy môi trường ngay lập tức (DQN AI tự lái)**: Click đúp [`CHAY_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd) hoặc [`CHAY_XE_DQN.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_XE_DQN.cmd). Cửa sổ Pygame sẽ bật lên ngay lập tức trong vòng chưa đến 1 giây!
-- **Chạy menu kịch bản tương tác trong Console**: Click đúp [`CHAY_TUY_CHON.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_TUY_CHON.cmd) để trả lời trắc nghiệm chọn làn, mật độ xe, vận tốc trước khi chạy.
-- **Chạy xe tự lái Q-learning dạng bảng**: Click đúp [`CHAY_XE_TU_HOC.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_XE_TU_HOC.cmd).
+### 3.1. Chạy nhanh một chạm bằng file `.cmd` duy nhất
+- **Chạy toàn bộ môi trường (AI tự lái + Giao diện Dashboard đầy đủ)**: Click đúp vào file duy nhất [**`CHAY_MOI_TRUONG.cmd`**](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd). Cửa sổ Pygame sẽ bật lên ngay lập tức trong vòng chưa đến 1 giây! Tích hợp đầy đủ mọi tính năng, tự động kiểm tra checkpoint mô hình, hỗ trợ đổi chế độ lái (AI / Bàn phím) và tùy chỉnh kịch bản ngay trên màn hình.
 
 ### 3.2. Điều khiển trực tiếp trên giao diện Pygame (Nút bấm & Phím tắt)
 Bạn có thể tùy biến số làn, mật độ xe và kịch bản **trực tiếp khi đang xem mô phỏng** bằng chuột hoặc phím tắt:

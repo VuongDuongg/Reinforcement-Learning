@@ -320,8 +320,8 @@ State Vector Input [Dim = 68]
 
 ### 6.1. Chạy mô hình DQN đã huấn luyện
 ```powershell
-# Chạy một chạm bằng file script
-.\CHAY_XE_DQN.cmd
+# Chạy một chạm bằng file script duy nhất
+.\CHAY_MOI_TRUONG.cmd
 
 # Hoặc chạy từ dòng lệnh với tùy chỉnh nâng cao
 .\.venv-highway\Scripts\python.exe -m highway_project.run --algo dqn --mode agent --auto-reset
