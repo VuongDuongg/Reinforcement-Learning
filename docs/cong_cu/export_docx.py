@@ -8,7 +8,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 
-DOCX_PATH = Path(r"d:\Hoc_Tang_Cuong\docs\GIAI_THICH_CODE_MOI_TRUONG.docx")
+DOCX_PATH = Path(__file__).resolve().parent.parent / "moi_truong" / "GIAI_THICH_CODE_MOI_TRUONG.docx"
 
 # Màu sắc chủ đạo (Corporate Tech Palette)
 COLOR_PRIMARY = RGBColor(27, 54, 93)     # Deep Navy
