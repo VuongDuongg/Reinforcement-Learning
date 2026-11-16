@@ -124,10 +124,28 @@ class EnvironmentTests(unittest.TestCase):
             env = self.create(lanes_count=lanes, vehicles_count=traffic)
             obs, info = env.reset(seed=42)
             view = HighwayView(headless=True)
+            
+            # 1. Kiểm tra màn hình chính (khi đóng Menu): chỉ hiển thị 4 nút chính gọn gàng
+            view.menu_open = False
             view.draw(env.unwrapped, info, paused=False, mode="agent", last_action="IDLE", total_reward=0.0, episode=1)
-            for expected_btn in ("pause", "reset", "new", "mode", "lanes", "traffic", "speed", "traffic_speed", "preset_1", "preset_2", "preset_3", "preset_4"):
+            for expected_btn in ("pause", "mode", "menu_toggle", "reset"):
                 self.assertIn(expected_btn, view.buttons)
                 self.assertGreater(view.buttons[expected_btn].width, 0)
+
+            # 2. Kiểm tra Bảng Cài Đặt Popup Menu khi mở: chứa đầy đủ các nút lựa chọn phân nhóm
+            view.menu_open = True
+            view.draw(env.unwrapped, info, paused=False, mode="agent", last_action="IDLE", total_reward=0.0, episode=1)
+            menu_expected = (
+                "menu_close", "menu_lane_2", "menu_lane_3", "menu_lane_4", "menu_lane_5", "menu_lane_6",
+                "menu_traffic_sparse", "menu_traffic_normal", "menu_traffic_dense", "menu_traffic_none",
+                "menu_spd_54", "menu_spd_72", "menu_spd_90", "menu_spd_108",
+                "menu_flow_slow", "menu_flow_normal", "menu_flow_fast",
+                "menu_preset_1", "menu_preset_2", "menu_preset_3", "menu_preset_4",
+                "menu_mode_agent", "menu_mode_keyboard", "menu_close_btn"
+            )
+            for m_btn in menu_expected:
+                self.assertIn(m_btn, view.buttons)
+                self.assertGreater(view.buttons[m_btn].width, 0)
 
     def test_live_reconfiguration_preserves_vehicle_progress(self):
         from highway_env.road.road import RoadNetwork

@@ -304,26 +304,75 @@ def main():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    command = next((key for key, rect in view.buttons.items() if rect.collidepoint(event.pos)), None)
+                    clicked = next((key for key, rect in view.buttons.items() if rect.collidepoint(event.pos)), None)
+                    if view.menu_open:
+                        if clicked is None and not view.modal_rect.collidepoint(event.pos):
+                            view.menu_open = False
+                        elif clicked in ("menu_close", "menu_close_btn"):
+                            view.menu_open = False
+                        elif clicked and clicked.startswith("menu_lane_"):
+                            target_lane = int(clicked.replace("menu_lane_", ""))
+                            live_reconfigure(lanes=target_lane, toast=f"Đã chuyển sang {target_lane} làn (Xe tiếp tục chạy)")
+                        elif clicked and clicked.startswith("menu_traffic_"):
+                            target_traffic = clicked.replace("menu_traffic_", "")
+                            d_vi = {"sparse": "Thưa", "normal": "Vừa", "dense": "Dày", "none": "Không có xe"}.get(target_traffic, target_traffic)
+                            live_reconfigure(traffic=target_traffic, toast=f"Mật độ xe: {d_vi} (Xe tiếp tục chạy)")
+                        elif clicked and clicked.startswith("menu_spd_"):
+                            target_spd = float(clicked.replace("menu_spd_", ""))
+                            live_reconfigure(speed=target_spd, toast=f"Vận tốc xe: {int(target_spd)} km/h (Xe tiếp tục chạy)")
+                        elif clicked and clicked.startswith("menu_flow_"):
+                            target_flow = clicked.replace("menu_flow_", "")
+                            f_vi = {"slow": "Chậm", "normal": "Vừa", "fast": "Nhanh"}.get(target_flow, target_flow)
+                            live_reconfigure(traffic_speed=target_flow, toast=f"Dòng xe: {f_vi} (Xe tiếp tục chạy)")
+                        elif clicked == "menu_preset_1":
+                            live_reconfigure(lanes=2, traffic="sparse", speed=90.0, traffic_speed="normal", toast="Kịch bản 1: 2 làn · Thưa (8 xe) · 90 km/h (Xe tiếp tục chạy)")
+                        elif clicked == "menu_preset_2":
+                            live_reconfigure(lanes=3, traffic="normal", speed=72.0, traffic_speed="normal", toast="Kịch bản 2: 3 làn · Chuẩn (20 xe) · 72 km/h (Xe tiếp tục chạy)")
+                        elif clicked == "menu_preset_3":
+                            live_reconfigure(lanes=5, traffic="dense", speed=80.0, traffic_speed="fast", toast="Kịch bản 3: 5 làn · Dày (38 xe) · Nhanh (Xe tiếp tục chạy)")
+                        elif clicked == "menu_preset_4":
+                            live_reconfigure(lanes=4, traffic="none", speed=90.0, traffic_speed="normal", toast="Kịch bản 4: 4 làn · Đường vắng (Xe tiếp tục chạy)")
+                        elif clicked == "menu_mode_agent":
+                            mode = "agent"
+                            agent.reset(seed=seed)
+                            pending_action = 1
+                            view.show_toast("Chế độ: AI tự lái (DQN)")
+                        elif clicked == "menu_mode_keyboard":
+                            mode = "keyboard"
+                            agent.reset(seed=seed)
+                            pending_action = 1
+                            view.show_toast("Chế độ: Người tự lái (Phím)")
+                    else:
+                        if clicked == "menu_toggle":
+                            view.toggle_menu()
+                        elif clicked in ("pause", "mode", "reset"):
+                            command = clicked
+
                 elif event.type == pygame.KEYDOWN:
-                    command = {
-                        pygame.K_SPACE: "pause",
-                        pygame.K_r: "reset",
-                        pygame.K_n: "new",
-                        pygame.K_TAB: "mode",
-                        pygame.K_l: "lanes",
-                        pygame.K_t: "traffic",
-                        pygame.K_s: "speed",
-                        pygame.K_f: "traffic_speed",
-                        pygame.K_1: "preset_1",
-                        pygame.K_2: "preset_2",
-                        pygame.K_3: "preset_3",
-                        pygame.K_4: "preset_4",
-                    }.get(event.key)
-                    if event.key == pygame.K_ESCAPE:
-                        running = False
-                    if mode == "keyboard" and not paused and not done:
-                        pending_action = {pygame.K_LEFT: 0, pygame.K_RIGHT: 2, pygame.K_UP: 3, pygame.K_DOWN: 4}.get(event.key, pending_action)
+                    if event.key == pygame.K_m:
+                        view.toggle_menu()
+                    elif event.key == pygame.K_ESCAPE:
+                        if view.menu_open:
+                            view.menu_open = False
+                        else:
+                            running = False
+                    else:
+                        command = {
+                            pygame.K_SPACE: "pause",
+                            pygame.K_r: "reset",
+                            pygame.K_n: "new",
+                            pygame.K_TAB: "mode",
+                            pygame.K_l: "lanes",
+                            pygame.K_t: "traffic",
+                            pygame.K_s: "speed",
+                            pygame.K_f: "traffic_speed",
+                            pygame.K_1: "preset_1",
+                            pygame.K_2: "preset_2",
+                            pygame.K_3: "preset_3",
+                            pygame.K_4: "preset_4",
+                        }.get(event.key)
+                        if mode == "keyboard" and not paused and not done:
+                            pending_action = {pygame.K_LEFT: 0, pygame.K_RIGHT: 2, pygame.K_UP: 3, pygame.K_DOWN: 4}.get(event.key, pending_action)
                 if command == "pause":
                     paused = not paused
                     accumulator, pending_action = 0.0, 1
