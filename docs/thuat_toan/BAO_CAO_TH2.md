@@ -40,7 +40,7 @@ Trên cơ sở định hướng nghiên cứu của Bộ môn và tham khảo tr
 4.  **Cảm biến hình nón động thích ứng theo vận tốc (Dynamic Look-ahead Cone Sensor):**
     *   Khắc phục giới hạn radar cố định $2.5\text{ patches}$ bằng công thức mở rộng tầm quét thích ứng: $d_{\text{sensor}}(v_t) = d_0 + v_t \cdot \tau_{\text{preview}}$, đảm bảo xe luôn có đủ cự ly và thời gian phản xạ khi lưu thông ở tốc độ cao.
 5.  **Kiến trúc Phân tầng Độc lập (Decoupled Modular Architecture):**
-    *   Tách biệt hoàn toàn tầng mô phỏng NetLogo và tầng lõi thuật toán Python qua cầu nối trung gian [`rl_bridge.py`](file:///d:/Hoc_Tang_Cuong/marl4av/algorithms/rl_bridge.py), hỗ trợ kiểm thử độc lập và loại bỏ xung đột mã nguồn Git.
+    *   Tách biệt hoàn toàn tầng mô phỏng NetLogo và tầng lõi thuật toán Python qua cầu nối trung gian [`rl_bridge.py`](file:///d:/Hoc_Tang_Cuong/marl4av/rl_bridge.py), hỗ trợ kiểm thử độc lập và loại bỏ xung đột mã nguồn Git.
 
 ---
 
@@ -563,7 +563,7 @@ Cập nhật tiến độ dự án, khối lượng công việc và mức độ
 
 | STT | Thành viên | Mã SV | Nhiệm vụ phân công | Khối lượng công việc đã hoàn thành | Tỷ lệ hoàn thành | Đánh giá & Kế hoạch tuần tới |
 | :---: | :--- | :---: | :--- | :--- | :---: | :--- |
-| **1** | **Nguyễn Đình Tuấn Sơn** *(Trưởng nhóm)* | 2351170616 | **Cấu hình Môi trường & Tích hợp NetLogo** | - Clone mã nguồn `marl4av`, cài đặt NetLogo 6.4.0 và cấu hình Python bridge `py:setup`.<br>- Thiết lập cấu trúc đường cao tốc 1 chiều 4 làn, xóa cơ chế quay đầu.<br>- Xây dựng file cầu nối trung gian [`rl_bridge.py`](file:///d:/Hoc_Tang_Cuong/marl4av/algorithms/rl_bridge.py). | **85%** | **Xuất sắc**; Hoàn thiện việc gọi các hàm `py:run` từ giao diện NetLogo. |
+| **1** | **Nguyễn Đình Tuấn Sơn** *(Trưởng nhóm)* | 2351170616 | **Cấu hình Môi trường & Tích hợp NetLogo** | - Clone mã nguồn `marl4av`, cài đặt NetLogo 6.4.0 và cấu hình Python bridge `py:setup`.<br>- Thiết lập cấu trúc đường cao tốc 1 chiều 4 làn, xóa cơ chế quay đầu.<br>- Xây dựng file cầu nối trung gian [`rl_bridge.py`](file:///d:/Hoc_Tang_Cuong/marl4av/rl_bridge.py). | **85%** | **Xuất sắc**; Hoàn thiện việc gọi các hàm `py:run` từ giao diện NetLogo. |
 | **2** | **Lê Tuấn Khanh** | 2351170601 | **Quản lý Vật cản, Cảm biến, Hàm thưởng & SAC** | - Cấu hình kịch bản sinh xe hỏng tĩnh ($v=0$) có cọc cảnh báo nguy hiểm.<br>- Tinh chỉnh hàm thưởng đa mục tiêu $\mathcal{R}$ ($R_{\text{crash}}, R_{\text{speed}}, R_{\text{rule}}$).<br>- Đồng cài đặt mạng SAC rời rạc và Rule-based Baseline. | **80%** | **Tốt**; Cân chỉnh xác suất sinh xe hỏng và khoảng cách đặt biển cảnh báo. |
 | **3** | **Dương Quốc Vượng** | 2351170634 | **Cài đặt Thuật toán 1 (DQN)** | - Xây dựng hoàn chỉnh class `DQNAgent` trong [`algorithms/dqn_agent.py`](file:///d:/Hoc_Tang_Cuong/marl4av/algorithms/dqn_agent.py).<br>- Cài đặt mạng Q-Network, Target Network, Replay Buffer và $\epsilon$-greedy.<br>- Chạy kiểm thử độc lập qua `test_all_agents.py` đạt kết quả hội tụ tốt. | **80%** | **Tốt**; Tinh chỉnh siêu tham số chu kỳ cập nhật `update_steps` và kích thước batch. |
 | **4** | **Ngô Tuấn Anh** | 2351170570 | **Cài đặt Thuật toán 2 (Double Dueling DQN)** | - Xây dựng class `DoubleDuelingDQNAgent` trong [`algorithms/ddqn_agent.py`](file:///d:/Hoc_Tang_Cuong/marl4av/algorithms/ddqn_agent.py).<br>- Sử dụng Functional API tách 2 nhánh Value $V(s)$ và Advantage $A(s, a)$.<br>- Cài đặt cơ chế cập nhật mềm Soft Update Target Network với $\tau = 0.005$. | **75%** | **Khá tốt**; Chạy thực nghiệm so sánh giảm thiểu Overestimation so với DQN. |
@@ -817,7 +817,7 @@ Class RuleBasedAgent:
     *   Tuyến đường cao tốc 1 chiều 4 làn chuẩn hóa phân cấp tốc độ ($120 - 100 - 80\text{ km/h}$).
     *   Cơ chế sinh xe hỏng tĩnh ($v = 0$) kèm cọc/biển cảnh báo nguy hiểm, xóa bỏ cơ chế dừng đột ngột và loại bỏ xe cứu hộ.
     *   Hệ thống cảm biến hình nón động thích ứng theo tốc độ, giải quyết dứt điểm nghịch lý cự ly phanh ở vận tốc cao.
-2.  **Về Lõi Thuật toán & Cầu nối:** Cả 4 thuật toán RL (DQN, Double Dueling DQN, PPO, SAC) cùng Baseline đã được đóng gói thành các Class Python độc lập, kết nối mượt mà với NetLogo qua [`rl_bridge.py`](file:///d:/Hoc_Tang_Cuong/marl4av/algorithms/rl_bridge.py) và đã kiểm thử thành công qua script [`test_all_agents.py`](file:///d:/Hoc_Tang_Cuong/marl4av/algorithms/test_all_agents.py).
+2.  **Về Lõi Thuật toán & Cầu nối:** Cả 4 thuật toán RL (DQN, Double Dueling DQN, PPO, SAC) cùng Baseline đã được đóng gói thành các Class Python độc lập, kết nối mượt mà với NetLogo qua [`rl_bridge.py`](file:///d:/Hoc_Tang_Cuong/marl4av/rl_bridge.py) và đã kiểm thử thành công qua script [`test_all_agents.py`](file:///d:/Hoc_Tang_Cuong/marl4av/test_all_agents.py).
 3.  **Kế hoạch tuần tiếp theo:**
     *   Tiến hành chạy mô phỏng huấn luyện từ $3.000 - 5.000\text{ ticks}$ trên NetLogo cho từng thuật toán.
     *   Trích xuất dữ liệu log sang file CSV: Tốc độ trung bình (Average Speed), Tỷ lệ va chạm (Collision Rate), Phần thưởng tích lũy (Cumulative Reward).

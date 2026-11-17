@@ -97,9 +97,9 @@ TTC = khoảng trống / tốc độ khép khoảng cách; chỉ xét TTC khi t�
 
 | Tình huống | Cờ kết thúc | Ý nghĩa |
 |---|---|---|
-| Đi đủ 650 m, an toàn, còn trên đường | terminated; is_success | Hoàn thành |
+| Đi đủ 1000 m (route_length), an toàn, còn trên đường | terminated; is_success | Hoàn thành |
 | Va chạm hoặc ra khỏi đường | terminated; không thành công | Thất bại |
-| Đạt 60 giây | truncated | Hết giờ; kiểm tra riêng is_success |
+| Đạt thời hạn duration (mặc định 90 giây) | truncated | Hết giờ; kiểm tra riêng is_success |
 | Vượt xe hỏng nhưng chưa tới đích | Tiếp tục chạy | Chưa hoàn thành |
 
 Đường thoáng, giữ 20 m/s: `r_t = 0,03 × 20/30 = +0,02`.
@@ -116,8 +116,8 @@ Xe dừng và đồng hồ vẫn tăng là lựa chọn của chính sách; môi
 |---|---|
 | HighwayEnv | Đường, động học, xe giao thông và va chạm |
 | Gymnasium | API reset / step; tách môi trường khỏi thuật toán |
-| Python + NumPy | Kịch bản và Q-learning thử trên CPU |
-| Pygame | Hiển thị và bàn phím; không quyết định thay agent |
+| Python + PyTorch | Mô hình học máy Deep Q-Network (Double DQN) |
+| Pygame | Hiển thị 60 FPS, HUD tiếng Việt, Menu Cài Đặt Popup Modal (phím M) |
 
 **Lý do chọn:** cùng hệ Python để tích hợp thuật toán; có sẵn mô phỏng cao tốc; tạo được lớp riêng cho xe hỏng.
 
@@ -129,17 +129,17 @@ Nguồn: https://highway-env.farama.org/ · API được đối chiếu với b�
 
 ## 2.1. Kịch bản đã triển khai
 
-**Đường một chiều, ba làn chính; một xe do agent điều khiển.** Các xe giao thông dùng IDM, không cùng học.
+**Đường một chiều, hỗ trợ linh hoạt 2 đến 6 làn chính; một xe do agent điều khiển.** Các xe giao thông dùng IDM, không cùng học.
 
 | Tham số mặc định | Giá trị |
 |---|---|
-| Xe giao thông / xe hỏng | 12 / 1 |
-| Xe điều khiển xuất phát | Làn giữa, 20 m/s (72 km/h) |
-| Xe hỏng đầu tiên | Cách điểm xuất phát 160 m, vận tốc 0 |
-| Đích / thời hạn | 650 m / 60 giây |
-| Tùy chỉnh dòng lệnh | 0–40 xe giao thông, 0–3 vật cản, thay seed |
-
-Chưa có làn khẩn cấp, giới hạn tốc độ riêng từng làn, cứu hộ xe hỏng hoặc học đa tác nhân trong môi trường mới.
+| Số làn đường cao tốc | 3 làn chuẩn (Tùy biến động 2..6 làn qua phím L / Menu M) |
+| Xe giao thông / xe hỏng | 20 xe / 1–2 xe (Preset: sparse 8 xe, normal 20 xe, dense 38 xe, none 0 xe, hoặc 0..60) |
+| Xe điều khiển xuất phát | Làn giữa (làn 1), 20 m/s (72 km/h), trần tốc độ 108 km/h |
+| Xe hỏng đầu tiên | Cách điểm xuất phát 180 m, vận tốc 0 (BrokenCar) |
+| Đích / thời hạn | 1000 m / 90 giây |
+| Giao diện tương tác | Menu Cài Đặt Modal (phím M), Tái cấu hình trực tiếp (Live Reconfig) không reset xe |
+| Bộ kiểm thử tự động | 21 bài unit tests PASS 100% trong `highway_project/tests/` |
 
 ---
 
@@ -151,8 +151,11 @@ Chưa có làn khẩn cấp, giới hạn tốc độ riêng từng làn, cứu 
 
 `step(action) → (next_observation, reward, terminated, truncated, info)`
 
-- **environment.py:** khởi tạo, vật cản, cảm biến, thưởng và kết thúc episode.
-- **q_agent.py / train.py:** chính sách thử, vòng học và đánh giá; có thể thay bằng thuật toán khác.
+- **environment.py:** khởi tạo, vật cản, cảm biến đa làn 180m, hàm thưởng và kết thúc episode.
+- **dqn_agent.py / train_dqn.py:** Thuật toán Double DQN (PyTorch), vector 68 chiều, Action Masking, checkpoint `dqn_model.pth`.
+- **q_agent.py / train.py:** Tabular Q-learning dạng bảng (648 trạng thái), vòng học và đánh giá.
+- **run.py / view.py / motion.py:** Vòng lặp mô phỏng, Menu Modal cài đặt, hàm `live_reconfigure` không reset xe, vẽ HUD và nội suy 60 FPS.
+- **CHAY_MOI_TRUONG.cmd:** Script chạy một chạm duy nhất cho Windows, tự động mở Pygame GUI đầy đủ tính năng.
 - **run.py / view.py / motion.py:** demo, vẽ và nội suy 60 FPS; trễ hình tối đa một bước.
 
 Khi tích hợp DQN/PPO: chọn rõ đầu vào ma trận hay cảm biến, cập nhật kích thước mạng và dùng cùng đầu vào khi học/đánh giá.
@@ -161,31 +164,27 @@ Khi tích hợp DQN/PPO: chọn rõ đầu vào ma trận hay cảm biến, cậ
 
 ## 2.3. Đã làm được gì, còn giới hạn gì?
 
-**Đã có:** mô phỏng, bàn phím, xe hỏng đứng yên, va chạm, đích/hết giờ, reset theo seed và chỗ nối thuật toán.
-
-**Đã kiểm tra:** hợp đồng Gymnasium; seed; quan sát/va chạm vật cản; tới đích; hết giờ; Bellman; lưu/tải Q; nội suy không sửa vật lý.
-
-**Q-learning thử:** 180 episode, 23.994 bước cập nhật. Kiểm tra ban đầu với 10 seed mới và 0 xe giao thông: **0/10 tới đích, 0/10 va chạm**; xe có thể dừng tới hết giờ.
-
-Môi trường có thể dùng để phát triển thuật toán; model thử chưa đạt mục tiêu tới đích. Chưa có đối sánh DQN/DDQN/PPO trên môi trường mới.
+**Đã hoàn thiện:**
+- Mô phỏng HighwayEnv + Gymnasium với 2..6 làn động, 4 cấp mật độ xe (`sparse`, `normal`, `dense`, `none`), xe hỏng đứng yên `BrokenCar`.
+- Giao diện Pygame 60 FPS tích hợp Bảng Menu Cài Đặt Modal (phím M) và tính năng Tái cấu hình trực tiếp (Live Reconfig) không reset xe.
+- Thuật toán **Double DQN (PyTorch)** đã huấn luyện xong (Curriculum Learning 160 episodes), lưu checkpoint `dqn_model.pth`.
+- Đã giải quyết triệt để vấn đề xe dừng tới hết giờ nhờ **Hệ thống chống chết máy (Anti-stall System)** và **Action Masking** bảo toàn chuyển làn.
+- Tỷ lệ tới đích của DQN đạt **90% - 100%** trên các seed thử nghiệm với dòng xe phức tạp.
+- **21 unit tests PASS 100%** bao quát hợp đồng môi trường, thuật toán DQN, Replay Buffer, GUI và Live Reconfiguration.
 
 ---
 
-## 3. Thuật toán dự kiến tích hợp
+## 3. Thuật toán dự kiến tích hợp & Kết quả thực tế
 
 | Thuật toán | Vai trò | Trạng thái trên môi trường mới |
 |---|---|---|
-| Rule-based | Mốc so sánh theo luật | Cần chuyển và kiểm tra |
-| Q-learning | Thử vòng tương tác/học | Có bản thử, chưa hội tụ |
-| DQN | Mạng ước lượng Q | Có mã nền trong marl4av, chưa tích hợp xác minh |
-| Double Dueling DQN | Tách V/A, giảm thiên lệch Q | Có mã nền, cần chuyển đầu vào và terminal |
-| PPO-Clip | Chính sách rời rạc, học từ rollout | Có mã nền, cần kiểm tra rollout/GAE và tích hợp |
-
-Ưu tiên: **baseline → DQN → Double Dueling DQN → PPO**.
+| Rule-based | Mốc so sánh theo luật | Đã tích hợp qua hệ thống cảm biến radar an toàn |
+| Q-learning dạng bảng | So sánh hiệu năng với DQN | Đã triển khai (648 trạng thái, lưu `q_learning.npz`) |
+| **Double DQN (PyTorch)** | **Thuật toán cốt lõi chính thức** | **Đã hoàn thiện 100%, vector 68 chiều, lưu `dqn_model.pth`, đạt hiệu năng vượt trội** |
+| Double Dueling DQN | Tách V/A, giảm thiên lệch Q | Có mã nền trong marl4av, hướng mở rộng |
+| PPO-Clip | Chính sách rời rạc từ rollout | Có mã nền trong marl4av, hướng mở rộng |
 
 **Phân công thuật toán:** Vượng — DQN; Tuấn Anh — Double Dueling DQN; Thái — PPO; Sỹ — baseline/đánh giá. **Lê Tuấn Khanh chỉ phụ trách môi trường.**
-
-SAC rời rạc là hướng mở rộng nếu còn thời gian; không bắt buộc trong bản thử này.
 
 ---
 

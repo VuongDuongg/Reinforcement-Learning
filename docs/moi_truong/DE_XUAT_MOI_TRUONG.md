@@ -1,8 +1,17 @@
 # Đề xuất môi trường mô phỏng xe tự lái né chướng ngại vật
 
-Ngày lập: 22/10/2026. Đây là đề xuất để lựa chọn hướng làm, chưa phải môi trường đã cài đặt hoặc kết quả thực nghiệm.
+Ngày lập: 22/10/2026. Đây là đề xuất ban đầu để lựa chọn hướng làm.
 
-**Cập nhật 25/10/2026:** Đã triển khai môi trường HighwayEnv trong `highway_project/`, cài thư viện và kiểm tra mô phỏng; thuật toán RL để bổ sung sau. Mở `CHAY_MOI_TRUONG.cmd` và đọc [hướng dẫn bản đã triển khai](highway_project/README.md). Các mục bên dưới giữ nội dung đề xuất ban đầu để tham khảo.
+> **Hiện trạng triển khai thực tế (Cập nhật tháng 11/2026):**  
+> Đề xuất đã được **triển khai thành công 100%** trong thư mục [`highway_project/`](file:///d:/Hoc_Tang_Cuong/highway_project/README.md) với nền tảng **HighwayEnv + Gymnasium + PyTorch**:
+> - Cài đặt hoàn chỉnh thuật toán **Deep Q-Network (Double DQN)** với vector 68 chiều, mạng `QNetwork` 2 tầng ẩn, Replay Buffer và Action Masking.
+> - Hỗ trợ tùy biến động **2 đến 6 làn đường** (`--lanes`), 4 cấp mật độ xe (`--traffic`), tùy chỉnh vận tốc (`--speed`, `--traffic-speed`).
+> - Giao diện đồ họa Pygame 60 FPS tích hợp **Bảng Menu Cài Đặt nổi trung tâm (Modal Popup)** và tính năng **Tái cấu hình trực tiếp (Live Reconfiguration)** không reset xe.
+> - Đạt kiểm thử **21/21 unit tests PASS tuyệt đối**.
+> - Khởi chạy một chạm qua file duy nhất: [`CHAY_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd).
+> - Xem hướng dẫn chi tiết tại: [**`highway_project/README.md`**](file:///d:/Hoc_Tang_Cuong/highway_project/README.md) và [**`docs/thuat_toan/THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/THUAT_TOAN_DQN.md).
+> 
+> *Các mục bên dưới được lưu giữ nguyên vẹn nội dung phân tích ban đầu để làm tài liệu tham khảo và đối chiếu lịch sử phát triển dự án.*
 
 ## 1. Nên chọn môi trường gì?
 

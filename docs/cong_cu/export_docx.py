@@ -235,11 +235,14 @@ def build_document():
         ["highway_project/environment/environment.py", "Môi trường lõi (Core Env)", "Định nghĩa LaneObstacleEnv, BrokenCar, cấu hình mặc định, tạo đường và vật cản, cảm biến đa làn, hàm thưởng."],
         ["highway_project/algorithms/dqn_agent.py", "Thuật toán DQN", "Cài đặt Double DQN, mạng QNetwork, ReplayBuffer, chiếu vector 68 chiều, Action Masking và chống chết máy."],
         ["highway_project/algorithms/q_agent.py", "Thuật toán Q-Learning", "Cài đặt Tabular Q-learning dạng bảng (648 nhóm trạng thái), cập nhật Bellman cổ điển."],
-        ["highway_project/gui/view.py", "Giao diện Pygame", "Vẽ đồ họa mặt đường co giãn 2..6 làn, vạch phân làn, xe mô phỏng, bảng HUD tiếng Việt."],
+        ["highway_project/gui/view.py", "Giao diện Pygame", "Vẽ đồ họa mặt đường co giãn 2..6 làn, vạch phân làn, xe mô phỏng, Bảng Menu Cài Đặt Modal, thanh điều khiển 4 nút và thông báo Toast."],
         ["highway_project/gui/motion.py", "Nội suy chuyển động", "Bộ đệm MotionBuffer nội suy LERP vị trí và góc lái 60 FPS giữa 2 chu kỳ quyết định 10 Hz."],
         ["highway_project/training/train_dqn.py", "Huấn luyện DQN", "Huấn luyện mạng nơ-ron theo Curriculum Learning (tăng dần 0 -> 12 xe), lưu dqn_model.pth."],
-        ["highway_project/run.py", "Điểm khởi chạy CLI", "Script dòng lệnh hỗ trợ các cờ --lanes, --traffic, --speed, --max-speed, --traffic-speed, --algo, --headless."],
-        ["highway_project/tests/", "Kiểm thử tự động", "Bộ 20 unit tests tự động bao quát toàn bộ hợp đồng môi trường, thuật toán DQN và giao diện GUI."]
+        ["highway_project/run.py", "Khởi chạy & Vòng lặp", "Script dòng lệnh hỗ trợ CLI, vòng lặp mô phỏng, và hàm live_reconfigure tái cấu hình trực tiếp không reset xe."],
+        ["highway_project/launcher.py", "Menu Console", "Trình menu console tương tác tiếng Việt thông minh, xử lý mã hóa UTF-8 chống lỗi hiển thị."],
+        ["CHAY_MOI_TRUONG.cmd", "Runner duy nhất", "Script Windows một chạm: kiểm tra môi trường ảo, checkpoint mô hình, và mở giao diện mô phỏng Pygame."],
+        ["CAI_DAT_MOI_TRUONG.cmd", "Setup môi trường", "Script tự động tạo môi trường ảo Python và cài đặt trọn bộ thư viện phụ thuộc."],
+        ["highway_project/tests/", "Kiểm thử tự động", "Bộ 21 unit tests tự động bao quát toàn bộ hợp đồng môi trường, thuật toán DQN, GUI và Live Reconfiguration."]
     ]
     add_styled_table(doc, ["File / Đường dẫn", "Vai trò", "Mô tả chi tiết chức năng"], file_map, [2.2, 1.5, 2.8])
     doc.add_paragraph()
@@ -509,6 +512,30 @@ for i in range(count):
         "Góc quay thân xe (Heading) được nội suy theo cung lượng giác ngắn nhất Delta_theta, "
         "mang lại hình ảnh mượt mà tuyệt đối ở 60 FPS."
     )
+
+    doc.add_heading(level=2).add_run("8.3. Bảng Menu Cài Đặt Nổi Trung Tâm (Popup Modal)").font.color.rgb = COLOR_SECONDARY
+    doc.add_paragraph(
+        "Nhấn phím M hoặc click '☰ CÀI ĐẶT & KỊCH BẢN (M)' để mở bảng Menu Modal nổi bật giữa màn hình với lớp phủ mờ tối (Dim Backdrop 215 alpha):\n"
+        "- 1. Số làn đường cao tốc (2..6 làn).\n"
+        "- 2. Mật độ xe giao thông xung quanh (Thưa 8 xe, Bình thường 20 xe, Dày 38 xe, Không có xe 0 xe).\n"
+        "- 3. Vận tốc xe của bạn (54, 72, 90, 108 km/h).\n"
+        "- 4. Tốc độ dòng xe (Chậm slow, Bình thường normal, Nhanh fast).\n"
+        "- 5. Kịch bản mẫu tích hợp sẵn (Kịch bản 1..4).\n"
+        "- 6. Chế độ điều khiển & Thuật toán (AI: DQN / Bàn phím / Q-learning), Auto-reset, Reset (R), Đóng (Esc / M)."
+    )
+
+    doc.add_heading(level=2).add_run("8.4. Cơ Chế Tái Cấu Hình Trực Tiếp (Live Reconfiguration - Không Reset Xe)").font.color.rgb = COLOR_SECONDARY
+    doc.add_paragraph(
+        "Hàm live_reconfigure trong run.py tái tạo trực tiếp mạng đường RoadNetwork.straight_road_network, "
+        "kẹp lại chỉ số làn và vị trí y của toàn bộ xe, cập nhật vận tốc tức thời và mật độ giao thông mà TUYỆT ĐỐI KHÔNG RESET TIẾN ĐỘ XE. "
+        "Xe của bạn tiếp tục lăn bánh tiến về đích, bảo toàn quãng đường đã đi (distance_m) và điểm thưởng tích lũy."
+    )
+
+    doc.add_heading(level=2).add_run("8.5. Hệ Thống Thông Báo Nổi Toast & Thanh Đáy Tinh Gọn").font.color.rgb = COLOR_SECONDARY
+    doc.add_paragraph(
+        "- show_toast(text, 2500ms): Hiển thị thông báo nổi viền sáng ngọc lam góc dưới bên phải phản hồi tức thì mọi thao tác.\n"
+        "- Thanh đáy chính tinh gọn chỉ 4 nút: Space (Tạm dừng/Tiếp tục), Tab (AI/Phím), ☰ CÀI ĐẶT & KỊCH BẢN (M), R (Chạy lại từ đầu)."
+    )
     doc.add_paragraph()
 
     # --- MỤC 9 ---
@@ -577,7 +604,7 @@ env.close()""")
     r.font.name = "Segoe UI"; r.font.color.rgb = COLOR_PRIMARY; r.font.size = Pt(14); r.font.bold = True
 
     doc.add_paragraph(
-        "Dự án được bảo vệ chặt chẽ bởi bộ 20 unit tests tự động trong highway_project/tests/:"
+        "Dự án được bảo vệ chặt chẽ bởi bộ 21 unit tests tự động trong highway_project/tests/:"
     )
     test_cases = [
         ["test_gymnasium_contract_and_seed", "Kiểm tra tuân thủ giao thức Gymnasium (check_env) và tính tái lập khi dùng seed."],
@@ -588,6 +615,7 @@ env.close()""")
         ["test_random_obstacles_placement_and_safe_spacing", "Kiểm tra vật cản sinh ngẫu nhiên cách nhau >= 150m và cách xuất phát > 100m."],
         ["test_dynamic_lanes_traffic_presets_and_speed_config", "Kiểm tra cấu hình số làn động (2, 5 làn), preset mật độ xe, và tùy biến vận tốc."],
         ["test_view_renders_various_lanes_and_traffic", "Kiểm tra giao diện Pygame vẽ chính xác cho 2, 4, 5 làn ở chế độ headless."],
+        ["test_live_reconfiguration_preserves_vehicle_progress", "Xác minh đổi số làn, mật độ trực tiếp trên live road network không làm reset xe, quãng đường tiếp tục tăng."],
         ["test_parse_traffic_and_cli_options", "Kiểm tra hàm phân tích cú pháp tham số dòng lệnh --traffic."],
         ["test_dqn_agent_various_lanes_and_speeds", "Kiểm tra mô hình DQN tự động ánh xạ vector trạng thái tương đối 68 chiều trên 2, 4, 5 làn."],
         ["test_dqn_dodges_obstacle_when_danger_detected", "Kiểm tra AI tự động lách làn hoặc phanh khi phát hiện xe hỏng chắn trước mặt."],
@@ -597,9 +625,9 @@ env.close()""")
     doc.add_paragraph()
     
     add_callout(doc,
-        "Lệnh chạy toàn bộ bộ kiểm thử tự động:\n"
+        "Lệnh chạy toàn bộ 21 bài kiểm thử tự động:\n"
         ".\\.venv-highway\\Scripts\\python.exe -m unittest discover -s highway_project -t .\n"
-        "Kết quả kiểm thử: Ran 20 tests -> OK (PASS 100% không lỗi)",
+        "Kết quả kiểm thử: Ran 21 tests -> OK (PASS 100% không lỗi)",
         "KẾT QUẢ KIỂM THỬ"
     )
     

@@ -61,20 +61,19 @@ pip install -r highway_project\requirements.txt
 ### 3.1. Chạy nhanh một chạm bằng file `.cmd` duy nhất
 - **Chạy toàn bộ môi trường (AI tự lái + Giao diện Dashboard đầy đủ)**: Click đúp vào file duy nhất [**`CHAY_MOI_TRUONG.cmd`**](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd). Cửa sổ Pygame sẽ bật lên ngay lập tức trong vòng chưa đến 1 giây! Tích hợp đầy đủ mọi tính năng, tự động kiểm tra checkpoint mô hình, hỗ trợ đổi chế độ lái (AI / Bàn phím) và tùy chỉnh kịch bản ngay trên màn hình.
 
-### 3.2. Điều khiển trực tiếp trên giao diện Pygame (Nút bấm & Phím tắt)
-Bạn có thể tùy biến số làn, mật độ xe và kịch bản **trực tiếp khi đang xem mô phỏng** bằng chuột hoặc phím tắt:
-- **Phím `L`** hoặc nút **`[L · Làn]`**: Đổi số làn đường cao tốc theo vòng lặp: `2 -> 3 -> 4 -> 5 -> 6 -> 2` làn.
-- **Phím `T`** hoặc nút **`[T · Xe]`**: Đổi mật độ xe theo vòng lặp: `Thưa (8 xe) -> Vừa (20 xe) -> Dày (38 xe) -> Không (0 xe)`.
-- **Phím `S`** hoặc nút **`[S · Tốc độ]`**: Đổi dải tốc độ xuất phát: `54 -> 72 -> 90 -> 108 km/h`.
-- **Phím `1`**: Kịch bản 1 — Cao tốc hẹp 2 làn, xe thưa 8 xe, 90 km/h.
-- **Phím `2`**: Kịch bản 2 — Cao tốc 3 làn chuẩn, xe vừa 20 xe, 72 km/h.
-- **Phím `3`**: Kịch bản 3 — Cao tốc 5 làn mở rộng, xe dày đặc 38 xe, dòng xe nhanh.
-- **Phím `4`**: Kịch bản 4 — Cao tốc vắng 4 làn, không có xe giao thông (0 xe), 90 km/h.
-- **Phím `Tab`** hoặc nút **`[Tab · Đổi chế độ]`**: Chuyển đổi tức thì giữa **AI tự lái (DQN)** và **Người tự lái bằng phím**.
-- **Phím `Space`** hoặc nút **`[Space · Dừng]`**: Tạm dừng / Tiếp tục mô phỏng.
-- **Phím `R`** hoặc nút **`[R · Chạy lại]`**: Khởi động lại tập mô phỏng hiện tại.
-- **Phím `N`** hoặc nút **`[N · Hạt giống]`**: Sinh tình huống giao thông ngẫu nhiên mới.
-- **Phím mũi tên `← / → / ↑ / ↓`**: Chuyển làn và tăng/giảm tốc độ khi tự lái.
+### 3.2. Điều khiển trực tiếp trên giao diện Pygame (Menu Modal & Phím tắt)
+Bạn có thể tùy biến số làn, mật độ xe và kịch bản **trực tiếp khi đang xem mô phỏng** mà **xe tiếp tục chạy (KHÔNG RESET XE)**:
+- **Phím `M`** hoặc click nút **`☰ CÀI ĐẶT & KỊCH BẢN (M)`**: Mở Bảng Menu Modal trung tâm với 6 phân vùng trực quan (chọn số làn 2..6, mật độ xe, tốc độ xe, dòng xe, kịch bản mẫu 1..4, chế độ lái).
+- **Phím `Space`** hoặc nút **`[Space · Tạm dừng / Tiếp tục]`**: Tạm dừng hoặc cho xe tiếp tục chạy.
+- **Phím `Tab`** hoặc nút **`[Tab · AI: DQN / Lái: Phím]`**: Chuyển đổi tức thì giữa **AI tự lái (DQN)** và **Người tự lái bằng phím**.
+- **Phím `R`** hoặc nút **`[R · Chạy lại từ đầu]`**: Khởi động lại episode mới từ vạch xuất phát.
+- **Phím `L`**: Đổi nhanh số làn đường theo vòng lặp: `2 -> 3 -> 4 -> 5 -> 6 -> 2` làn (xe tiếp tục chạy).
+- **Phím `T`**: Đổi nhanh mật độ xe theo vòng lặp: `Thưa (8 xe) -> Vừa (20 xe) -> Dày (38 xe) -> Không có xe (0 xe)` (xe tiếp tục chạy).
+- **Phím `S`**: Đổi nhanh vận tốc xuất phát: `54 -> 72 -> 90 -> 108 km/h` (xe tiếp tục chạy).
+- **Phím `F`**: Đổi nhanh tốc độ dòng xe xung quanh: `Chậm -> Bình thường -> Nhanh` (xe tiếp tục chạy).
+- **Phím `1`..`4`**: Chọn nhanh các kịch bản mẫu tích hợp sẵn 1..4.
+- **Phím mũi tên `← / → / ↑ / ↓`**: Chuyển làn và tăng/giảm tốc độ khi tự lái bằng bàn phím.
+- **Thông báo nổi Toast**: Banner màu ngọc lam hiển thị xác nhận trạng thái tức thì ở góc dưới bên phải màn hình.
 
 ### 3.3. Chạy từ dòng lệnh với các tham số tùy chọn
 

@@ -257,41 +257,43 @@ DQN là thuật toán nền tảng mang tính bước ngoặt trong lịch sử 
 Trong thư mục [`highway_project/algorithms/`](file:///d:/Hoc_Tang_Cuong/highway_project/algorithms), thuật toán được cài đặt tại [`dqn_agent.py`](file:///d:/Hoc_Tang_Cuong/highway_project/algorithms/dqn_agent.py):
 
 ### 5.1. Vector Trạng Thái 68 Chiều (Observation Vector)
-Vector đầu vào của mạng là sự kết hợp của:
-1. **18 đặc trưng cảm biến Radar/Chuyên dụng**:
-   - Chỉ số làn đường hiện tại ($0, 1, 2$) chuẩn hóa: $\text{lane} / 2.0$.
-   - Vận tốc chuẩn hóa: $v / 30.0\text{ m/s}$.
+Vector đầu vào của mạng là sự kết hợp chặt chẽ giữa đặc trưng cảm biến Radar và ma trận động học:
+1. **18 đặc trưng cảm biến Radar / Chuyên dụng**:
+   - Vị trí làn đường chuẩn hóa: $\text{lane\_norm} = \text{lane} / \max(1.0, \text{lanes\_count} - 1)$.
+   - Vận tốc tức thời chuẩn hóa: $v / 30.0\text{ m/s}$.
    - Trạng thái xe đang trong quỹ đạo chuyển làn (`changing` $\in \{0.0, 1.0\}$).
-   - Khoảng cách tới xe phía trước $\text{fg} \in \mathbb{R}^3$ và phía sau $\text{rg} \in \mathbb{R}^3$ trên cả 3 làn đường (chuẩn hóa trên tầm quét tối đa $180\text{ m}$).
+   - Khoảng cách tới xe phía trước $\text{fg} \in \mathbb{R}^3$ và phía sau $\text{rg} \in \mathbb{R}^3$ trên 3 kênh làn (chuẩn hóa trên tầm quét tối đa $180\text{ m}$).
    - Tốc độ tiếp cận trước $\text{fc} \in \mathbb{R}^3$ và sau $\text{rc} \in \mathbb{R}^3$ chuẩn hóa trên $30\text{ m/s}$.
    - Cờ nhị phân: Báo nguy hiểm va chạm khẩn cấp (`danger`), Làn trái an toàn (`left_clear`), Làn phải an toàn (`right_clear`).
+
+> **Cơ chế Chiếu tương đối 3 kênh theo góc nhìn xe Ego (Ego-Centric 3-Channel Projection):**  
+> Khi số làn đường cao tốc thay đổi động từ 2 đến 6 làn (`lanes_count = 2..6`), phương thức `extract_state` tự động chiếu không gian giao thông thành 3 kênh tương đối lấy xe ego làm trung tâm:
+> - **Kênh 0 (Làn trái):** Nếu $\text{lane} > 0$, lấy dữ liệu làn $\text{lane} - 1$; nếu xe đang ở sát mép trái, gán khoảng cách an toàn $180\text{ m}$ và tốc độ tiếp cận $0$.
+> - **Kênh 1 (Làn hiện tại):** Lấy dữ liệu cảm biến trên chính làn xe đang chạy.
+> - **Kênh 2 (Làn phải):** Nếu $\text{lane} < \text{lanes\_count} - 1$, lấy dữ liệu làn $\text{lane} + 1$; nếu xe đang ở sát mép phải, gán khoảng cách an toàn $180\text{ m}$ và tốc độ tiếp cận $0$.  
+> Nhờ cơ chế này, vector đầu vào luôn duy trì cố định 68 chiều, giúp mô hình DQN đã huấn luyện hoạt động ổn định và chính xác trên mọi cấu hình làn đường mà không bị lỗi kích thước tensor!
+
 2. **50 đặc trưng động học Kinematics chuẩn của HighwayEnv**:
-   - Trạng thái hiện diện, tọa độ $(x, y)$ và vận tốc $(v_x, v_y)$ của 10 phương tiện lân cận gần xe nhất.
+   - Trạng thái hiện diện, tọa độ tương đối $(x, y)$ và vận tốc tương đối $(v_x, v_y)$ của 10 phương tiện lân cận gần xe nhất ($10 \times 5 = 50$).
 
 ### 5.2. Cấu trúc Mạng Nơ-ron (QNetwork)
+Mạng `QNetwork` trong `highway_project/algorithms/dqn_agent.py` được thiết kế tối ưu với 2 tầng ẩn fully-connected:
 ```text
 State Vector Input [Dim = 68]
        │
        ▼
  ┌───────────────┐
- │ Linear Layer  │ 68 -> 128
- │ LayerNorm     │ Chuẩn hóa lớp giúp ổn định phân phối đặc trưng
+ │ Linear Layer  │ 68 -> 128 (Khởi tạo Kaiming Normal, bias = 0)
  │ ReLU          │ Hàm kích hoạt phi tuyến
  └───────┬───────┘
          ▼
  ┌───────────────┐
- │ Linear Layer  │ 128 -> 128
- │ LayerNorm     │ 
- │ ReLU          │
+ │ Linear Layer  │ 128 -> 128 (Khởi tạo Kaiming Normal, bias = 0)
+ │ ReLU          │ Hàm kích hoạt phi tuyến
  └───────┬───────┘
          ▼
  ┌───────────────┐
- │ Linear Layer  │ 128 -> 64
- │ ReLU          │
- └───────┬───────┘
-         ▼
- ┌───────────────┐
- │ Linear Layer  │ 64 -> 5
+ │ Linear Layer  │ 128 -> 5 (Khởi tạo Xavier Normal, bias = 0)
  └───────┬───────┘
          ▼
  Output: Q-values [Q(s, 0), Q(s, 1), Q(s, 2), Q(s, 3), Q(s, 4)]

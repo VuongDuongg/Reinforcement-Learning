@@ -62,12 +62,15 @@ Toàn bộ mã nguồn dự án được tổ chức khoa học theo mô hình m
 | [`highway_project/environment/environment.py`](file:///d:/Hoc_Tang_Cuong/highway_project/environment/environment.py) | **Môi trường lõi (Core Env)** | Định nghĩa lớp `LaneObstacleEnv`, `BrokenCar`, cấu hình mặc định, tạo đường và vật cản, cảm biến đa làn, hàm thưởng, Gymnasium register. |
 | [`highway_project/algorithms/dqn_agent.py`](file:///d:/Hoc_Tang_Cuong/highway_project/algorithms/dqn_agent.py) | **Thuật toán DQN** | Triển khai Double DQN, mạng nơ-ron `QNetwork`, bộ đệm kinh nghiệm `ReplayBuffer`, chiếu vector trạng thái tương đối 68 chiều, Action Masking và hệ thống chống chết máy (Anti-stall). |
 | [`highway_project/algorithms/q_agent.py`](file:///d:/Hoc_Tang_Cuong/highway_project/algorithms/q_agent.py) | **Thuật toán Q-Learning** | Triển khai Q-learning dạng bảng (Tabular), rời rạc hóa trạng thái (648 nhóm), cập nhật Bellman cổ điển. |
-| [`highway_project/gui/view.py`](file:///d:/Hoc_Tang_Cuong/highway_project/gui/view.py) | **Giao diện Pygame** | Vẽ đồ họa mặt đường co giãn theo số làn (2..6 làn), vạch kẻ đường, xe mô phỏng, đích đến, bảng HUD hiển thị vận tốc, mật độ tiếng Việt và hộp thoại trạng thái. |
+| [`highway_project/gui/view.py`](file:///d:/Hoc_Tang_Cuong/highway_project/gui/view.py) | **Giao diện Pygame** | Vẽ đồ họa mặt đường co giãn theo số làn (2..6 làn), vạch kẻ đường, xe mô phỏng, đích đến, Bảng Menu Cài Đặt nổi trung tâm (Popup Modal), thanh điều khiển chính 4 nút và thông báo Toast. |
 | [`highway_project/gui/motion.py`](file:///d:/Hoc_Tang_Cuong/highway_project/gui/motion.py) | **Nội suy chuyển động** | Bộ đệm `MotionBuffer` nội suy tuyến tính (LERP) vị trí và góc quay xe giữa các bước quyết định 10 Hz để hiển thị 60 FPS không bị giật lag. |
 | [`highway_project/training/train_dqn.py`](file:///d:/Hoc_Tang_Cuong/highway_project/training/train_dqn.py) | **Huấn luyện DQN** | Huấn luyện mạng nơ-ron sâu theo phương pháp Curriculum Learning (tăng dần mật độ xe giao thông từ 0 -> 12 xe), lưu checkpoint `.pth`. |
 | [`highway_project/training/plot_results.py`](file:///d:/Hoc_Tang_Cuong/highway_project/training/plot_results.py) | **Trực quan hóa kết quả** | Đọc báo cáo JSON và vẽ biểu đồ so sánh chi tiết hiệu năng giữa DQN và Q-learning dạng bảng. |
-| [`highway_project/run.py`](file:///d:/Hoc_Tang_Cuong/highway_project/run.py) | **Điểm khởi chạy CLI** | Script dòng lệnh chính hỗ trợ toàn bộ các cờ tùy biến (`--lanes`, `--traffic`, `--speed`, `--max-speed`, `--traffic-speed`, `--algo`, `--mode`, `--headless`). |
-| [`highway_project/tests/`](file:///d:/Hoc_Tang_Cuong/highway_project/tests/) | **Kiểm thử tự động** | Bộ 20 bài test tự động bao quát toàn bộ logic môi trường, hợp đồng Gymnasium, thuật toán DQN, Replay Buffer, và giao diện GUI. |
+| [`highway_project/run.py`](file:///d:/Hoc_Tang_Cuong/highway_project/run.py) | **Điểm khởi chạy & Vòng lặp chính** | Xử lý tham số dòng lệnh CLI, khởi tạo môi trường, điều phối vòng lặp mô phỏng, xử lý sự kiện phím/chuột và thực thi hàm `live_reconfigure` tái cấu hình trực tiếp không reset xe. |
+| [`highway_project/launcher.py`](file:///d:/Hoc_Tang_Cuong/highway_project/launcher.py) | **Trình menu console tương tác** | Giao diện dòng lệnh lựa chọn kịch bản thông minh, hỗ trợ mã hóa UTF-8 chống lỗi Unicode trên Windows. |
+| [`CHAY_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd) | **Tập lệnh khởi chạy duy nhất** | Script Windows một chạm: tự động kiểm tra môi trường ảo `.venv-highway`, checkpoint mô hình, và khởi động trực tiếp giao diện mô phỏng Pygame tích hợp đầy đủ tính năng. |
+| [`CAI_DAT_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CAI_DAT_MOI_TRUONG.cmd) | **Tập lệnh cài đặt môi trường** | Script tách riêng dành cho việc tạo môi trường ảo Python và tự động cài đặt trọn bộ thư viện phụ thuộc. |
+| [`highway_project/tests/`](file:///d:/Hoc_Tang_Cuong/highway_project/tests/) | **Kiểm thử tự động** | Bộ 21 bài test tự động bao quát toàn bộ logic môi trường, hợp đồng Gymnasium, thuật toán DQN, Replay Buffer, giao diện GUI và tính năng tái cấu hình trực tiếp bảo toàn tiến độ xe. |
 
 ---
 
@@ -515,6 +518,42 @@ Tác nhân AI ra quyết định ở tần số $10\text{ Hz}$ ($0.1\text{ s}$/b
   $$\theta_{\text{draw}} = \theta_{\text{prev}} + \alpha \cdot \Delta \theta$$
 Kết quả mang lại trải nghiệm đồ họa 60 FPS mượt mà tuyệt đối mà không làm sai lệch tính toán vật lý của engine.
 
+### 8.3. Bảng Menu Cài Đặt Nổi Trung Tâm (Popup Modal Settings)
+Nhằm mang lại trải nghiệm tương tác trực quan cao cấp, giao diện mô phỏng tích hợp bảng **Menu Cài Đặt dạng Modal Popup** nổi bật ở trung tâm màn hình:
+* **Cơ chế kích hoạt linh hoạt:** Người dùng có thể nhấn phím **`M`** trên bàn phím hoặc click chuột vào nút **`☰ CÀI ĐẶT & KỊCH BẢN (M)`** ở thanh điều khiển chính.
+* **Lớp phủ mờ nền tối (Dim Backdrop):** Khi mở menu (`self.menu_open = True`), màn hình được phủ một lớp bán trong suốt màu tối (`RGBA(8, 14, 22, 215)`), tạo chiều sâu thị giác và tập trung hoàn toàn sự chú ý vào bảng cài đặt.
+* **Hộp thoại Modal kích thước $960 \times 580\text{ px}$:** Nằm cân đối chính giữa màn hình với nền xanh đen đậm (`#0f172a`), viền ngọc lam (`#36d3b9`), chia thành 6 phân vùng cấu hình trực quan:
+  1. **Số làn đường cao tốc (2..6 làn):** Tùy chọn chuyển đổi nhanh giữa 2 làn, 3 làn (chuẩn), 4 làn, 5 làn, 6 làn.
+  2. **Mật độ xe giao thông:** Tùy chọn 4 cấp độ: Thưa thớt (8 xe), Bình thường (20 xe), Dày đặc (38 xe), Không có xe (0 xe).
+  3. **Vận tốc xe của bạn:** Các mức tốc độ tức thời: 54 km/h, 72 km/h (chuẩn), 90 km/h, 108 km/h.
+  4. **Tốc độ dòng xe:** Chậm (`slow`: 36-65 km/h), Bình thường (`normal`: 50-95 km/h), Nhanh (`fast`: 75-115 km/h).
+  5. **Chọn nhanh kịch bản mẫu (Presets):** Kịch bản 1 (2 làn · Thưa · 90 km/h), Kịch bản 2 (3 làn · Chuẩn · 72 km/h), Kịch bản 3 (5 làn · Dày · Nhanh), Kịch bản 4 (4 làn · Đường vắng né xe hỏng).
+  6. **Chế độ điều khiển & Tác vụ hệ thống:** Chuyển đổi giữa AI tự lái (DQN / Q-learning) và Người lái bàn phím, bật/tắt Tự động chuyển tập (Auto-reset), Chạy lại từ đầu (`R`), Đóng menu (`Esc` / `M`).
+
+### 8.4. Cơ Chế Tái Cấu Hình Trực Tiếp (Live Reconfiguration - KHÔNG RESET XE)
+Một trong những cải tiến kỹ thuật quan trọng nhất của dự án là tính năng **Tái cấu hình trực tiếp trong thời gian thực (Live Reconfiguration)** thông qua hàm `live_reconfigure(...)` trong [`highway_project/run.py`](file:///d:/Hoc_Tang_Cuong/highway_project/run.py):
+* **Vấn đề của phương pháp cũ:** Trước đây, mỗi khi thay đổi số làn, mật độ xe hoặc vận tốc, môi trường buộc phải gọi `env.reset()`, khiến xe bị đưa giật ngược về vạch xuất phát, làm mất toàn bộ quãng đường đã đi và điểm thưởng tích lũy.
+* **Giải pháp đột phá của `live_reconfigure(...)`:**
+  1. **Tái dựng mạng đường động:** Khi đổi số làn (ví dụ từ 3 lên 5 làn), hàm tái tạo mạng lưới đường `RoadNetwork.straight_road_network(current_lanes, length)` trực tiếp trên đối tượng `road.network` đang chạy.
+  2. **Ánh xạ lại vị trí và làn đường toàn bộ xe:** Duyệt qua mọi phương tiện và vật cản `[*road.vehicles, *road.objects]`, kẹp chỉ số làn `clamped_lane = min(curr_lane_id, current_lanes - 1)` và dịch chuyển vị trí $y$ của các xe ngoài biên về lòng đường mới một cách an toàn.
+  3. **Cập nhật vận tốc tức thời:** Điều chỉnh vận tốc tức thời và vận tốc mục tiêu của xe ego (`unwrapped.vehicle.speed = target_speed`) mà không làm ngắt quãng mô phỏng vật lý.
+  4. **Cập nhật mật độ xe giao thông linh hoạt:** Nếu tăng số xe, môi trường sinh thêm xe nền phía trước; nếu giảm số xe, môi trường giữ lại xe gần ego nhất và giải phóng các xe ở quá xa.
+  5. **BẢO TOÀN TIẾN ĐỘ XE TUYỆT ĐỐI:** Xe của bạn tiếp tục lăn bánh tiến về phía trước, giữ nguyên tọa độ $x$, quãng đường đã đi `distance_m`, thời gian đã trôi qua `elapsed_s` và tổng điểm thưởng tích lũy `total_reward`!
+
+### 8.5. Hệ Thống Thông Báo Nổi Toast Thời Gian Thực (`show_toast`)
+Phương thức `show_toast(text, duration_ms=2500, color=MINT)` trong `HighwayView` cung cấp phản hồi thị giác tức thì cho mọi thao tác người dùng:
+* Khi người dùng click nút hoặc bấm phím tắt thay đổi số làn, mật độ hoặc tốc độ, một thông báo nổi (Toast banner) viền sáng ngọc lam sẽ xuất hiện tại góc dưới bên phải màn hình.
+* Hiển thị nội dung chi tiết: `"✓ Đã chuyển sang 5 làn (Xe tiếp tục chạy)"`, `"✓ Mật độ xe: Dày đặc (38 xe) (Xe tiếp tục chạy)"`, `"✓ Vận tốc xe: 90 km/h"`.
+* Thông báo tự động mờ dần và biến mất sau $2.5\text{ giây}$ mà không làm che khuất các thông số radar hay đường chạy.
+
+### 8.6. Thanh Điều Khiển Chính Tinh Gọn (Main View Bottom Bar)
+Khi đóng Menu, màn hình chính duy trì giao diện tối giản, tập trung và chuyên nghiệp chỉ với **4 nút bấm chức năng ở đáy màn hình**:
+1. **`Space · Tiếp tục / Tạm dừng`** (Rộng 175 px): Tạm dừng hoặc tiếp tục mô phỏng vật lý.
+2. **`Tab · AI: DQN / Lái: Phím`** (Rộng 210 px): Chuyển đổi qua lại giữa chế độ AI tự lái và người điều khiển bàn phím.
+3. **`☰ CÀI ĐẶT & KỊCH BẢN (M)`** (Rộng 270 px, nút nổi bật viền ngọc lam): Mở Bảng Menu Cài Đặt Modal.
+4. **`R · Chạy lại từ đầu`** (Rộng 185 px): Khởi động lại episode mới từ vạch xuất phát.
+* Kèm theo chân trang hướng dẫn phím tắt đầy đủ (`M`, `Space`, `Tab`, `R`, `Esc`, `L`, `T`, `S`, `F`, `1..4`) giúp thao tác cực kỳ nhanh chóng.
+
 ---
 
 ## 9. HƯỚNG DẪN KẾT NỐI THUẬT TOÁN HỌC TĂNG CƯỜNG
@@ -582,7 +621,9 @@ env.close()
 
 ## 10. TỔNG HỢP CHIẾN LƯỢC KIỂM THỬ TỰ ĐỘNG (UNIT TESTS)
 
-Bộ kiểm thử tự động trong thư mục [`highway_project/tests/`](file:///d:/Hoc_Tang_Cuong/highway_project/tests/) gồm 20 bài test tự động bao quát 100% các tính năng:
+Toàn bộ hệ thống được bảo vệ vững chắc bởi bộ **21 bài test tự động** trong thư mục [`highway_project/tests/`](file:///d:/Hoc_Tang_Cuong/highway_project/tests/), bao quát 100% logic môi trường, thuật toán, giao diện và cơ chế tái cấu hình trực tiếp:
+
+### 10.1. Kiểm thử Môi trường & Giao diện (`test_environment.py` - 10 bài test):
 1. `test_gymnasium_contract_and_seed`: Kiểm tra tuân thủ giao thức Gymnasium qua `check_env` và tính tái lập khi dùng `seed`.
 2. `test_obstacle_visible_stationary_and_collision_terminates`: Kiểm tra xe hỏng đứng yên tuyệt đối và va chạm kích hoạt `terminated=True`.
 3. `test_lane_change_can_pass_obstacle_and_reach_goal`: Kiểm tra khả năng đổi làn né vật cản và cán đích an toàn (`is_success=True`).
@@ -590,14 +631,27 @@ Bộ kiểm thử tự động trong thư mục [`highway_project/tests/`](file:
 5. `test_idle_keeps_speed_and_rewards_match_info`: Kiểm tra duy trì vận tốc và tính toàn vẹn của các thành phần điểm thưởng.
 6. `test_random_obstacles_placement_and_safe_spacing`: Kiểm tra vật cản sinh ngẫu nhiên cách nhau $\ge 150\text{ m}$ và cách điểm xuất phát $> 100\text{ m}$.
 7. `test_dynamic_lanes_traffic_presets_and_speed_config`: Kiểm tra cấu hình số làn động (2 làn, 5 làn), preset mật độ xe (`sparse`, `dense`), và tùy biến vận tốc.
-8. `test_view_renders_various_lanes_and_traffic`: Kiểm tra giao diện Pygame vẽ chính xác cho 2 làn, 4 làn và 5 làn ở chế độ headless.
-9. `test_parse_traffic_and_cli_options`: Kiểm tra hàm phân tích cú pháp tham số dòng lệnh `--traffic`.
-10. `test_dqn_agent_various_lanes_and_speeds`: Kiểm tra mô hình DQN tự động ánh xạ vector trạng thái tương đối 68 chiều trên các cấu hình 2, 4, 5 làn mà không bị lỗi kích thước tensor.
-11. `test_dqn_dodges_obstacle_when_danger_detected`: Kiểm tra mô hình DQN tự động lách làn hoặc phanh khi phát hiện xe hỏng chắn trước mặt.
-12. Các bài test về `ReplayBuffer`, cập nhật Bellman, lưu và tải checkpoint `dqn_model.pth`.
+8. `test_view_renders_various_lanes_and_traffic`: Kiểm tra giao diện Pygame vẽ chính xác cho 2 làn, 4 làn và 5 làn ở chế độ headless, khởi tạo đầy đủ các nút bấm Menu Cài Đặt.
+9. `test_live_reconfiguration_preserves_vehicle_progress`: **Xác minh cơ chế tái cấu hình trực tiếp trên `RoadNetwork` đang chạy**: đổi số làn sang 5 làn và thay đổi mật độ xe mà xe vẫn tiếp tục tiến lên an toàn, quãng đường tăng dần (`dist_after > dist_before`), sensor cập nhật đúng 5 làn và tuyệt đối không bị reset ván chơi.
+10. `test_parse_traffic_and_cli_options`: Kiểm tra hàm phân tích cú pháp tham số dòng lệnh `--traffic`.
 
-Toàn bộ 20 bài test được thực thi tự động qua lệnh:
+### 10.2. Kiểm thử Thuật toán DQN (`test_dqn.py` - 8 bài test):
+11. `test_q_network_forward_and_shapes`: Kiểm tra kiến trúc mạng nơ-ron sâu `QNetwork` lan truyền tiến và kích thước tensor đầu ra.
+12. `test_replay_buffer_sampling_and_capacity`: Kiểm tra bộ nhớ đệm kinh nghiệm `ReplayBuffer`, con trỏ vòng tròn và lấy mẫu ngẫu nhiên mini-batch.
+13. `test_dqn_action_masking_respects_available_actions`: Kiểm tra Action Masking loại bỏ các hành động không hợp lệ khỏi không gian quyết định.
+14. `test_dqn_learn_and_bellman_target`: Kiểm tra tính toán mục tiêu Bellman, hàm mất mát Smooth L1 và cập nhật trọng số mạng.
+15. `test_dqn_save_load_and_deterministic_inference`: Kiểm tra lưu và tải checkpoint `dqn_model.pth`, đảm bảo tính tất định khi suy luận `eval()`.
+16. `test_custom_agent_integration`: Kiểm tra khả năng tích hợp mô hình AI bên ngoài vào môi trường qua chuẩn Gymnasium.
+17. `test_dqn_dodges_obstacle_when_danger_detected`: Kiểm tra mô hình DQN tự động lách làn hoặc phanh an toàn khi phát hiện xe hỏng chắn trước mặt.
+18. `test_dqn_agent_various_lanes_and_speeds`: Kiểm tra mô hình DQN tự động ánh xạ vector trạng thái tương đối 68 chiều trên các cấu hình 2, 4, 5 làn mà không bị lỗi kích thước tensor.
+
+### 10.3. Kiểm thử Học tăng cường & Nội suy (`test_learning.py` - 3 bài test):
+19. `test_terminal_does_not_bootstrap_but_timeout_does`: Phân biệt chính xác giữa kết thúc vật lý (`terminated`, $V=0$) và hết giờ (`truncated`, được phép bootstrap).
+20. `test_save_load_and_no_learning_during_inference`: Kiểm tra bảng Q-learning không bị biến đổi trọng số khi chạy chế độ suy luận.
+21. `test_motion_interpolates_positions_and_shortest_heading`: Kiểm tra bộ đệm `MotionBuffer` nội suy tuyến tính tọa độ và góc quay lượng giác ngắn nhất.
+
+Lệnh thực thi toàn bộ 21 bài kiểm thử tự động:
 ```powershell
 .\.venv-highway\Scripts\python.exe -m unittest discover -s highway_project -t .
-# Kết quả: Ran 20 tests -> OK (PASS 100%)
+# Kết quả: Ran 21 tests in 2.6s -> OK (PASS 100%)
 ```

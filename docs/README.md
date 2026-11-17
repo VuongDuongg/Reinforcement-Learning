@@ -47,7 +47,7 @@ docs/
 
 | Tên Tài Liệu | Mô Tả Tóm Tắt |
 | :--- | :--- |
-| [**`THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/THUAT_TOAN_DQN.md) | **Tài liệu chuyên sâu về thuật toán Deep Q-Network (Double DQN):**<br>• Tại sao DQN phù hợp với bài toán xe né vật cản.<br>• Phân tích phạm vi áp dụng (khi nào nên dùng DQN, khi nào không nên dùng).<br>• So sánh chi tiết hiệu năng giữa Tabular Q-learning và DQN.<br>• Kiến trúc mạng nơ-ron (68 đầu vào, 3 tầng ẩn ReLU, 5 đầu ra $Q$).<br>• Đặc tả dữ liệu trả về `(obs, reward, terminated, truncated, info, sensors)` chuẩn Gymnasium API. |
+| [**`THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/THUAT_TOAN_DQN.md) | **Tài liệu chuyên sâu về thuật toán Deep Q-Network (Double DQN):**<br>• Tại sao DQN phù hợp với bài toán xe né vật cản.<br>• Phân tích phạm vi áp dụng (khi nào nên dùng DQN, khi nào không nên dùng).<br>• So sánh chi tiết hiệu năng giữa Tabular Q-learning và DQN.<br>• Kiến trúc mạng nơ-ron (68 đầu vào, 2 tầng ẩn ReLU [128, 128], 5 đầu ra $Q$).<br>• Cơ chế chiếu tương đối 3 kênh thích ứng động cho 2..6 làn đường.<br>• Đặc tả dữ liệu trả về `(obs, reward, terminated, truncated, info, sensors)` chuẩn Gymnasium API.<br>• Hướng dẫn tùy biến kịch bản qua Menu Cài Đặt và tham số dòng lệnh CLI. |
 | [**`BAO_CAO_TH2.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/BAO_CAO_TH2.md) | **Báo cáo thực hành 2 (NetLogo MARL4AV):**<br>• Thuật toán học tăng cường đa tác nhân (Multi-Agent RL).<br>• Bảng Q-learning cục bộ phân tán.<br>• Phân tích hành vi hợp tác và tránh va chạm giữa các xe tự hành. |
 
 ---
