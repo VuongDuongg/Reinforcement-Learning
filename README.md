@@ -38,7 +38,7 @@ Hoc_Tang_Cuong/
 2. **`docs/` (Kho lưu trữ tài liệu & báo cáo - Đã phân loại theo chuyên đề):**
    - Xem mục lục tổng thể tại [**`docs/README.md`**](file:///d:/Hoc_Tang_Cuong/docs/README.md).
    - **Môi trường & MDP**: [**`docs/moi_truong/GIAI_THICH_CODE_MOI_TRUONG.md`**](file:///d:/Hoc_Tang_Cuong/docs/moi_truong/GIAI_THICH_CODE_MOI_TRUONG.md) (bản Word: [`.docx`](file:///d:/Hoc_Tang_Cuong/docs/moi_truong/GIAI_THICH_CODE_MOI_TRUONG.docx)), [**`BAO_CAO_QUY_TAC_MOI_TRUONG_VA_MDP.md`**](file:///d:/Hoc_Tang_Cuong/docs/moi_truong/BAO_CAO_QUY_TAC_MOI_TRUONG_VA_MDP.md).
-   - **Thuật toán RL**: [**`docs/thuat_toan/THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/THUAT_TOAN_DQN.md), [**`docs/thuat_toan/BAO_CAO_TH2.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/BAO_CAO_TH2.md).
+   - **Thuật toán RL (DQN & MARL)**: [**`docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md), [**`docs/thuat_toan/dqn/THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/THUAT_TOAN_DQN.md), [**`docs/thuat_toan/dqn/BAO_CAO_TH2.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/BAO_CAO_TH2.md).
    - **Thuyết trình**: [**`docs/bao_cao_thuyet_trinh/SLIDE_THUYET_TRINH_BUOI_2.md`**](file:///d:/Hoc_Tang_Cuong/docs/bao_cao_thuyet_trinh/SLIDE_THUYET_TRINH_BUOI_2.md).
 
 3. **`marl4av/` (Nền tảng NetLogo 6.4.0 Engine & Python Extension):**

@@ -13,8 +13,10 @@ docs/
 │   ├── DE_XUAT_MOI_TRUONG.md             # Đề xuất cải tiến môi trường (làn, xe, chướng ngại vật)
 │   └── KIEN_THUC_CHUNG_MOI_TRUONG_THAY_THANH.md # Ghi chú & yêu cầu bài toán từ giảng viên
 ├── thuat_toan/                    # 2. TÀI LIỆU VỀ THUẬT TOÁN HỌC TĂNG CƯỜNG (RL)
-│   ├── THUAT_TOAN_DQN.md                 # Lý thuyết Double DQN, kiến trúc mạng & phân tích so sánh
-│   └── BAO_CAO_TH2.md                    # Thuật toán đa tác nhân (MARL) & Q-learning (NetLogo)
+│   └── dqn/                              # Chuyên đề Deep Q-Network & MARL
+│       ├── GIAI_THICH_CODE_DQN.md        # Giải thích chi tiết mã nguồn Double DQN, QNetwork, Buffer & Train
+│       ├── THUAT_TOAN_DQN.md             # Lý thuyết Double DQN, kiến trúc mạng & phân tích so sánh
+│       └── BAO_CAO_TH2.md                # Thuật toán đa tác nhân (MARL) & Q-learning (NetLogo)
 ├── bao_cao_thuyet_trinh/          # 3. SLIDE BÁO CÁO & THUYẾT TRÌNH
 │   └── SLIDE_THUYET_TRINH_BUOI_2.md      # Đề cương & nội dung slide thuyết trình nhóm buổi 2
 ├── hinh_anh/                      # 4. HÌNH ẢNH GIAO DIỆN & MINH HỌA KẾT QUẢ
@@ -43,12 +45,13 @@ docs/
 
 ---
 
-## 2. Tài Liệu Về Thuật Toán Học Tăng Cường (`docs/thuat_toan/`)
+## 2. Tài Liệu Về Thuật Toán Học Tăng Cường (`docs/thuat_toan/dqn/`)
 
 | Tên Tài Liệu | Mô Tả Tóm Tắt |
 | :--- | :--- |
-| [**`THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/THUAT_TOAN_DQN.md) | **Tài liệu chuyên sâu về thuật toán Deep Q-Network (Double DQN):**<br>• Tại sao DQN phù hợp với bài toán xe né vật cản.<br>• Phân tích phạm vi áp dụng (khi nào nên dùng DQN, khi nào không nên dùng).<br>• So sánh chi tiết hiệu năng giữa Tabular Q-learning và DQN.<br>• Kiến trúc mạng nơ-ron (68 đầu vào, 2 tầng ẩn ReLU [128, 128], 5 đầu ra $Q$).<br>• Cơ chế chiếu tương đối 3 kênh thích ứng động cho 2..6 làn đường.<br>• Đặc tả dữ liệu trả về `(obs, reward, terminated, truncated, info, sensors)` chuẩn Gymnasium API.<br>• Hướng dẫn tùy biến kịch bản qua Menu Cài Đặt và tham số dòng lệnh CLI. |
-| [**`BAO_CAO_TH2.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/BAO_CAO_TH2.md) | **Báo cáo thực hành 2 (NetLogo MARL4AV):**<br>• Thuật toán học tăng cường đa tác nhân (Multi-Agent RL).<br>• Bảng Q-learning cục bộ phân tán.<br>• Phân tích hành vi hợp tác và tránh va chạm giữa các xe tự hành. |
+| [**`GIAI_THICH_CODE_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md) | **Giải thích chi tiết toàn bộ mã nguồn thuật toán Deep Q-Network:**<br>• Phân tích kiến trúc mạng nơ-ron sâu `QNetwork` (2 tầng ẩn `[128, 128]`, khởi tạo Kaiming/Xavier).<br>• Cấu trúc bộ đệm kinh nghiệm tái nghiệm `ReplayBuffer` (50,000 transitions, xử lý cờ terminated/truncated).<br>• Giải thuật chiếu tương đối 3 kênh theo góc nhìn Ego (`extract_state`), tự động thích ứng với cao tốc 2..6 làn.<br>• Tầng an toàn chủ động trong `act()`: Action Masking, Safe Lane Filter, bảo toàn chuyển làn và Anti-stall chống chết máy.<br>• Công thức toán học và hàm mất mát Smooth L1 trong `learn()`, cắt tỉa gradient.<br>• Vòng lặp huấn luyện Curriculum Learning và bộ 8 bài unit test trong `test_dqn.py`. |
+| [**`THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/THUAT_TOAN_DQN.md) | **Tài liệu chuyên sâu về lý thuyết thuật toán Deep Q-Network (Double DQN):**<br>• Tại sao DQN phù hợp với bài toán xe né vật cản.<br>• Phân tích phạm vi áp dụng (khi nào nên dùng DQN, khi nào không nên dùng).<br>• So sánh chi tiết hiệu năng giữa Tabular Q-learning và DQN.<br>• Kiến trúc mạng nơ-ron (68 đầu vào, 2 tầng ẩn ReLU [128, 128], 5 đầu ra $Q$).<br>• Cơ chế chiếu tương đối 3 kênh thích ứng động cho 2..6 làn đường.<br>• Đặc tả dữ liệu trả về `(obs, reward, terminated, truncated, info, sensors)` chuẩn Gymnasium API.<br>• Hướng dẫn tùy biến kịch bản qua Menu Cài Đặt và tham số dòng lệnh CLI. |
+| [**`BAO_CAO_TH2.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/BAO_CAO_TH2.md) | **Báo cáo thực hành 2 (NetLogo MARL4AV):**<br>• Thuật toán học tăng cường đa tác nhân (Multi-Agent RL).<br>• Bảng Q-learning cục bộ phân tán.<br>• Phân tích hành vi hợp tác và tránh va chạm giữa các xe tự hành. |
 
 ---
 
