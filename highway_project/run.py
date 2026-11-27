@@ -56,7 +56,7 @@ def main():
     parser.add_argument("--headless", action="store_true", help="Chạy kiểm tra không mở cửa sổ")
     parser.add_argument("--steps", type=int, default=100, help="Số bước tối đa cho chế độ headless")
     parser.add_argument("--screenshot", help="Lưu ảnh PNG giao diện")
-    parser.add_argument("--algo", choices=["auto", "dqn", "ddqn", "q_learning"], default="auto", help="Thuật toán sử dụng (dqn, ddqn = Double Dueling DQN, q_learning)")
+    parser.add_argument("--algo", choices=["auto", "dqn", "ddqn", "q_learning", "baseline"], default="auto", help="Thuật toán sử dụng (dqn, ddqn = Double Dueling DQN, q_learning, baseline)")
     parser.add_argument("--model", help="Đường dẫn mô hình (bảng Q hoặc checkpoint DQN/DDQN .pth)")
     parser.add_argument("--auto-reset", action="store_true", help="Agent tự chuyển episode sau 2 giây")
     args = parser.parse_args()
@@ -83,6 +83,7 @@ def main():
     from .algorithms.q_agent import DEFAULT_MODEL as DEFAULT_Q_MODEL, QLearningAgent
     from .algorithms.dqn_agent import DEFAULT_MODEL as DEFAULT_DQN_MODEL, DQNAgent
     from .algorithms.ddqn_agent import DEFAULT_MODEL as DEFAULT_DDQN_MODEL, DoubleDuelingDQNAgent
+    from .algorithms.baseline_agent import RuleBasedAgent
     from .gui.view import HighwayView
 
     traffic_ranges = {
@@ -139,7 +140,10 @@ def main():
         if custom_path is None and target_algo in agent_cache:
             return agent_cache[target_algo]
 
-        if target_algo == "ddqn":
+        if target_algo == "baseline":
+            loaded = RuleBasedAgent()
+            loaded.label = "Rule-based Baseline (Tập luật Heuristic)"
+        elif target_algo == "ddqn":
             target_path = custom_path or DEFAULT_DDQN_MODEL
             try:
                 loaded = DoubleDuelingDQNAgent.load(target_path)
@@ -377,6 +381,13 @@ def main():
                             agent.reset(seed=seed)
                             pending_action = 1
                             view.show_toast("Chế độ: AI tự lái (Double Dueling DQN)")
+                        elif clicked == "menu_mode_baseline":
+                            algo = "baseline"
+                            agent = build_agent("baseline")
+                            mode = "agent"
+                            agent.reset(seed=seed)
+                            pending_action = 1
+                            view.show_toast("Chế độ: AI tự lái (Rule-based Baseline)")
                         elif clicked == "menu_mode_keyboard":
                             mode = "keyboard"
                             agent.reset(seed=seed)
@@ -465,7 +476,14 @@ def main():
                     agent.reset(seed=seed)
                     pending_action = 1
                     if view:
-                        ai_name = "Double Dueling DQN" if algo == "ddqn" else ("DQN" if algo == "dqn" else "Q-Learning")
+                        if algo == "baseline":
+                            ai_name = "Rule-based Baseline"
+                        elif algo == "ddqn":
+                            ai_name = "Double Dueling DQN"
+                        elif algo == "dqn":
+                            ai_name = "DQN"
+                        else:
+                            ai_name = "Q-Learning"
                         m_str = f"AI tự lái ({ai_name})" if mode == "agent" else "Người tự lái (Phím)"
                         view.show_toast(f"Chế độ: {m_str}")
                 elif command == "lanes":
