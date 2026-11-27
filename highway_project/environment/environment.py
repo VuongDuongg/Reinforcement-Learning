@@ -1,3 +1,4 @@
+
 """HighwayEnv với vật cản cố định, episode hữu hạn và thông tin đánh giá."""
 
 from __future__ import annotations
@@ -65,7 +66,9 @@ class LaneObstacleEnv(HighwayEnv):
             },
             "collision_penalty": -20.0,
             "offroad_penalty": -10.0,
-            "speed_weight": 0.03,
+            "speed_weight": 0.15,
+            "low_speed_penalty": -0.25,
+            "timeout_penalty": -10.0,
             "danger_penalty": -0.15,
             "lane_change_penalty": -0.02,
             "success_reward": 10.0,
@@ -203,17 +206,31 @@ class LaneObstacleEnv(HighwayEnv):
         return bool(super()._is_terminated() or self._success())
 
     def _rewards(self, action: int | None) -> dict[str, float]:
-        terms = {"collision": 0.0, "offroad": 0.0, "speed": 0.0, "lane_change": 0.0, "success": 0.0, "danger": 0.0}
+        terms = {
+            "collision": 0.0,
+            "offroad": 0.0,
+            "speed": 0.0,
+            "low_speed": 0.0,
+            "lane_change": 0.0,
+            "success": 0.0,
+            "timeout": 0.0,
+            "danger": 0.0,
+        }
         if self.vehicle.crashed:
             terms["collision"] = float(self.config["collision_penalty"])
         elif not self.vehicle.on_road:
             terms["offroad"] = float(self.config["offroad_penalty"])
         else:
-            terms["speed"] = self.config["speed_weight"] * max(0.0, float(self.vehicle.speed)) / 30.0
+            speed = max(0.0, float(self.vehicle.speed))
+            terms["speed"] = float(self.config["speed_weight"]) * speed / 30.0
+            if speed < 10.0:
+                terms["low_speed"] = float(self.config.get("low_speed_penalty", -0.25)) * (1.0 - speed / 10.0)
             if action in (0, 2):
                 terms["lane_change"] = float(self.config["lane_change_penalty"])
             if self._success():
                 terms["success"] = float(self.config["success_reward"])
+            elif self._is_truncated():
+                terms["timeout"] = float(self.config.get("timeout_penalty", -10.0))
             sensor = self._sensors()
             lane = sensor["lane"]
             if 0 <= lane < len(sensor["front_gap"]):

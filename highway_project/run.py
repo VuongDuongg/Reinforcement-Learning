@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import random
 from typing import Any
 
 
@@ -31,7 +32,7 @@ def parse_traffic(value: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="Môi trường xe né vật cản và Q-learning / Deep Q-Network.")
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--seed", type=int, default=None, help="Hạt giống ngẫu nhiên (mặc định tự sinh ngẫu nhiên mỗi lần mở)")
     parser.add_argument("--lanes", type=int, choices=range(2, 7), default=3, metavar="2..6", help="Số làn đường cao tốc (2..6, mặc định 3)")
     parser.add_argument(
         "--traffic",
@@ -66,6 +67,7 @@ def main():
         parser.error("--speed phải lớn hơn 0")
     if args.max_speed < args.speed:
         parser.error("--max-speed phải lớn hơn hoặc bằng --speed")
+    initial_seed = args.seed if args.seed is not None else random.SystemRandom().randint(0, 999_999)
     os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
     import tempfile
     os.environ.setdefault("MPLCONFIGDIR", tempfile.gettempdir())
@@ -94,7 +96,7 @@ def main():
     t_min, t_max = traffic_ranges.get(args.traffic_speed, (14.0, 26.5))
 
     env = make_env(
-        seed=args.seed,
+        seed=initial_seed,
         config={
             "lanes_count": args.lanes,
             "vehicles_count": args.traffic,
@@ -180,7 +182,7 @@ def main():
     agent = build_agent(algo, model_path, strict=(args.mode == "agent" and args.headless))
 
     motion = MotionBuffer()
-    seed, episode, mode = args.seed, 0, args.mode
+    seed, episode, mode = initial_seed, 0, args.mode
     view = None
     try:
         view = HighwayView(headless=args.headless)

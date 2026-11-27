@@ -1,6 +1,4 @@
 
-"""Deep Q-Network (DQN 2013 - PyTorch) cho bài toán xe tự lái né vật cản."""
-
 from __future__ import annotations
 
 import json
@@ -503,11 +501,10 @@ class DQNAgent:
         metadata = json.loads(str(checkpoint.get("metadata", "{}")))
         state_dim = metadata.get("state_dim", DEFAULT_STATE_DIM)
         action_dim = metadata.get("action_dim", 5)
-        shield = (
-            bool(use_safety_shield)
-            if use_safety_shield is not None
-            else bool(metadata.get("use_safety_shield", True))
-        )
+
+        # Mặc định bật Safety Shield khi load() không truyền tham số (chạy mô phỏng/UI),
+        # không để metadata từ lần train --no-safety-shield tắt nhầm cơ chế chống chết máy.
+        shield = True if use_safety_shield is None else bool(use_safety_shield)
 
         agent = cls(
             state_dim=state_dim,

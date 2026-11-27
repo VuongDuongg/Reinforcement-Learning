@@ -119,10 +119,10 @@ def evaluate(agent: DQNAgent, *, traffic: int, seeds: list[int], config: dict | 
 
 def main():
     parser = argparse.ArgumentParser(description="Huấn luyện Deep Q-Network (DQN 2013 - PyTorch).")
-    parser.add_argument("--episodes", type=int, default=160, help="Số episode huấn luyện")
+    parser.add_argument("--episodes", type=int, default=200, help="Số episode huấn luyện")
     parser.add_argument("--seed", type=int, default=2026, help="Hạt giống ngẫu nhiên")
     parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate cho Adam")
-    parser.add_argument("--learn-freq", type=int, default=4, help="Số bước môi trường giữa 2 lần gọi learn()")
+    parser.add_argument("--learn-freq", type=int, default=2, help="Số bước môi trường giữa 2 lần gọi learn()")
     parser.add_argument("--min-buffer-size", type=int, default=1000, help="Số mẫu tối thiểu trước khi bắt đầu học")
     parser.add_argument(
         "--reward-clip",
@@ -169,8 +169,8 @@ def main():
         rng = np.random.default_rng(args.seed)
         env = make_env()
 
-        # Tập validation cố định để chọn Best Checkpoint (tách biệt với eval_seeds)
-        val_seeds = list(range(500_000, 500_006))
+        # Tập validation cố định cho cả 3 mức traffic (0, 6, 12), tách biệt với eval_seeds
+        val_seeds = list(range(500_000, 500_004))
 
         # Nạp kinh nghiệm ban đầu vào buffer mà chưa cập nhật trọng số
         warmed_samples = warmup_replay_buffer(agent, env, num_episodes=40)
@@ -191,8 +191,8 @@ def main():
         try:
             for episode in range(args.episodes):
                 progress = episode / max(1, args.episodes - 1)
-                # Curriculum: học né vật cản ở cả 3 làn đường (0, 1, 2)
-                traffic = 0 if progress < 0.25 else int(rng.choice([3, 6, 12]))
+                # Curriculum: 25% đầu chạy traffic=0, sau đó giữ lại cả 0 trong [0, 3, 6, 12] để tránh quên đường vắng
+                traffic = 0 if progress < 0.25 else int(rng.choice([0, 3, 6, 12]))
                 initial_lane = int(episode % 3)
                 config = {
                     "vehicles_count": traffic,
@@ -253,22 +253,32 @@ def main():
 
                 should_eval = ((episode + 1) % args.eval_freq == 0) or (episode + 1 == args.episodes)
                 if should_eval:
-                    val_res = evaluate(agent, traffic=6, seeds=val_seeds)
-                    val_score = val_res["success_rate"] * 100.0 + val_res["mean_reward"]
+                    # Chấm validation đều trên cả 3 mức giao thông (0, 6, 12)
+                    val_results = [evaluate(agent, traffic=t, seeds=val_seeds) for t in (0, 6, 12)]
+                    val_success = float(np.mean([r["success_rate"] for r in val_results]))
+                    val_reward = float(np.mean([r["mean_reward"] for r in val_results]))
+                    val_by_traffic = [round(r["success_rate"], 2) for r in val_results]
+                    val_score = val_success * 100.0 + val_reward
+
                     is_best = val_score > best_score
                     if is_best:
                         best_score = val_score
                         best_episode = episode + 1
-                        best_val_success = val_res["success_rate"]
+                        best_val_success = val_success
                         agent.save(
                             args.output,
                             metadata={
                                 "episodes": args.episodes,
                                 "best_episode": best_episode,
-                                "val_success": val_res["success_rate"],
-                                "val_reward": val_res["mean_reward"],
+                                "val_success": val_success,
+                                "val_reward": val_reward,
+                                "val_by_traffic": {
+                                    "0": val_results[0]["success_rate"],
+                                    "6": val_results[1]["success_rate"],
+                                    "12": val_results[2]["success_rate"],
+                                },
                                 "seed": args.seed,
-                                "training_config": "Curriculum: 3 lanes, 0->12 traffic, 1 obstacle, route 260m",
+                                "training_config": "Curriculum: 3 lanes, traffic [0,3,6,12], 1 obstacle, route 260m",
                             },
                         )
 
@@ -284,8 +294,9 @@ def main():
                                 "recent_reward": round(recent_reward, 2),
                                 "recent_loss": round(recent_loss, 4),
                                 "mean_q": round(agent.last_q_mean, 3),
-                                "val_success": round(val_res["success_rate"], 3),
-                                "val_reward": round(val_res["mean_reward"], 2),
+                                "val_success": round(val_success, 3),
+                                "val_0_6_12": val_by_traffic,
+                                "val_reward": round(val_reward, 2),
                                 "best_saved": is_best,
                                 "epsilon": round(agent.epsilon, 3),
                                 "elapsed_s": round(time.perf_counter() - start_time, 1),
