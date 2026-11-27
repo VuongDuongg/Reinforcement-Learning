@@ -1,42 +1,42 @@
 {
   "baseline": {
     "agent": "Rule-based Baseline",
-    "episodes": 15,
-    "collision_rate_percent": 6.67,
-    "success_rate_percent": 93.33,
-    "avg_speed_kmh": 95.25,
-    "mean_reward": 17.2,
-    "std_reward": 9.7,
-    "avg_steps": 358.1
+    "episodes": 3,
+    "collision_rate_percent": 0.0,
+    "success_rate_percent": 100.0,
+    "avg_speed_kmh": 79.82,
+    "mean_reward": 19.96,
+    "std_reward": 0.04,
+    "avg_steps": 452.0
   },
   "dqn": {
     "agent": "DQN (Đã huấn luyện)",
-    "episodes": 15,
-    "collision_rate_percent": 20.0,
-    "success_rate_percent": 80.0,
-    "avg_speed_kmh": 94.6,
-    "mean_reward": 11.03,
-    "std_reward": 15.53,
-    "avg_steps": 318.9
+    "episodes": 3,
+    "collision_rate_percent": 0.0,
+    "success_rate_percent": 100.0,
+    "avg_speed_kmh": 84.53,
+    "mean_reward": 19.14,
+    "std_reward": 0.99,
+    "avg_steps": 427.7
   },
   "ddqn": {
     "agent": "Double Dueling DQN (Đã train)",
-    "episodes": 15,
-    "collision_rate_percent": 20.0,
-    "success_rate_percent": 80.0,
-    "avg_speed_kmh": 90.59,
-    "mean_reward": 10.32,
-    "std_reward": 14.6,
-    "avg_steps": 354.5
+    "episodes": 3,
+    "collision_rate_percent": 33.33,
+    "success_rate_percent": 66.67,
+    "avg_speed_kmh": 92.73,
+    "mean_reward": 7.87,
+    "std_reward": 15.22,
+    "avg_steps": 385.0
   },
   "q_learning": {
     "agent": "Q-Learning (Đã train)",
-    "episodes": 15,
-    "collision_rate_percent": 80.0,
-    "success_rate_percent": 20.0,
-    "avg_speed_kmh": 54.97,
-    "mean_reward": -12.72,
-    "std_reward": 15.16,
-    "avg_steps": 226.8
+    "episodes": 3,
+    "collision_rate_percent": 66.67,
+    "success_rate_percent": 33.33,
+    "avg_speed_kmh": 60.97,
+    "mean_reward": -7.78,
+    "std_reward": 17.0,
+    "avg_steps": 269.3
   }
 }

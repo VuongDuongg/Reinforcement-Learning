@@ -1,10 +1,10 @@
 {
   "agent": "Rule-based Baseline",
-  "episodes": 15,
-  "collision_rate_percent": 6.67,
-  "success_rate_percent": 93.33,
-  "avg_speed_kmh": 95.25,
-  "mean_reward": 17.2,
-  "std_reward": 9.7,
-  "avg_steps": 358.1
+  "episodes": 3,
+  "collision_rate_percent": 0.0,
+  "success_rate_percent": 100.0,
+  "avg_speed_kmh": 79.82,
+  "mean_reward": 19.96,
+  "std_reward": 0.04,
+  "avg_steps": 452.0
 }
