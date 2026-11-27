@@ -1,4 +1,4 @@
-"""Kiểm thử thuật toán Deep Q-Network (DQN) bằng PyTorch."""
+"""Kiểm thử thuật toán Deep Q-Network gốc (DQN 2013 - không Target Network) bằng PyTorch."""
 
 import unittest
 from pathlib import Path
@@ -54,6 +54,8 @@ class DQNTests(unittest.TestCase):
         from ..algorithms.dqn_agent import DQNAgent
 
         agent = DQNAgent(state_dim=50, action_dim=5, batch_size=4, lr=1e-3, gamma=0.9)
+        self.assertFalse(hasattr(agent, "target_net"))
+        self.assertIsInstance(agent.criterion, torch.nn.MSELoss)
         # Bơm 10 transitions vào buffer
         for i in range(10):
             s = np.random.randn(50).astype(np.float32)
@@ -81,6 +83,7 @@ class DQNTests(unittest.TestCase):
 
             loaded_agent = DQNAgent.load(model_path)
             loaded_agent.epsilon = 0.0
+            self.assertEqual(loaded_agent.metadata.get("algorithm"), "dqn_2013_pytorch")
 
             action_before = agent.act(obs, info)
             action_after = loaded_agent.act(obs, info)

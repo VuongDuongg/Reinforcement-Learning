@@ -98,14 +98,14 @@ class HighwayView:
         # ---------------------------------------------------------
         is_ddqn = "Dueling" in str(agent_label)
         is_dqn = "DQN" in str(agent_label)
-        header_algo = "DOUBLE DUELING DQN" if is_ddqn else ("DOUBLE DQN" if is_dqn else "Q-LEARNING")
+        header_algo = "DOUBLE DUELING DQN" if is_ddqn else ("DQN 2013" if is_dqn else "Q-LEARNING")
         self.text(f"RL / GYMNASIUM HIGHWAY-ENV  ·  {header_algo}", 38, 16, 12, MINT)
         self.text(f"Cao tốc {lanes_count} làn · Né chướng ngại vật tự động", 36, 34, 30)
 
         if is_ddqn:
             algo_title = "Double Dueling DQN (Ngô Tuấn Anh)"
         elif is_dqn:
-            algo_title = "Deep Q-Network (PyTorch)"
+            algo_title = "Deep Q-Network 2013 (PyTorch)"
         else:
             algo_title = "Q-learning (Bảng Q)"
         density = info.get("sensors", {}).get("traffic_density", "normal")
