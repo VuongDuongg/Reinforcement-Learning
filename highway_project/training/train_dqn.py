@@ -1,4 +1,5 @@
-"""Huấn luyện Deep Q-Network (DQN 2013 - PyTorch) với Replay Warmup và Curriculum Learning."""
+
+"""Huấn luyện Deep Q-Network (DQN 2013 - PyTorch) với Replay Warmup, Curriculum Learning và Best Checkpoint."""
 
 from __future__ import annotations
 
@@ -8,23 +9,29 @@ import time
 from pathlib import Path
 
 import numpy as np
-import torch
 
 from ..algorithms.dqn_agent import DEFAULT_MODEL, DQNAgent
-from ..environment.environment import make_env
 from ..algorithms.q_agent import QLearningAgent
+from ..environment.environment import make_env
 
 
-def warmup_replay_buffer(agent: DQNAgent, env, num_episodes: int = 35) -> None:
-    """Nạp các kinh nghiệm né tránh thành công từ Q-learning vào Replay Buffer của DQN."""
+def warmup_replay_buffer(agent: DQNAgent, env, num_episodes: int = 35) -> int:
+    """Chỉ nạp kinh nghiệm từ Q-learning vào Replay Buffer (không gọi learn sớm).
+
+    Trả về số mẫu đã nạp (0 nếu chưa có file q_learning.npz).
+    """
     try:
         teacher = QLearningAgent.load()
     except FileNotFoundError:
-        return
+        print(
+            "Không tìm thấy checkpoint Q-learning để warmup; bỏ qua bước warmup teacher.",
+            flush=True,
+        )
+        return 0
 
     teacher.epsilon = 0.05
     rng = np.random.default_rng(1234)
-    print(f"Khởi động Replay Buffer với {num_episodes} episodes kinh nghiệm chất lượng cao...", flush=True)
+    print(f"Khởi động Replay Buffer với {num_episodes} episodes kinh nghiệm (chỉ nạp, chưa train)...", flush=True)
 
     for ep in range(num_episodes):
         lane_id = ep % 3
@@ -45,10 +52,22 @@ def warmup_replay_buffer(agent: DQNAgent, env, num_episodes: int = 35) -> None:
         while True:
             action = teacher.act(obs, info)
             next_obs, reward, terminated, truncated, next_info = env.step(action)
-            agent.observe(obs, action, reward, next_obs, terminated, truncated, info, next_info)
+            agent.push_experience(
+                obs,
+                action,
+                reward,
+                next_obs,
+                terminated,
+                truncated,
+                info=info,
+                next_info=next_info,
+            )
             obs, info = next_obs, next_info
             if terminated or truncated:
                 break
+
+    print(f"Đã nạp {len(agent.buffer)} mẫu vào Replay Buffer.", flush=True)
+    return len(agent.buffer)
 
 
 def evaluate(agent: DQNAgent, *, traffic: int, seeds: list[int], config: dict | None = None) -> dict:
@@ -71,16 +90,18 @@ def evaluate(agent: DQNAgent, *, traffic: int, seeds: list[int], config: dict | 
                 lane_changes += int(action in (0, 2))
                 if terminated or truncated:
                     break
-            episodes.append({
-                "seed": seed,
-                "success": bool(info["is_success"]),
-                "crashed": bool(info["crashed"]),
-                "distance_m": float(info["distance_m"]),
-                "reward": float(total_reward),
-                "mean_speed_kmh": float(np.mean(speeds)) if speeds else 0.0,
-                "lane_change_requests": int(lane_changes),
-                "end_reason": str(info["end_reason"]),
-            })
+            episodes.append(
+                {
+                    "seed": seed,
+                    "success": bool(info["is_success"]),
+                    "crashed": bool(info["crashed"]),
+                    "distance_m": float(info["distance_m"]),
+                    "reward": float(total_reward),
+                    "mean_speed_kmh": float(np.mean(speeds)) if speeds else 0.0,
+                    "lane_change_requests": int(lane_changes),
+                    "end_reason": str(info["end_reason"]),
+                }
+            )
     finally:
         env.close()
         agent.epsilon = old_epsilon
@@ -97,9 +118,24 @@ def evaluate(agent: DQNAgent, *, traffic: int, seeds: list[int], config: dict | 
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Huấn luyện Deep Q-Network (PyTorch).")
+    parser = argparse.ArgumentParser(description="Huấn luyện Deep Q-Network (DQN 2013 - PyTorch).")
     parser.add_argument("--episodes", type=int, default=160, help="Số episode huấn luyện")
     parser.add_argument("--seed", type=int, default=2026, help="Hạt giống ngẫu nhiên")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate cho Adam")
+    parser.add_argument("--learn-freq", type=int, default=4, help="Số bước môi trường giữa 2 lần gọi learn()")
+    parser.add_argument("--min-buffer-size", type=int, default=1000, help="Số mẫu tối thiểu trước khi bắt đầu học")
+    parser.add_argument(
+        "--reward-clip",
+        type=float,
+        default=0.0,
+        help="Ngưỡng cắt phần thưởng [-r, r] (mặc định 0 = tắt để giữ nguyên tín hiệu phạt va chạm)",
+    )
+    parser.add_argument(
+        "--no-safety-shield",
+        action="store_true",
+        help="Tắt lớp an toàn trong act() để huấn luyện & đánh giá thuần DQN 2013",
+    )
+    parser.add_argument("--eval-freq", type=int, default=10, help="Chu kỳ (episode) đánh giá validation và lưu best model")
     parser.add_argument("--eval-episodes", type=int, default=10, help="Số episode đánh giá mỗi mức traffic")
     parser.add_argument("--output", type=Path, default=DEFAULT_MODEL, help="Nơi lưu mô hình .pth")
     parser.add_argument("--evaluate-only", action="store_true", help="Chỉ đánh giá mô hình đã có")
@@ -109,21 +145,48 @@ def main():
     if args.episodes < 1 or args.eval_episodes < 1:
         parser.error("Số episode phải lớn hơn 0")
 
+    use_safety_shield = not args.no_safety_shield
+    reward_clip = args.reward_clip if args.reward_clip > 0 else None
     start_time = time.perf_counter()
     logs = []
+    best_episode = None
+    best_score = -float("inf")
+    best_val_success = 0.0
 
     if args.evaluate_only:
-        agent = DQNAgent.load(args.output, device=args.device)
-        print(f"Nạp mô hình từ {args.output} để đánh giá...", flush=True)
+        agent = DQNAgent.load(args.output, device=args.device, use_safety_shield=use_safety_shield)
+        print(f"Nạp mô hình từ {args.output} để đánh giá (safety_shield={use_safety_shield})...", flush=True)
     else:
-        agent = DQNAgent(seed=args.seed, device=args.device)
+        agent = DQNAgent(
+            seed=args.seed,
+            device=args.device,
+            lr=args.lr,
+            learn_freq=args.learn_freq,
+            min_buffer_size=args.min_buffer_size,
+            reward_clip=reward_clip,
+            use_safety_shield=use_safety_shield,
+        )
         rng = np.random.default_rng(args.seed)
         env = make_env()
 
-        # Nạp kinh nghiệm đa dạng vào replay buffer
-        warmup_replay_buffer(agent, env, num_episodes=40)
+        # Tập validation cố định để chọn Best Checkpoint (tách biệt với eval_seeds)
+        val_seeds = list(range(500_000, 500_006))
 
-        print(f"Bắt đầu huấn luyện DQN ({args.episodes} episodes) trên thiết bị {agent.device}...", flush=True)
+        # Nạp kinh nghiệm ban đầu vào buffer mà chưa cập nhật trọng số
+        warmed_samples = warmup_replay_buffer(agent, env, num_episodes=40)
+        if warmed_samples == 0 and agent.min_buffer_size > 256:
+            agent.min_buffer_size = max(agent.batch_size, 256)
+            print(
+                f"Không có dữ liệu warmup -> tự giảm min_buffer_size xuống {agent.min_buffer_size} để học sớm hơn.",
+                flush=True,
+            )
+
+        print(
+            f"Bắt đầu huấn luyện DQN 2013 ({args.episodes} episodes, lr={args.lr}, "
+            f"learn_freq={args.learn_freq}, min_buffer={agent.min_buffer_size}, "
+            f"reward_clip={reward_clip}, safety_shield={use_safety_shield}) trên {agent.device}...",
+            flush=True,
+        )
 
         try:
             for episode in range(args.episodes):
@@ -138,7 +201,7 @@ def main():
                     "initial_lane_id": initial_lane,
                     "route_length": 260.0,
                     "duration": 25.0,
-                    "random_obstacles": False,  # Ép vật cản xuất hiện đúng làn xe để ép AI học né
+                    "random_obstacles": False,
                 }
                 env.unwrapped.configure(config)
 
@@ -150,11 +213,23 @@ def main():
                 agent.epsilon = max(0.05, 0.8 * (1.0 - progress) ** 1.8)
 
                 total_reward = 0.0
+                ep_losses: list[float] = []
 
                 while True:
                     action = agent.act(obs, info)
                     next_obs, reward, terminated, truncated, next_info = env.step(action)
-                    agent.observe(obs, action, reward, next_obs, terminated, truncated, info, next_info)
+                    loss = agent.observe(
+                        obs,
+                        action,
+                        reward,
+                        next_obs,
+                        terminated,
+                        truncated,
+                        info=info,
+                        next_info=next_info,
+                    )
+                    if loss is not None:
+                        ep_losses.append(loss)
 
                     obs, info = next_obs, next_info
                     total_reward += reward
@@ -162,52 +237,104 @@ def main():
                     if terminated or truncated:
                         break
 
-                logs.append({
-                    "episode": episode + 1,
-                    "reward": float(total_reward),
-                    "success": bool(info["is_success"]),
-                    "traffic": traffic,
-                    "epsilon": float(agent.epsilon),
-                    "seed": seed,
-                })
+                mean_loss = float(np.mean(ep_losses)) if ep_losses else 0.0
+                logs.append(
+                    {
+                        "episode": episode + 1,
+                        "reward": float(total_reward),
+                        "success": bool(info["is_success"]),
+                        "traffic": traffic,
+                        "epsilon": float(agent.epsilon),
+                        "mean_loss": mean_loss,
+                        "mean_q": float(agent.last_q_mean),
+                        "seed": seed,
+                    }
+                )
 
-                if (episode + 1) % 10 == 0 or episode == 0:
+                should_eval = ((episode + 1) % args.eval_freq == 0) or (episode + 1 == args.episodes)
+                if should_eval:
+                    val_res = evaluate(agent, traffic=6, seeds=val_seeds)
+                    val_score = val_res["success_rate"] * 100.0 + val_res["mean_reward"]
+                    is_best = val_score > best_score
+                    if is_best:
+                        best_score = val_score
+                        best_episode = episode + 1
+                        best_val_success = val_res["success_rate"]
+                        agent.save(
+                            args.output,
+                            metadata={
+                                "episodes": args.episodes,
+                                "best_episode": best_episode,
+                                "val_success": val_res["success_rate"],
+                                "val_reward": val_res["mean_reward"],
+                                "seed": args.seed,
+                                "training_config": "Curriculum: 3 lanes, 0->12 traffic, 1 obstacle, route 260m",
+                            },
+                        )
+
                     recent_success = float(np.mean([row["success"] for row in logs[-10:]]))
                     recent_reward = float(np.mean([row["reward"] for row in logs[-10:]]))
+                    recent_loss = float(np.mean([row["mean_loss"] for row in logs[-10:]]))
                     print(
-                        json.dumps({
-                            "episode": episode + 1,
-                            "steps": agent.training_steps,
-                            "recent_success": round(recent_success, 3),
-                            "recent_reward": round(recent_reward, 2),
-                            "epsilon": round(agent.epsilon, 3),
-                            "elapsed_s": round(time.perf_counter() - start_time, 1),
-                        }),
+                        json.dumps(
+                            {
+                                "episode": episode + 1,
+                                "steps": agent.training_steps,
+                                "recent_success": round(recent_success, 3),
+                                "recent_reward": round(recent_reward, 2),
+                                "recent_loss": round(recent_loss, 4),
+                                "mean_q": round(agent.last_q_mean, 3),
+                                "val_success": round(val_res["success_rate"], 3),
+                                "val_reward": round(val_res["mean_reward"], 2),
+                                "best_saved": is_best,
+                                "epsilon": round(agent.epsilon, 3),
+                                "elapsed_s": round(time.perf_counter() - start_time, 1),
+                            }
+                        ),
+                        flush=True,
+                    )
+                elif episode == 0:
+                    print(
+                        json.dumps(
+                            {
+                                "episode": 1,
+                                "steps": agent.training_steps,
+                                "recent_success": float(info["is_success"]),
+                                "recent_reward": round(total_reward, 2),
+                                "epsilon": round(agent.epsilon, 3),
+                                "elapsed_s": round(time.perf_counter() - start_time, 1),
+                            }
+                        ),
                         flush=True,
                     )
 
-            # Lưu mô hình đã huấn luyện
-            agent.save(
-                args.output,
-                metadata={
-                    "episodes": args.episodes,
-                    "seed": args.seed,
-                    "training_config": "Curriculum: 3 lanes, 0->12 traffic, 1 obstacle, route 260m",
-                },
+            print(
+                f"Hoàn tất huấn luyện. Best checkpoint ở episode {best_episode} "
+                f"(val_success={best_val_success:.3f}) đã lưu tại: {args.output}",
+                flush=True,
             )
-            print(f"Đã lưu mô hình tại: {args.output}", flush=True)
 
         finally:
             env.close()
 
-    # Đánh giá sau huấn luyện
+        # Nạp lại đúng Best Checkpoint để đánh giá công bằng
+        agent = DQNAgent.load(args.output, device=args.device, use_safety_shield=use_safety_shield)
+
+    # Đánh giá sau huấn luyện (cùng cấu hình safety_shield giữa before và after)
     agent.epsilon = 0.0
-    untrained = DQNAgent(seed=999, device=args.device, epsilon=0.0)
+    untrained = DQNAgent(
+        seed=999,
+        device=args.device,
+        epsilon=0.0,
+        use_safety_shield=use_safety_shield,
+    )
     eval_seeds = list(range(1_000_000, 1_000_000 + args.eval_episodes))
 
     report = {
         "algorithm": "dqn_2013_pytorch",
         "model": str(args.output),
+        "best_episode": best_episode,
+        "use_safety_shield": use_safety_shield,
         "training_steps": agent.training_steps,
         "buffer_size": len(agent.buffer),
         "training_history": logs,
@@ -220,13 +347,15 @@ def main():
         after = evaluate(agent, traffic=traffic, seeds=eval_seeds)
         report["evaluation"].append({"traffic": traffic, "before": before, "after": after})
         print(
-            json.dumps({
-                "traffic": traffic,
-                "before_success": before["success_rate"],
-                "after_success": after["success_rate"],
-                "after_collision": after["collision_rate"],
-                "after_mean_speed": round(after["mean_speed_kmh"], 1),
-            }),
+            json.dumps(
+                {
+                    "traffic": traffic,
+                    "before_success": before["success_rate"],
+                    "after_success": after["success_rate"],
+                    "after_collision": after["collision_rate"],
+                    "after_mean_speed": round(after["mean_speed_kmh"], 1),
+                }
+            ),
             flush=True,
         )
 
