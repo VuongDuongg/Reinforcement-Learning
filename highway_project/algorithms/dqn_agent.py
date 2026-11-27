@@ -1,4 +1,4 @@
-"""Deep Q-Network (Double DQN) với PyTorch cho bài toán xe tự lái né vật cản."""
+"""Deep Q-Network (DQN gốc - phiên bản 2013) với PyTorch cho bài toán xe tự lái né vật cản."""
 
 from __future__ import annotations
 
@@ -98,9 +98,9 @@ class ReplayBuffer:
 
 
 class DQNAgent:
-    """Tác nhân Deep Q-Network (Double DQN) cho xe tự hành."""
+    """Tác nhân Deep Q-Network gốc (DQN 2013 - không Target Network) cho xe tự hành."""
 
-    label = "DQN (PyTorch) · chính sách mạng nơ-ron sâu"
+    label = "DQN 2013 (PyTorch) · mạng đơn không Target Network"
 
     def __init__(
         self,
@@ -115,7 +115,7 @@ class DQNAgent:
         epsilon_decay: float = 0.995,
         buffer_size: int = 50000,
         batch_size: int = 64,
-        target_update_freq: int = 400,
+        target_update_freq: int | None = None,  # Giữ lại để tương thích script cũ, không dùng trong DQN 2013
         device: str | None = None,
         seed: int = 42,
     ):
@@ -132,13 +132,12 @@ class DQNAgent:
         self.rng = np.random.default_rng(seed)
         torch.manual_seed(seed)
 
+        # DQN 2013 chỉ sử dụng duy nhất 1 mạng Q-network
         self.q_net = QNetwork(state_dim, hidden_dims, action_dim).to(self.device)
-        self.target_net = QNetwork(state_dim, hidden_dims, action_dim).to(self.device)
-        self.target_net.load_state_dict(self.q_net.state_dict())
-        self.target_net.eval()
 
         self.optimizer = optim.Adam(self.q_net.parameters(), lr=lr)
-        self.criterion = nn.SmoothL1Loss()
+        # DQN 2013 sử dụng Squared TD Error (MSELoss)
+        self.criterion = nn.MSELoss()
         self.buffer = ReplayBuffer(capacity=buffer_size, state_dim=state_dim)
 
         self.training_steps = 0
@@ -169,14 +168,12 @@ class DQNAgent:
             raw_rc = list(sensors.get("rear_closing", [0.0] * lanes_count))
 
             if lanes_count == 3 and len(raw_fg) == 3:
-                # Giữ nguyên 100% tương thích trọng số mô hình đã huấn luyện trên 3 làn
                 fg = np.array(raw_fg[:3], dtype=np.float32) / 180.0
                 rg = np.array(raw_rg[:3], dtype=np.float32) / 180.0
                 fc = np.array(raw_fc[:3], dtype=np.float32) / 30.0
                 rc = np.array(raw_rc[:3], dtype=np.float32) / 30.0
                 lane_norm = lane / 2.0
             else:
-                # Chiếu tương đối ego-centric 3 kênh: [Làn trái (nếu có), Làn hiện tại, Làn phải (nếu có)]
                 if lane > 0 and lane - 1 < len(raw_fg):
                     c0_fg, c0_rg = raw_fg[lane - 1], raw_rg[lane - 1]
                     c0_fc, c0_rc = raw_fc[lane - 1], raw_rc[lane - 1]
@@ -220,7 +217,6 @@ class DQNAgent:
     @staticmethod
     def available_actions(info: dict) -> list[int]:
         actions = list(info.get("available_actions", range(5)))
-        # Đợi hoàn tất chuyển làn rồi mới cho yêu cầu đổi làn tiếp
         sensors = info.get("sensors")
         if sensors and sensors.get("changing"):
             actions = [a for a in actions if a not in (0, 2)]
@@ -262,31 +258,25 @@ class DQNAgent:
             raw_rg = list(sensors.get("rear_gap", [180.0] * lanes_count))
             raw_fc = list(sensors.get("front_closing", [0.0] * lanes_count))
 
-            # Xác định làn đường cần quan sát
             check_lane = target_lane if is_changing else lane
             fg = raw_fg[check_lane] if 0 <= check_lane < len(raw_fg) else 180.0
             closing = raw_fc[check_lane] if 0 <= check_lane < len(raw_fc) else 0.0
             is_danger = fg < 42.0 or (closing > 0.1 and fg / closing < 2.5)
 
             if is_changing:
-                # Đang trong quỹ đạo đổi làn:
-                # Action 1 (IDLE) là lệnh để bộ điều khiển tiếp tục bám theo quỹ đạo đổi làn -> Khuyến khích
                 if 1 in masked_q:
                     masked_q[1] += 15.0
-                # Cấm phanh đứng yên giữa đường khi đang chuyển làn
                 if 4 in masked_q:
                     masked_q[4] -= 30.0
                 if speed < 20.0 and 3 in masked_q:
                     masked_q[3] += 10.0
             else:
-                # Đang đi thẳng trong làn:
                 if is_danger:
                     if 1 in masked_q:
                         masked_q[1] -= 30.0
                     if 3 in masked_q:
                         masked_q[3] -= 40.0
 
-                    # Ưu tiên đổi làn sang bên an toàn
                     if lane > 0 and 0 in masked_q:
                         left_fg = raw_fg[lane - 1] if lane - 1 < len(raw_fg) else 180.0
                         left_rg = raw_rg[lane - 1] if lane - 1 < len(raw_rg) else 180.0
@@ -299,7 +289,6 @@ class DQNAgent:
                         if right_fg > 25.0 and right_rg > 15.0:
                             masked_q[2] += 25.0
 
-            # Cấm tuyệt đối chuyển sang làn đang có vật cản hoặc xe phía sau áp sát
             if lane > 0 and 0 in masked_q:
                 left_fg = raw_fg[lane - 1] if lane - 1 < len(raw_fg) else 180.0
                 left_rg = raw_rg[lane - 1] if lane - 1 < len(raw_rg) else 180.0
@@ -312,8 +301,6 @@ class DQNAgent:
                 if right_fg < 35.0 or right_rg < 12.0:
                     masked_q[2] -= 60.0
 
-            # Hệ thống chống chết máy (Anti-stall) trên cao tốc:
-            # Tuyệt đối không cho xe giảm tốc về 0 km/h
             if speed < 16.0:
                 if 4 in masked_q:
                     masked_q[4] -= 60.0
@@ -344,11 +331,10 @@ class DQNAgent:
         self.q_net.train()
         current_q = self.q_net(states_t).gather(1, actions_t)
 
+        # DQN 2013: dùng trực tiếp q_net để tính max Q(s', a'), không có Target Network
         with torch.no_grad():
-            next_online_q = self.q_net(next_states_t)
-            next_actions = next_online_q.argmax(dim=1, keepdim=True)
-            next_target_q = self.target_net(next_states_t).gather(1, next_actions)
-            target_q = rewards_t + (1.0 - terminateds_t) * self.gamma * next_target_q
+            next_q_max = self.q_net(next_states_t).max(dim=1, keepdim=True).values
+            target_q = rewards_t + (1.0 - terminateds_t) * self.gamma * next_q_max
 
         loss = self.criterion(current_q, target_q)
 
@@ -358,9 +344,6 @@ class DQNAgent:
         self.optimizer.step()
 
         self.training_steps += 1
-        if self.training_steps % self.target_update_freq == 0:
-            self.target_net.load_state_dict(self.q_net.state_dict())
-
         return float(loss.item())
 
     def observe(
@@ -393,7 +376,7 @@ class DQNAgent:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         meta = {
-            "algorithm": "double_dqn_pytorch",
+            "algorithm": "dqn_2013_pytorch",
             "schema": 2,
             "training_steps": self.training_steps,
             "state_dim": self.state_dim,
@@ -403,7 +386,6 @@ class DQNAgent:
         torch.save(
             {
                 "model_state_dict": self.q_net.state_dict(),
-                "target_state_dict": self.target_net.state_dict(),
                 "training_steps": self.training_steps,
                 "metadata": json.dumps(meta),
             },
@@ -420,16 +402,12 @@ class DQNAgent:
         agent = cls(state_dim=state_dim, action_dim=action_dim, device=device)
         try:
             agent.q_net.load_state_dict(checkpoint["model_state_dict"])
-            agent.target_net.load_state_dict(checkpoint.get("target_state_dict", checkpoint["model_state_dict"]))
         except RuntimeError:
-            # Nếu mô hình cũ có state_dim khác, tự động khởi tạo lại mạng đúng chiều
             old_dim = checkpoint["model_state_dict"]["net.0.weight"].shape[1]
             agent = cls(state_dim=old_dim, action_dim=action_dim, device=device)
             agent.q_net.load_state_dict(checkpoint["model_state_dict"])
-            agent.target_net.load_state_dict(checkpoint.get("target_state_dict", checkpoint["model_state_dict"]))
 
         agent.training_steps = checkpoint.get("training_steps", 0)
         agent.metadata = metadata
         agent.q_net.eval()
-        agent.target_net.eval()
         return agent

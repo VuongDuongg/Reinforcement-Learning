@@ -1,6 +1,6 @@
 # Thuật Toán Deep Q-Network (DQN) - Xe Tự Hành Né Vật Cản
 
-Tài liệu chi tiết về cơ sở lý thuyết toán học, nguyên lý hoạt động, các công thức giải tích, kiến trúc mô hình, lý do lựa chọn và phạm vi áp dụng của thuật toán **Deep Q-Network (Double DQN)** trong dự án xe tự hành né vật cản trên đường cao tốc 3 làn.
+Tài liệu chi tiết về cơ sở lý thuyết toán học, nguyên lý hoạt động, các công thức giải tích, kiến trúc mô hình, lý do lựa chọn và phạm vi áp dụng của thuật toán **Deep Q-Network gốc (DQN 2013 - mạng đơn không Target Network)** trong dự án xe tự hành né vật cản trên đường cao tốc đa làn.
 
 ---
 
@@ -49,9 +49,9 @@ Tuy nhiên, việc kết hợp trực tiếp mạng nơ-ron với Q-learning ti�
 
 ---
 
-## 2. Cách Hoạt Động Của Thuật Toán DQN
+## 2. Cách Hoạt Động Của Thuật Toán DQN 2013
 
-DQN giải quyết triệt để sự mất ổn định bằng 2 cơ chế đột phá: **Bộ đệm kinh nghiệm (Experience Replay)** và **Mạng đích tách rời (Target Network)**.
+Thuật toán được triển khai theo chuẩn **DQN gốc (Mnih et al., 2013)**: sử dụng **Bộ đệm kinh nghiệm (Experience Replay)** kết hợp **một mạng nơ-ron duy nhất** `q_net` ($\theta$) và hàm mất mát **MSELoss** (Squared TD Error).
 
 ```
                               ┌───────────────────────────────────┐
@@ -65,20 +65,19 @@ DQN giải quyết triệt để sự mất ổn định bằng 2 cơ chế đ�
                Lưu trữ transition     │
                (s, a, r, s', done)    ▼
                         ┌───────────────────────────────┐
-                        │   Replay Buffer D (N mẫu)     │
+                        │   Replay Buffer D (50k mẫu)   │
                         └─────────────┬─────────────────┘
                                       │ Lấy mẫu ngẫu nhiên Mini-batch
                                       ▼ B = {(s_i, a_i, r_i, s'_i, d_i)}
                      ┌───────────────────────────────────┐
-                     │          Huấn luyện DQN           │
+                     │        Huấn luyện DQN 2013        │
                      │                                   │
-                     │  Mạng Online Q(s, a; θ)           │
+                     │  Mạng đơn Q(s, a; θ)              │
                      │         ▲                         │
-                     │         │ Cập nhật gradient       │
-                     │   Huber Loss L(θ)                 │
+                     │         │ Cập nhật gradient Adam  │
+                     │   MSE Loss L(θ) + Grad Clip       │
                      │         ▲                         │
-                     │  Mạng Target Q(s', a'; θ^-)       │
-                     │  (Đóng băng, cập nhật mềm/cứng)   │
+                     │  Bellman Target từ chính Q(s',θ)  │
                      └───────────────────────────────────┘
 ```
 
@@ -93,59 +92,28 @@ DQN giải quyết triệt để sự mất ổn định bằng 2 cơ chế đ�
 
 ---
 
-### 2.2. Cơ Chế 2: Mạng Đích Tách Rời (Target Network)
-* Sử dụng hai mạng nơ-ron có cùng cấu trúc đồ hình:
-  1. **Mạng Online** mang trọng số $\theta$: Dùng để dự đoán giá trị $Q(s, a; \theta)$ hiện tại và được cập nhật gradient liên tục ở mỗi bước học.
-  2. **Mạng Target** mang trọng số $\theta^-$: Dùng để tính toán nhãn mục tiêu (TD Target). Trọng số $\theta^-$ được giữ cố định (đóng băng) và chỉ cập nhật đồng bộ sau mỗi chu kỳ.
-* **Quy tắc cập nhật mạng Target**:
-  - *Cập nhật cứng (Hard update)*: Định kỳ sau mỗi $C$ bước huấn luyện:
-    $$\theta^- \leftarrow \theta$$
-  - *Cập nhật mềm (Soft update / Polyak averaging)* với hệ số $\tau \ll 1$:
-    $$\theta^- \leftarrow \tau \theta + (1 - \tau) \theta^-$$
+### 2.2. Cơ Chế 2: Mục Tiêu Bellman Đơn Mạng (DQN 2013 — Không Target Network)
+Trong phiên bản DQN 2013 nguyên bản, tác nhân sử dụng trực tiếp mạng duy nhất $Q(\cdot; \theta)$ để tính cả ước lượng hiện tại lẫn mục tiêu TD (Bellman Target):
+$$y_i^{\text{DQN 2013}} = r_i + (1 - d_i) \cdot \gamma \max_{a' \in \mathcal{A}} Q(s'_i, a'; \theta)$$
+*(Lưu ý: phần tính $y_i^{\text{DQN 2013}}$ được bọc trong `torch.no_grad()` để không truyền ngược gradient qua nhánh mục tiêu tại mỗi bước cập nhật.)*
 
 ---
 
-### 2.3. Cải Tiến Double DQN: Loại Bỏ Thiên Kiến Thổi Phồng (Overestimation Bias)
-Trong DQN nguyên bản của Nature 2015, mục tiêu TD được tính theo công thức:
-$$y_i^{\text{DQN}} = r_i + (1 - d_i) \cdot \gamma \max_{a' \in \mathcal{A}} Q(s'_i, a'; \theta^-)$$
-Toán tử $\max$ này dẫn đến **thiên kiến thổi phồng giá trị Q (Overestimation bias)** vì:
-$$\mathbb{E}\left[\max_{a'} Q(s', a')\right] \ge \max_{a'} \mathbb{E}\left[Q(s', a')\right]$$
-Khi mạng nơ-ron có nhiễu xấp xỉ, việc lấy $\max$ sẽ ưu tiên chọn các giá trị bị ước lượng quá cao, làm xe tự tin thái quá vào các tình huống nguy hiểm.
-
-**Giải pháp của Double DQN (van Hasselt et al., 2016)** được áp dụng trong dự án:
-* **Tách rời việc chọn hành động và việc lượng giá hành động**:
-  1. Dùng **Mạng Online $\theta$** để chọn hành động tốt nhất ở trạng thái tiếp theo:
-     $$a^* = \arg\max_{a' \in \mathcal{A}} Q(s'_i, a'; \theta)$$
-  2. Dùng **Mạng Target $\theta^-$** để lượng giá điểm số của hành động $a^*$ đó:
-     $$y_i^{\text{DoubleDQN}} = r_i + (1 - d_i) \cdot \gamma Q\left(s'_i, \arg\max_{a'} Q(s'_i, a'; \theta);\, \theta^-\right)$$
-
----
-
-### 2.4. Hàm Mất Mát và Lan Truyền Ngược (Loss Function & Gradient Descent)
+### 2.3. Hàm Mất Mát và Lan Truyền Ngược (Loss Function & Gradient Descent)
 
 #### Sai số sai phân thời gian (TD Error):
-$$\delta_i = y_i^{\text{DoubleDQN}} - Q(s_i, a_i; \theta)$$
+$$\delta_i = y_i^{\text{DQN 2013}} - Q(s_i, a_i; \theta)$$
 
-#### Hàm mất mát Huber Loss (Smooth L1 Loss):
-Thay vì sử dụng hàm tổn thất toàn phương (MSE Loss) dễ bị nổ gradient khi xe va chạm bất ngờ (phần thưởng phạt rất lớn: $-20$), dự án áp dụng **Huber Loss**:
-$$\mathcal{L}_\delta(\delta_i) = \begin{cases} 
-\frac{1}{2} \delta_i^2 & \text{nếu } |\delta_i| \le \delta_{\text{huber}} \\ 
-\delta_{\text{huber}} \cdot \left( |\delta_i| - \frac{1}{2} \delta_{\text{huber}} \right) & \text{ngược lại} 
-\end{cases}$$
-với $\delta_{\text{huber}} = 1.0$.
+#### Hàm mất mát toàn phương (MSE Loss / Squared TD Error):
+Dự án sử dụng hàm mất mát chuẩn của DQN 2013 (`nn.MSELoss()`):
+$$\mathcal{L}(\theta) = \frac{1}{B} \sum_{i=1}^B \left( Q(s_i, a_i; \theta) - y_i^{\text{DQN 2013}} \right)^2$$
 
-* Đạo hàm của Huber Loss đối với sai số $\delta_i$:
-  $$\frac{\partial \mathcal{L}_\delta}{\partial \delta_i} = \begin{cases} 
-  \delta_i & \text{nếu } |\delta_i| \le 1 \\ 
-  \operatorname{sign}(\delta_i) & \text{ngược lại} 
-  \end{cases}$$
-* **Ý nghĩa thực nghiệm**: Khi sai số nhỏ, hàm hành xử mượt mà như bậc hai ($L_2$); khi sai số đột biến lớn (xe đâm vật cản), gradient được kẹp cứng về $\pm 1$ ($L_1$), giúp việc tối ưu hóa mạng nơ-ron luôn ổn định tuyệt đối.
+Để đảm bảo quá trình huấn luyện không bị nổ gradient khi sai số TD lớn (ví dụ va chạm mạnh), thuật toán áp dụng **cắt tỉa gradient (`clip_grad_norm_`, `max_norm = 10.0`)** trước bước cập nhật.
 
-#### Cập nhật trọng số qua thuật toán tối ưu AdamW:
-Gradient hàm mất mát toàn cục trên mini-batch:
-$$\nabla_\theta L(\theta) = \frac{1}{B} \sum_{i=1}^B \frac{\partial \mathcal{L}_\delta(\delta_i)}{\partial \theta}$$
-$$\theta \leftarrow \theta - \eta \cdot \operatorname{AdamW}\left( \nabla_\theta L(\theta) \right)$$
-trong đó $\eta$ là tốc độ học ($\eta = 5 \times 10^{-4}$).
+#### Cập nhật trọng số qua thuật toán tối ưu Adam:
+$$\nabla_\theta L(\theta) = \frac{1}{B} \sum_{i=1}^B \frac{\partial \mathcal{L}_i}{\partial \theta}$$
+$$\theta \leftarrow \theta - \eta \cdot \operatorname{Adam}\left( \nabla_\theta L(\theta) \right)$$
+trong đó $\eta$ là tốc độ học (mặc định $\eta = 5 \times 10^{-4}$).
 
 ---
 

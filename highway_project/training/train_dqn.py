@@ -1,4 +1,4 @@
-"""Huấn luyện Deep Q-Network (PyTorch) với Replay Warmup và Curriculum Learning."""
+"""Huấn luyện Deep Q-Network (DQN 2013 - PyTorch) với Replay Warmup và Curriculum Learning."""
 
 from __future__ import annotations
 
@@ -206,7 +206,7 @@ def main():
     eval_seeds = list(range(1_000_000, 1_000_000 + args.eval_episodes))
 
     report = {
-        "algorithm": "double_dqn_pytorch",
+        "algorithm": "dqn_2013_pytorch",
         "model": str(args.output),
         "training_steps": agent.training_steps,
         "buffer_size": len(agent.buffer),

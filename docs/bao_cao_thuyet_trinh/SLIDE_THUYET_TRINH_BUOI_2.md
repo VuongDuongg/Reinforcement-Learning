@@ -116,7 +116,7 @@ Xe dừng và đồng hồ vẫn tăng là lựa chọn của chính sách; môi
 |---|---|
 | HighwayEnv | Đường, động học, xe giao thông và va chạm |
 | Gymnasium | API reset / step; tách môi trường khỏi thuật toán |
-| Python + PyTorch | Mô hình học máy Deep Q-Network (Double DQN) |
+| Python + PyTorch | Mô hình học máy Deep Q-Network (DQN 2013) |
 | Pygame | Hiển thị 60 FPS, HUD tiếng Việt, Menu Cài Đặt Popup Modal (phím M) |
 
 **Lý do chọn:** cùng hệ Python để tích hợp thuật toán; có sẵn mô phỏng cao tốc; tạo được lớp riêng cho xe hỏng.
@@ -152,7 +152,7 @@ Nguồn: https://highway-env.farama.org/ · API được đối chiếu với b�
 `step(action) → (next_observation, reward, terminated, truncated, info)`
 
 - **environment.py:** khởi tạo, vật cản, cảm biến đa làn 180m, hàm thưởng và kết thúc episode.
-- **dqn_agent.py / train_dqn.py:** Thuật toán Double DQN (PyTorch), vector 68 chiều, Action Masking, checkpoint `dqn_model.pth`.
+- **dqn_agent.py / train_dqn.py:** Thuật toán DQN 2013 (PyTorch, mạng đơn không Target Network, MSELoss), vector 68 chiều, Action Masking, checkpoint `dqn_model.pth`.
 - **q_agent.py / train.py:** Tabular Q-learning dạng bảng (648 trạng thái), vòng học và đánh giá.
 - **run.py / view.py / motion.py:** Vòng lặp mô phỏng, Menu Modal cài đặt, hàm `live_reconfigure` không reset xe, vẽ HUD và nội suy 60 FPS.
 - **CHAY_MOI_TRUONG.cmd:** Script chạy một chạm duy nhất cho Windows, tự động mở Pygame GUI đầy đủ tính năng.
@@ -167,7 +167,7 @@ Khi tích hợp DQN/PPO: chọn rõ đầu vào ma trận hay cảm biến, cậ
 **Đã hoàn thiện:**
 - Mô phỏng HighwayEnv + Gymnasium với 2..6 làn động, 4 cấp mật độ xe (`sparse`, `normal`, `dense`, `none`), xe hỏng đứng yên `BrokenCar`.
 - Giao diện Pygame 60 FPS tích hợp Bảng Menu Cài Đặt Modal (phím M) và tính năng Tái cấu hình trực tiếp (Live Reconfig) không reset xe.
-- Thuật toán **Double DQN (PyTorch)** đã huấn luyện xong (Curriculum Learning 160 episodes), lưu checkpoint `dqn_model.pth`.
+- Thuật toán **DQN 2013 (PyTorch)** đã huấn luyện xong (Curriculum Learning 160 episodes), lưu checkpoint `dqn_model.pth`.
 - Đã giải quyết triệt để vấn đề xe dừng tới hết giờ nhờ **Hệ thống chống chết máy (Anti-stall System)** và **Action Masking** bảo toàn chuyển làn.
 - Tỷ lệ tới đích của DQN đạt **90% - 100%** trên các seed thử nghiệm với dòng xe phức tạp.
 - **21 unit tests PASS 100%** bao quát hợp đồng môi trường, thuật toán DQN, Replay Buffer, GUI và Live Reconfiguration.
@@ -180,7 +180,7 @@ Khi tích hợp DQN/PPO: chọn rõ đầu vào ma trận hay cảm biến, cậ
 |---|---|---|
 | Rule-based | Mốc so sánh theo luật | Đã tích hợp qua hệ thống cảm biến radar an toàn |
 | Q-learning dạng bảng | So sánh hiệu năng với DQN | Đã triển khai (648 trạng thái, lưu `q_learning.npz`) |
-| **Double DQN (PyTorch)** | **Thuật toán cốt lõi chính thức** | **Đã hoàn thiện 100%, vector 68 chiều, lưu `dqn_model.pth`, đạt hiệu năng vượt trội** |
+| **DQN 2013 (PyTorch)** | **Thuật toán cốt lõi chính thức** | **Đã hoàn thiện 100%, vector 68 chiều, lưu `dqn_model.pth`, đạt hiệu năng vượt trội** |
 | Double Dueling DQN | Tách V/A, giảm thiên lệch Q | Có mã nền trong marl4av, hướng mở rộng |
 | PPO-Clip | Chính sách rời rạc từ rollout | Có mã nền trong marl4av, hướng mở rộng |
 

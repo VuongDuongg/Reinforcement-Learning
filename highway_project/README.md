@@ -12,7 +12,7 @@ highway_project/
 ├── README.md                       # Hướng dẫn tổng quan dự án highway_project
 ├── run.py                          # Script khởi chạy mô phỏng đồ họa chính
 ├── algorithms/                     # [CÁC THUẬT TOÁN RL]
-│   ├── dqn_agent.py                # Cài đặt Double DQN, QNetwork, Replay Buffer (PyTorch)
+│   ├── dqn_agent.py                # Cài đặt DQN 2013, QNetwork, Replay Buffer (PyTorch)
 │   ├── q_agent.py                  # Cài đặt thuật toán Tabular Q-learning
 │   └── agent.py                    # CustomAgent làm cầu nối chung
 ├── environment/                    # [MÔI TRƯỜNG MÔ PHỎNG]

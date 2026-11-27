@@ -115,7 +115,7 @@ class HighwayView:
         elif is_ddqn:
             algo_title = "Double Dueling DQN (Ngô Tuấn Anh)"
         elif is_dqn:
-            algo_title = "Deep Q-Network (PyTorch)"
+            algo_title = "Deep Q-Network 2013 (PyTorch)"
         else:
             algo_title = "Q-learning (Bảng Q)"
         density = info.get("sensors", {}).get("traffic_density", "normal")

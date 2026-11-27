@@ -7,7 +7,7 @@ Dự án nghiên cứu và triển khai các thuật toán Học tăng cường 
 ```text
 Hoc_Tang_Cuong/
 ├── highway_project/           # Dự án chính: Deep RL trên nền Gymnasium & Highway-Env
-│   ├── algorithms/            # Cài đặt thuật toán Double DQN và Q-learning
+│   ├── algorithms/            # Cài đặt thuật toán DQN 2013, Double Dueling DQN và Q-learning
 │   ├── environment/           # Môi trường cao tốc 2..6 làn, mật độ xe và tốc độ tùy chỉnh
 │   ├── gui/                   # Giao diện HUD 60 FPS (Pygame)
 │   ├── training/              # Huấn luyện mô hình và xuất đồ thị
@@ -29,7 +29,7 @@ Hoc_Tang_Cuong/
 ```
 
 1. **`highway_project/` (Khuyên dùng - Nền tảng Gymnasium & Highway-Env):**
-   - Triển khai thuật toán **Deep Q-Network (Double DQN với PyTorch)**, **Double Dueling DQN (Thuật toán 2 - Ngô Tuấn Anh)** và **Tabular Q-learning**.
+   - Triển khai thuật toán **Deep Q-Network (DQN 2013 với PyTorch)**, **Double Dueling DQN (Thuật toán 2 - Ngô Tuấn Anh)** và **Tabular Q-learning**.
    - Môi trường cao tốc linh hoạt tùy chỉnh từ **2 đến 6 làn đường** (`--lanes` hoặc phím **`L`**), mật độ giao thông 3 cấp trực quan: **thưa thớt / bình thường / dày đặc** (`--traffic` hoặc phím **`T`**), tùy biến vận tốc xuất phát và dòng xe (`--speed` hoặc phím **`S`**).
    - Giao diện trực quan Pygame mượt mà 60 FPS, hệ thống HUD hiển thị vận tốc, quãng đường, vật cản, mật độ và Bảng Menu Cài Đặt nổi trung tâm không reset xe.
    - Hỗ trợ chạy một chạm qua file duy nhất: [`CHAY_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd).
