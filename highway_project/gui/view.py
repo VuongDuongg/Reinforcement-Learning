@@ -96,13 +96,23 @@ class HighwayView:
         # ---------------------------------------------------------
         # 1. TIÊU ĐỀ CHÍNH & HUY HIỆU TRẠNG THÁI (HEADER)
         # ---------------------------------------------------------
-        is_ddqn = "Dueling" in str(agent_label)
-        is_dqn = "DQN" in str(agent_label)
-        header_algo = "DOUBLE DUELING DQN" if is_ddqn else ("DOUBLE DQN" if is_dqn else "Q-LEARNING")
+        is_baseline = "BASELINE" in str(agent_label).upper() or "RULE" in str(agent_label).upper()
+        is_ddqn = "DUELING" in str(agent_label).upper()
+        is_dqn = ("DQN" in str(agent_label).upper()) and not is_ddqn
+        if is_baseline:
+            header_algo = "RULE-BASED BASELINE"
+        elif is_ddqn:
+            header_algo = "DOUBLE DUELING DQN"
+        elif is_dqn:
+            header_algo = "DOUBLE DQN"
+        else:
+            header_algo = "Q-LEARNING"
         self.text(f"RL / GYMNASIUM HIGHWAY-ENV  ·  {header_algo}", 38, 16, 12, MINT)
         self.text(f"Cao tốc {lanes_count} làn · Né chướng ngại vật tự động", 36, 34, 30)
 
-        if is_ddqn:
+        if is_baseline:
+            algo_title = "Rule-based Baseline (Tập luật Heuristic)"
+        elif is_ddqn:
             algo_title = "Double Dueling DQN (Ngô Tuấn Anh)"
         elif is_dqn:
             algo_title = "Deep Q-Network (PyTorch)"
@@ -470,9 +480,10 @@ class HighwayView:
             sec5_y = modal_rect.y + 424
             self.text("6. CHẾ ĐỘ ĐIỀU KHIỂN & THUẬT TOÁN:", modal_rect.x + 28, sec5_y, 13, MINT)
             mode_opts = [
-                ("menu_mode_agent", "DQN (Deep Q-Network)", modal_rect.x + 28, sec5_y + 22, 294, mode == "agent" and not is_ddqn),
-                ("menu_mode_ddqn", "Double Dueling DQN (Tuấn Anh)", modal_rect.x + 333, sec5_y + 22, 294, mode == "agent" and is_ddqn),
-                ("menu_mode_keyboard", "Bàn phím (← → ↑ ↓)", modal_rect.x + 638, sec5_y + 22, 294, mode == "keyboard"),
+                ("menu_mode_agent", "DQN (PyTorch)", modal_rect.x + 28, sec5_y + 22, 218, mode == "agent" and not is_ddqn and not is_baseline),
+                ("menu_mode_ddqn", "Double Dueling DQN", modal_rect.x + 254, sec5_y + 22, 218, mode == "agent" and is_ddqn),
+                ("menu_mode_baseline", "Baseline (Rule-based)", modal_rect.x + 480, sec5_y + 22, 218, mode == "agent" and is_baseline),
+                ("menu_mode_keyboard", "Bàn phím (Tự lái)", modal_rect.x + 706, sec5_y + 22, 218, mode == "keyboard"),
             ]
             for btn_key, m_lbl, mx, my, mw, is_active in mode_opts:
                 m_rect = pygame.Rect(mx, my, mw, 38)
