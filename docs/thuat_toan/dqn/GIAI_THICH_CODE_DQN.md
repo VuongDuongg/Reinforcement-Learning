@@ -4,7 +4,7 @@
 > **Dự án:** Học Tăng Cường Cho Xe Tự Hành Né Chướng Ngại Vật Trên Cao Tốc Đa Làn  
 > **Nền tảng:** PyTorch + Gymnasium API + HighwayEnv  
 > **Mã nguồn lõi:**  
-> • [`highway_project/algorithms/dqn_agent.py`](file:///d:/Hoc_Tang_Cuong/highway_project/algorithms/dqn_agent.py) (Mô hình Double DQN, QNetwork, ReplayBuffer, An toàn chủ động)  
+> • [`highway_project/algorithms/dqn_agent.py`](file:///d:/Hoc_Tang_Cuong/highway_project/algorithms/dqn_agent.py) (Mô hình DQN 2013, QNetwork, ReplayBuffer, An toàn chủ động)  
 > • [`highway_project/training/train_dqn.py`](file:///d:/Hoc_Tang_Cuong/highway_project/training/train_dqn.py) (Vòng lặp huấn luyện Curriculum Learning & Warmup)  
 > • [`highway_project/tests/test_dqn.py`](file:///d:/Hoc_Tang_Cuong/highway_project/tests/test_dqn.py) (Bộ kiểm thử tự động thuật toán DQN)  
 
@@ -19,7 +19,7 @@ Trong bài toán xe tự hành di chuyển ở dải vận tốc cao ($70 - 108\
 3. Phán đoán và né tránh dòng xe giao thông xung quanh có hành vi ngẫu nhiên, khó đoán.
 4. Lựa chọn thời điểm vượt, đổi làn mượt mà hoặc giảm tốc độ an toàn khi bị chặn đường.
 
-Thuật toán được lựa chọn và tối ưu là **Double Deep Q-Network (Double DQN)** với cơ chế **chiếu tương đối 3 kênh đa làn (Ego-Centric 3-Channel Projection)**, kết hợp cùng **Action Masking** và **Hệ thống chống chết máy (Anti-stall System)**.
+Thuật toán được triển khai là **Deep Q-Network gốc (DQN 2013 — Mạng đơn không Target Network)** với cơ chế **chiếu tương đối 3 kênh đa làn (Ego-Centric 3-Channel Projection)**, kết hợp cùng **Action Masking** và **Hệ thống chống chết máy (Anti-stall System)**.
 
 ---
 
@@ -39,19 +39,16 @@ Thuật toán được lựa chọn và tối ưu là **Double Deep Q-Network (D
 │  1. extract_state(): Ghép 18 đặc trưng radar + 50 kinematics = 68 dim  │
 │  2. act(): Thăm dò e-greedy + Suy luận q_net + An toàn chủ động        │
 │  3. observe(): Đẩy transition (s, a, r, s', done) vào ReplayBuffer    │
-│  4. learn(): Lấy mẫu mini-batch, tính Double DQN loss, AdamW step     │
-│  5. Đồng bộ định kỳ: target_net.load_state_dict(q_net.state_dict())    │
+│  4. learn(): Lấy mẫu mini-batch, tính Bellman loss (MSE), Adam step  │
 └───────────────────────────────────▲────────────────────────────────────┘
                                     │
-    ┌───────────────────────────────┴───────────────────────────────┐
-    │                                                               │
-┌───┴──────────────────────────┐        ┌───────────────────────────┴───┐
-│     MẠNG ONLINE: q_net       │        │     MẠNG ĐÍCH: target_net     │
-│  - Linear(68, 128) + ReLU    │        │  - Đóng băng trọng số         │
-│  - Linear(128, 128) + ReLU   │        │  - Đánh giá giá trị hành động │
-│  - Linear(128, 5)            │        │    tương lai (chống thổi phồng)│
-│  -> Dự đoán Q(s, a) hiện tại │        │  -> Cập nhật mỗi 400 steps    │
-└──────────────────────────────┘        └───────────────────────────────┘
+                        ┌───────────┴──────────────────┐
+                        │     MẠNG ĐƠN: q_net          │
+                        │  - Linear(68, 128) + ReLU    │
+                        │  - Linear(128, 128) + ReLU   │
+                        │  - Linear(128, 5)            │
+                        │  -> Dự đoán Q(s, a) & Target │
+                        └──────────────────────────────┘
 ```
 
 ---
@@ -394,38 +391,26 @@ def learn(self) -> float | None:
     terminateds_t = torch.from_numpy(terminateds).to(self.device)
 ```
 
-### 6.1. Nguyên Lý Double DQN Loại Bỏ Thiên Kiến Thổi Phồng
-Trong DQN tiêu chuẩn (Nature 2015), giá trị mục tiêu được tính bằng toán tử $\max$:
-$$y_t^{\text{DQN}} = r_t + \gamma \max_{a'} Q(s_{t+1}, a'; \theta^-)$$
-Do cùng một mạng đích $\theta^-$ vừa **chọn hành động** tốt nhất vừa **ước lượng giá trị** của hành động đó, sai số ngẫu nhiên bị khuếch đại dẫn đến **hiện tượng thổi phồng giá trị $Q$ quá mức (Overestimation Bias)**.
+### 6.1. Nguyên Lý DQN 2013 (Mạng Đơn Không Target Network)
+Trong phiên bản DQN 2013 nguyên bản (Mnih et al., 2013), tác nhân chỉ sử dụng **duy nhất một mạng `q_net` ($\theta$)** để vừa ước lượng giá trị hiện tại $Q(s_t, a_t; \theta)$ vừa tính toán mục tiêu Bellman $y_t$:
+$$y_t^{\text{DQN 2013}} = r_t + (1 - d_t) \cdot \gamma \max_{a'} Q(s_{t+1}, a'; \theta)$$
+*(Lưu ý: tham số `target_update_freq: int | None = None` vẫn được giữ lại trong `__init__` chỉ để tương thích chữ ký với các script cũ và lớp kế thừa, nhưng không được sử dụng trong `DQNAgent`.)*
 
-Double DQN (van Hasselt et al., 2016) tách rời 2 vai trò:
-1. Mạng Online $\theta$ dùng để **lựa chọn hành động tốt nhất**:
-   $$a^* = \arg\max_{a'} Q(s_{t+1}, a'; \theta)$$
-2. Mạng Đích $\theta^-$ dùng để **đánh giá giá trị của hành động $a^*$ đó**:
-   $$y_t^{\text{Double}} = r_t + (1 - d_t) \cdot \gamma \cdot Q(s_{t+1}, a^*; \theta^-)$$
-
-Mã nguồn triển khai chuẩn xác công thức trên:
+Mã nguồn triển khai trực tiếp công thức trên:
 ```python
 self.q_net.train()
 # Ước lượng hiện tại Q(s, a)
 current_q = self.q_net(states_t).gather(1, actions_t)
 
+# DQN 2013: dùng trực tiếp q_net để tính max Q(s', a'), không có Target Network
 with torch.no_grad():
-    # Bước 1: Mạng Online q_net chọn hành động tối ưu a*
-    next_online_q = self.q_net(next_states_t)
-    next_actions = next_online_q.argmax(dim=1, keepdim=True)
-    
-    # Bước 2: Mạng Đích target_net tính giá trị Q của hành động a*
-    next_target_q = self.target_net(next_states_t).gather(1, next_actions)
-    
-    # Bước 3: Tính giá trị mục tiêu Bellman Target
-    target_q = rewards_t + (1.0 - terminateds_t) * self.gamma * next_target_q
+    next_q_max = self.q_net(next_states_t).max(dim=1, keepdim=True).values
+    target_q = rewards_t + (1.0 - terminateds_t) * self.gamma * next_q_max
 ```
 
-### 6.2. Hàm Mất Mát Huber Loss (Smooth L1 Loss) & Cắt Tỉa Gradient
+### 6.2. Hàm Mất Mát Squared TD Error (MSELoss) & Cắt Tỉa Gradient
 ```python
-loss = self.criterion(current_q, target_q)
+loss = self.criterion(current_q, target_q)  # nn.MSELoss()
 
 self.optimizer.zero_grad()
 loss.backward()
@@ -433,20 +418,14 @@ loss.backward()
 # Cắt tỉa gradient tối đa 10.0 chống phát nổ trọng số
 nn.utils.clip_grad_norm_(self.q_net.parameters(), max_norm=10.0)
 self.optimizer.step()
-```
 
-- **Smooth L1 Loss (Huber Loss)**:
-  $$\mathcal{L}(\delta) = \begin{cases} 0.5 \cdot \delta^2 & \text{nếu } |\delta| < 1.0 \\ |\delta| - 0.5 & \text{nếu } |\delta| \ge 1.0 \end{cases}$$
-  Với $\delta = Q(s, a) - y$. Khi xảy ra va chạm bất ngờ, TD-error $\delta$ có thể lên tới $-30.0$. Nếu dùng MSE ($\delta^2$), gradient sẽ bằng $60.0$, làm phá hủy toàn bộ trọng số của mạng. Smooth L1 chuyển sang đạo hàm tuyến tính bậc 1 ($|\delta|$), giúp quá trình học luôn ổn định.
-- **Gradient Clipping (`max_norm = 10.0`)**: Đảm bảo định mức vector gradient tổng thể không vượt quá $10.0$.
-
-### 6.3. Đồng Bộ Mạng Đích Định Kỳ
-```python
 self.training_steps += 1
-if self.training_steps % self.target_update_freq == 0:
-    self.target_net.load_state_dict(self.q_net.state_dict())
 ```
-Cứ sau mỗi `target_update_freq = 400` bước huấn luyện gradient, toàn bộ trọng số từ mạng chính `q_net` được sao chép sang mạng đích `target_net`. Khoảng thời gian đóng băng 400 bước này giữ cho mục tiêu học (Target) bất động tạm thời, triệt tiêu vòng xoáy mất ổn định "Moving Target".
+
+- **MSELoss (Squared TD Error)**:
+  $$\mathcal{L}(\delta) = \left( Q(s_t, a_t; \theta) - y_t^{\text{DQN 2013}} \right)^2$$
+  Đúng theo công thức tối ưu gốc của DQN 2013, kết hợp với bộ tối ưu `optim.Adam`.
+- **Gradient Clipping (`max_norm = 10.0`)**: Đảm bảo định mức vector gradient tổng thể không vượt quá $10.0$, giúp hạn chế bùng nổ gradient khi TD-error lớn do va chạm.
 
 ---
 
@@ -477,7 +456,7 @@ Thư mục [`highway_project/tests/test_dqn.py`](file:///d:/Hoc_Tang_Cuong/highw
 | `test_q_network_forward_and_shapes` | Kiểm tra tensor đầu vào `(1, 68)` và tensor đầu ra đúng shape `(1, 5)`. |
 | `test_replay_buffer_sampling_and_capacity` | Kiểm tra dung lượng 50,000, con trỏ vòng tròn ghi đè khi đầy, và lấy mẫu mini-batch. |
 | `test_dqn_action_masking_respects_available_actions` | Xác minh khi `changing=True`, các hành động rẽ trái/phải bị loại bỏ hoàn toàn. |
-| `test_dqn_learn_and_bellman_target` | Kiểm tra bước học `learn()` giảm loss, tính toán đúng công thức Double DQN. |
+| `test_dqn_learn_and_bellman_target` | Kiểm tra bước học `learn()` giảm loss, xác minh không có `target_net`, dùng `MSELoss` và công thức Bellman DQN 2013. |
 | `test_dqn_save_load_and_deterministic_inference` | Kiểm tra lưu checkpoint `.pth` và tải lại, bảo đảm kết quả suy luận trước và sau khi tải trùng khớp 100%. |
 | `test_custom_agent_integration` | Kiểm tra tích hợp mô hình DQN vào giao diện Gymnasium `reset()` / `step()`. |
 | `test_dqn_dodges_obstacle_when_danger_detected` | Kiểm tra phản xạ an toàn: khi có xe hỏng chắn trước mặt ở cự ly $<40\text{ m}$, AI tự động lách sang làn an toàn hoặc phanh khẩn cấp. |
@@ -531,7 +510,7 @@ env.close()
 
 ## 10. TỔNG KẾT
 
-Mã nguồn thuật toán Deep Q-Network trong dự án không chỉ triển khai lý thuyết Double DQN kinh điển mà còn được tối ưu hóa đặc thù cho kỹ thuật xe tự hành thực tế:
+Mã nguồn thuật toán Deep Q-Network trong dự án triển khai chuẩn DQN 2013 kinh điển (mạng đơn `q_net`, `MSELoss`, Replay Buffer) kết hợp với các tối ưu hóa đặc thù cho kỹ thuật xe tự hành thực tế:
 - **Khắc phục triệt để lời nguyền số chiều** qua vector 68 chiều giàu đặc trưng.
 - **Thích ứng linh hoạt mọi kịch bản 2..6 làn** thông qua cơ chế chiếu 3 kênh Ego-Centric.
 - **An toàn tuyệt đối** với Action Masking, Safe Lane Filter và Anti-stall System.

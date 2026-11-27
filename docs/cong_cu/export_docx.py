@@ -233,7 +233,7 @@ def build_document():
     doc.add_heading(level=2).add_run("1.2. Bản Đồ File Mã Nguồn và Phân Trách Nhiệm").font.color.rgb = COLOR_SECONDARY
     file_map = [
         ["highway_project/environment/environment.py", "Môi trường lõi (Core Env)", "Định nghĩa LaneObstacleEnv, BrokenCar, cấu hình mặc định, tạo đường và vật cản, cảm biến đa làn, hàm thưởng."],
-        ["highway_project/algorithms/dqn_agent.py", "Thuật toán DQN", "Cài đặt Double DQN, mạng QNetwork, ReplayBuffer, chiếu vector 68 chiều, Action Masking và chống chết máy."],
+        ["highway_project/algorithms/dqn_agent.py", "Thuật toán DQN", "Cài đặt DQN 2013 (mạng đơn không Target Network, MSELoss), mạng QNetwork, ReplayBuffer, chiếu vector 68 chiều, Action Masking và chống chết máy."],
         ["highway_project/algorithms/q_agent.py", "Thuật toán Q-Learning", "Cài đặt Tabular Q-learning dạng bảng (648 nhóm trạng thái), cập nhật Bellman cổ điển."],
         ["highway_project/gui/view.py", "Giao diện Pygame", "Vẽ đồ họa mặt đường co giãn 2..6 làn, vạch phân làn, xe mô phỏng, Bảng Menu Cài Đặt Modal, thanh điều khiển 4 nút và thông báo Toast."],
         ["highway_project/gui/motion.py", "Nội suy chuyển động", "Bộ đệm MotionBuffer nội suy LERP vị trí và góc lái 60 FPS giữa 2 chu kỳ quyết định 10 Hz."],
