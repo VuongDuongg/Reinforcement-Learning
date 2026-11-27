@@ -29,7 +29,7 @@ Hoc_Tang_Cuong/
 ```
 
 1. **`highway_project/` (Khuyên dùng - Nền tảng Gymnasium & Highway-Env):**
-   - Triển khai thuật toán **Deep Q-Network (Double DQN với PyTorch)** và **Tabular Q-learning**.
+   - Triển khai thuật toán **Deep Q-Network (Double DQN với PyTorch)**, **Double Dueling DQN (Thuật toán 2 - Ngô Tuấn Anh)** và **Tabular Q-learning**.
    - Môi trường cao tốc linh hoạt tùy chỉnh từ **2 đến 6 làn đường** (`--lanes` hoặc phím **`L`**), mật độ giao thông 3 cấp trực quan: **thưa thớt / bình thường / dày đặc** (`--traffic` hoặc phím **`T`**), tùy biến vận tốc xuất phát và dòng xe (`--speed` hoặc phím **`S`**).
    - Giao diện trực quan Pygame mượt mà 60 FPS, hệ thống HUD hiển thị vận tốc, quãng đường, vật cản, mật độ và Bảng Menu Cài Đặt nổi trung tâm không reset xe.
    - Hỗ trợ chạy một chạm qua file duy nhất: [`CHAY_MOI_TRUONG.cmd`](file:///d:/Hoc_Tang_Cuong/CHAY_MOI_TRUONG.cmd).
@@ -38,7 +38,7 @@ Hoc_Tang_Cuong/
 2. **`docs/` (Kho lưu trữ tài liệu & báo cáo - Đã phân loại theo chuyên đề):**
    - Xem mục lục tổng thể tại [**`docs/README.md`**](file:///d:/Hoc_Tang_Cuong/docs/README.md).
    - **Môi trường & MDP**: [**`docs/moi_truong/GIAI_THICH_CODE_MOI_TRUONG.md`**](file:///d:/Hoc_Tang_Cuong/docs/moi_truong/GIAI_THICH_CODE_MOI_TRUONG.md) (bản Word: [`.docx`](file:///d:/Hoc_Tang_Cuong/docs/moi_truong/GIAI_THICH_CODE_MOI_TRUONG.docx)), [**`BAO_CAO_QUY_TAC_MOI_TRUONG_VA_MDP.md`**](file:///d:/Hoc_Tang_Cuong/docs/moi_truong/BAO_CAO_QUY_TAC_MOI_TRUONG_VA_MDP.md).
-   - **Thuật toán RL (DQN & MARL)**: [**`docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md), [**`docs/thuat_toan/dqn/THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/THUAT_TOAN_DQN.md), [**`docs/thuat_toan/dqn/BAO_CAO_TH2.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/BAO_CAO_TH2.md).
+   - **Thuật toán RL (DQN, Double Dueling DQN & MARL)**: [**`docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md), [**`docs/thuat_toan/dqn/THUAT_TOAN_DQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/dqn/THUAT_TOAN_DQN.md), [**`docs/thuat_toan/ddqn/THUAT_TOAN_DDQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/ddqn/THUAT_TOAN_DDQN.md), [**`docs/thuat_toan/ddqn/GIAI_THICH_CODE_DDQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/ddqn/GIAI_THICH_CODE_DDQN.md), [**`docs/thuat_toan/dqn/BAO_CAO_TH2.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/dqn/BAO_CAO_TH2.md).
    - **Thuyết trình**: [**`docs/bao_cao_thuyet_trinh/SLIDE_THUYET_TRINH_BUOI_2.md`**](file:///d:/Hoc_Tang_Cuong/docs/bao_cao_thuyet_trinh/SLIDE_THUYET_TRINH_BUOI_2.md).
 
 3. **`marl4av/` (Nền tảng NetLogo 6.4.0 Engine & Python Extension):**

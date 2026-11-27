@@ -13,10 +13,13 @@ docs/
 │   ├── DE_XUAT_MOI_TRUONG.md             # Đề xuất cải tiến môi trường (làn, xe, chướng ngại vật)
 │   └── KIEN_THUC_CHUNG_MOI_TRUONG_THAY_THANH.md # Ghi chú & yêu cầu bài toán từ giảng viên
 ├── thuat_toan/                    # 2. TÀI LIỆU VỀ THUẬT TOÁN HỌC TĂNG CƯỜNG (RL)
-│   └── dqn/                              # Chuyên đề Deep Q-Network & MARL
-│       ├── GIAI_THICH_CODE_DQN.md        # Giải thích chi tiết mã nguồn Double DQN, QNetwork, Buffer & Train
-│       ├── THUAT_TOAN_DQN.md             # Lý thuyết Double DQN, kiến trúc mạng & phân tích so sánh
-│       └── BAO_CAO_TH2.md                # Thuật toán đa tác nhân (MARL) & Q-learning (NetLogo)
+│   ├── dqn/                              # Chuyên đề Thuật toán 1: Deep Q-Network & MARL
+│   │   ├── GIAI_THICH_CODE_DQN.md        # Giải thích chi tiết mã nguồn Double DQN, QNetwork, Buffer & Train
+│   │   ├── THUAT_TOAN_DQN.md             # Lý thuyết Double DQN, kiến trúc mạng & phân tích so sánh
+│   │   └── BAO_CAO_TH2.md                # Thuật toán đa tác nhân (MARL) & Q-learning (NetLogo)
+│   └── ddqn/                             # Chuyên đề Thuật toán 2: Double Dueling DQN (Ngô Tuấn Anh)
+│       ├── THUAT_TOAN_DDQN.md            # Lý thuyết Double Dueling DQN, kiến trúc V(s)/A(s,a) & Soft Update
+│       └── GIAI_THICH_CODE_DDQN.md       # Giải thích chi tiết mã nguồn DuelingQNetwork, train_ddqn & tích hợp GUI
 ├── bao_cao_thuyet_trinh/          # 3. SLIDE BÁO CÁO & THUYẾT TRÌNH
 │   └── SLIDE_THUYET_TRINH_BUOI_2.md      # Đề cương & nội dung slide thuyết trình nhóm buổi 2
 ├── hinh_anh/                      # 4. HÌNH ẢNH GIAO DIỆN & MINH HỌA KẾT QUẢ
@@ -45,13 +48,15 @@ docs/
 
 ---
 
-## 2. Tài Liệu Về Thuật Toán Học Tăng Cường (`docs/thuat_toan/dqn/`)
+## 2. Tài Liệu Về Thuật Toán Học Tăng Cường (`docs/thuat_toan/`)
 
 | Tên Tài Liệu | Mô Tả Tóm Tắt |
 | :--- | :--- |
-| [**`GIAI_THICH_CODE_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md) | **Giải thích chi tiết toàn bộ mã nguồn thuật toán Deep Q-Network:**<br>• Phân tích kiến trúc mạng nơ-ron sâu `QNetwork` (2 tầng ẩn `[128, 128]`, khởi tạo Kaiming/Xavier).<br>• Cấu trúc bộ đệm kinh nghiệm tái nghiệm `ReplayBuffer` (50,000 transitions, xử lý cờ terminated/truncated).<br>• Giải thuật chiếu tương đối 3 kênh theo góc nhìn Ego (`extract_state`), tự động thích ứng với cao tốc 2..6 làn.<br>• Tầng an toàn chủ động trong `act()`: Action Masking, Safe Lane Filter, bảo toàn chuyển làn và Anti-stall chống chết máy.<br>• Công thức toán học và hàm mất mát Smooth L1 trong `learn()`, cắt tỉa gradient.<br>• Vòng lặp huấn luyện Curriculum Learning và bộ 8 bài unit test trong `test_dqn.py`. |
-| [**`THUAT_TOAN_DQN.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/THUAT_TOAN_DQN.md) | **Tài liệu chuyên sâu về lý thuyết thuật toán Deep Q-Network (Double DQN):**<br>• Tại sao DQN phù hợp với bài toán xe né vật cản.<br>• Phân tích phạm vi áp dụng (khi nào nên dùng DQN, khi nào không nên dùng).<br>• So sánh chi tiết hiệu năng giữa Tabular Q-learning và DQN.<br>• Kiến trúc mạng nơ-ron (68 đầu vào, 2 tầng ẩn ReLU [128, 128], 5 đầu ra $Q$).<br>• Cơ chế chiếu tương đối 3 kênh thích ứng động cho 2..6 làn đường.<br>• Đặc tả dữ liệu trả về `(obs, reward, terminated, truncated, info, sensors)` chuẩn Gymnasium API.<br>• Hướng dẫn tùy biến kịch bản qua Menu Cài Đặt và tham số dòng lệnh CLI. |
-| [**`BAO_CAO_TH2.md`**](file:///d:/Hoc_Tang_Cuong/docs/thuat_toan/dqn/BAO_CAO_TH2.md) | **Báo cáo thực hành 2 (NetLogo MARL4AV):**<br>• Thuật toán học tăng cường đa tác nhân (Multi-Agent RL).<br>• Bảng Q-learning cục bộ phân tán.<br>• Phân tích hành vi hợp tác và tránh va chạm giữa các xe tự hành. |
+| [**`dqn/GIAI_THICH_CODE_DQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/dqn/GIAI_THICH_CODE_DQN.md) | **Giải thích chi tiết toàn bộ mã nguồn thuật toán Deep Q-Network (Thuật toán 1 - Dương Quốc Vượng):**<br>• Phân tích kiến trúc mạng nơ-ron sâu `QNetwork` (2 tầng ẩn `[128, 128]`, khởi tạo Kaiming/Xavier).<br>• Cấu trúc bộ đệm kinh nghiệm tái nghiệm `ReplayBuffer` (50,000 transitions, xử lý cờ terminated/truncated).<br>• Giải thuật chiếu tương đối 3 kênh theo góc nhìn Ego (`extract_state`), tự động thích ứng với cao tốc 2..6 làn.<br>• Tầng an toàn chủ động trong `act()`: Action Masking, Safe Lane Filter, bảo toàn chuyển làn và Anti-stall chống chết máy.<br>• Công thức toán học và hàm mất mát Smooth L1 trong `learn()`, cắt tỉa gradient.<br>• Vòng lặp huấn luyện Curriculum Learning và bộ 8 bài unit test trong `test_dqn.py`. |
+| [**`dqn/THUAT_TOAN_DQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/dqn/THUAT_TOAN_DQN.md) | **Tài liệu chuyên sâu về lý thuyết thuật toán Deep Q-Network (Double DQN):**<br>• Tại sao DQN phù hợp với bài toán xe né vật cản.<br>• Phân tích phạm vi áp dụng (khi nào nên dùng DQN, khi nào không nên dùng).<br>• So sánh chi tiết hiệu năng giữa Tabular Q-learning và DQN.<br>• Kiến trúc mạng nơ-ron (68 đầu vào, 2 tầng ẩn ReLU [128, 128], 5 đầu ra $Q$).<br>• Cơ chế chiếu tương đối 3 kênh thích ứng động cho 2..6 làn đường.<br>• Đặc tả dữ liệu trả về `(obs, reward, terminated, truncated, info, sensors)` chuẩn Gymnasium API.<br>• Hướng dẫn tùy biến kịch bản qua Menu Cài Đặt và tham số dòng lệnh CLI. |
+| [**`ddqn/THUAT_TOAN_DDQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/ddqn/THUAT_TOAN_DDQN.md) | **Lý thuyết thuật toán Double Dueling DQN (Thuật toán 2 - Ngô Tuấn Anh):**<br>• 3 trụ cột toán học: Kiến trúc Dueling tách nhánh $V(s)$ và $A(s, a)$ (Mean Centering chống không định danh), Double Q-Learning chống Overestimation Bias, và Soft Target Update (Polyak Averaging $\tau = 0.005$).<br>• Sơ đồ kiến trúc mạng `DuelingQNetwork` và bảng so sánh đối sánh Q-Learning vs Double DQN vs Double Dueling DQN.<br>• Hướng dẫn huấn luyện, chạy mô phỏng và kiểm thử. |
+| [**`ddqn/GIAI_THICH_CODE_DDQN.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/ddqn/GIAI_THICH_CODE_DDQN.md) | **Giải thích chi tiết mã nguồn Double Dueling DQN (`ddqn_agent.py` & `train_ddqn.py`):**<br>• Phân tích từng dòng code lớp `DuelingQNetwork`, `forward_streams()`, `DoubleDuelingDQNAgent(DQNAgent)`.<br>• Cơ chế `soft_update_target()` tại chỗ và vòng học `learn()` với Huber Loss + Gradient Clipping.<br>• Chi tiết tích hợp `--algo ddqn`, chuyển thuật toán trực tiếp không reset xe trong `run.py` / `view.py` và bộ 6 unit tests trong `test_ddqn.py`. |
+| [**`dqn/BAO_CAO_TH2.md`**](file:///d:/PTAPP/Reinforcement-Learning/docs/thuat_toan/dqn/BAO_CAO_TH2.md) | **Báo cáo thực hành 2 (NetLogo MARL4AV):**<br>• Thuật toán học tăng cường đa tác nhân (Multi-Agent RL).<br>• Bảng Q-learning cục bộ phân tán.<br>• Phân tích hành vi hợp tác và tránh va chạm giữa các xe tự hành. |
 
 ---
 

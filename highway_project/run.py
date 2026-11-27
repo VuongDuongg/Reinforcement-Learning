@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from typing import Any
 
 
 def parse_traffic(value: str) -> str:
@@ -55,8 +56,8 @@ def main():
     parser.add_argument("--headless", action="store_true", help="Chạy kiểm tra không mở cửa sổ")
     parser.add_argument("--steps", type=int, default=100, help="Số bước tối đa cho chế độ headless")
     parser.add_argument("--screenshot", help="Lưu ảnh PNG giao diện")
-    parser.add_argument("--algo", choices=["auto", "dqn", "q_learning"], default="auto", help="Thuật toán sử dụng")
-    parser.add_argument("--model", help="Đường dẫn mô hình (bảng Q hoặc checkpoint DQN .pth)")
+    parser.add_argument("--algo", choices=["auto", "dqn", "ddqn", "q_learning"], default="auto", help="Thuật toán sử dụng (dqn, ddqn = Double Dueling DQN, q_learning)")
+    parser.add_argument("--model", help="Đường dẫn mô hình (bảng Q hoặc checkpoint DQN/DDQN .pth)")
     parser.add_argument("--auto-reset", action="store_true", help="Agent tự chuyển episode sau 2 giây")
     args = parser.parse_args()
     if args.steps <= 0:
@@ -81,6 +82,7 @@ def main():
     from .gui.motion import MotionBuffer
     from .algorithms.q_agent import DEFAULT_MODEL as DEFAULT_Q_MODEL, QLearningAgent
     from .algorithms.dqn_agent import DEFAULT_MODEL as DEFAULT_DQN_MODEL, DQNAgent
+    from .algorithms.ddqn_agent import DEFAULT_MODEL as DEFAULT_DDQN_MODEL, DoubleDuelingDQNAgent
     from .gui.view import HighwayView
 
     traffic_ranges = {
@@ -113,10 +115,17 @@ def main():
     # Tự động nhận diện thuật toán nếu chọn auto
     if algo == "auto":
         if model_path:
-            algo = "dqn" if model_path.suffix in (".pth", ".pt") else "q_learning"
+            stem_lower = model_path.stem.lower()
+            if "ddqn" in stem_lower or "dueling" in stem_lower:
+                algo = "ddqn"
+            else:
+                algo = "dqn" if model_path.suffix in (".pth", ".pt") else "q_learning"
         elif DEFAULT_DQN_MODEL.exists():
             algo = "dqn"
             model_path = DEFAULT_DQN_MODEL
+        elif DEFAULT_DDQN_MODEL.exists():
+            algo = "ddqn"
+            model_path = DEFAULT_DDQN_MODEL
         elif DEFAULT_Q_MODEL.exists():
             algo = "q_learning"
             model_path = DEFAULT_Q_MODEL
@@ -124,25 +133,47 @@ def main():
             algo = "dqn"
             model_path = DEFAULT_DQN_MODEL
 
-    if algo == "dqn":
-        target_path = model_path or DEFAULT_DQN_MODEL
-        try:
-            agent = DQNAgent.load(target_path)
-            agent.epsilon = 0.0
-        except FileNotFoundError:
-            if args.mode == "agent":
-                parser.error(f"Chưa có mô hình DQN tại {target_path}. Chạy python -m highway_project.train_dqn trước.")
-            agent = DQNAgent()
-            agent.label = "DQN (PyTorch) chưa huấn luyện"
-    else:
-        target_path = model_path or DEFAULT_Q_MODEL
-        try:
-            agent = QLearningAgent.load(target_path)
-        except FileNotFoundError:
-            if args.mode == "agent":
-                parser.error(f"Chưa có bảng Q tại {target_path}. Chạy python -m highway_project.train trước.")
-            agent = QLearningAgent()
-            agent.label = "Q-LEARNING chưa huấn luyện (giữ tốc khi bằng điểm)"
+    agent_cache: dict[str, Any] = {}
+
+    def build_agent(target_algo: str, custom_path: Path | None = None, *, strict: bool = False):
+        if custom_path is None and target_algo in agent_cache:
+            return agent_cache[target_algo]
+
+        if target_algo == "ddqn":
+            target_path = custom_path or DEFAULT_DDQN_MODEL
+            try:
+                loaded = DoubleDuelingDQNAgent.load(target_path)
+                loaded.epsilon = 0.0
+            except FileNotFoundError:
+                if strict:
+                    parser.error(f"Chưa có mô hình Double Dueling DQN tại {target_path}. Chạy python -m highway_project.train_ddqn trước.")
+                loaded = DoubleDuelingDQNAgent(epsilon=0.0)
+                loaded.label = "Double Dueling DQN (Ngô Tuấn Anh · chưa huấn luyện)"
+        elif target_algo == "dqn":
+            target_path = custom_path or DEFAULT_DQN_MODEL
+            try:
+                loaded = DQNAgent.load(target_path)
+                loaded.epsilon = 0.0
+            except FileNotFoundError:
+                if strict:
+                    parser.error(f"Chưa có mô hình DQN tại {target_path}. Chạy python -m highway_project.train_dqn trước.")
+                loaded = DQNAgent(epsilon=0.0)
+                loaded.label = "DQN (PyTorch) chưa huấn luyện"
+        else:
+            target_path = custom_path or DEFAULT_Q_MODEL
+            try:
+                loaded = QLearningAgent.load(target_path)
+            except FileNotFoundError:
+                if strict:
+                    parser.error(f"Chưa có bảng Q tại {target_path}. Chạy python -m highway_project.train trước.")
+                loaded = QLearningAgent()
+                loaded.label = "Q-LEARNING chưa huấn luyện (giữ tốc khi bằng điểm)"
+
+        if custom_path is None:
+            agent_cache[target_algo] = loaded
+        return loaded
+
+    agent = build_agent(algo, model_path, strict=(args.mode == "agent" and args.headless))
 
     motion = MotionBuffer()
     seed, episode, mode = args.seed, 0, args.mode
@@ -333,10 +364,19 @@ def main():
                         elif clicked == "menu_preset_4":
                             live_reconfigure(lanes=4, traffic="none", speed=90.0, traffic_speed="normal", toast="Kịch bản 4: 4 làn · Đường vắng (Xe tiếp tục chạy)")
                         elif clicked == "menu_mode_agent":
+                            algo = "dqn"
+                            agent = build_agent("dqn")
                             mode = "agent"
                             agent.reset(seed=seed)
                             pending_action = 1
                             view.show_toast("Chế độ: AI tự lái (DQN)")
+                        elif clicked == "menu_mode_ddqn":
+                            algo = "ddqn"
+                            agent = build_agent("ddqn")
+                            mode = "agent"
+                            agent.reset(seed=seed)
+                            pending_action = 1
+                            view.show_toast("Chế độ: AI tự lái (Double Dueling DQN)")
                         elif clicked == "menu_mode_keyboard":
                             mode = "keyboard"
                             agent.reset(seed=seed)
@@ -349,15 +389,17 @@ def main():
                             command = clicked
 
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_m:
+                    scancode = getattr(event, "scancode", None)
+                    ch = getattr(event, "unicode", "").lower()
+                    if event.key == pygame.K_m or scancode == pygame.KSCAN_M or ch == "m":
                         view.toggle_menu()
-                    elif event.key == pygame.K_ESCAPE:
+                    elif event.key == pygame.K_ESCAPE or scancode == pygame.KSCAN_ESCAPE:
                         if view.menu_open:
                             view.menu_open = False
                         else:
                             running = False
                     else:
-                        command = {
+                        key_map = {
                             pygame.K_SPACE: "pause",
                             pygame.K_r: "reset",
                             pygame.K_n: "new",
@@ -370,9 +412,41 @@ def main():
                             pygame.K_2: "preset_2",
                             pygame.K_3: "preset_3",
                             pygame.K_4: "preset_4",
-                        }.get(event.key)
+                        }
+                        scan_map = {
+                            pygame.KSCAN_SPACE: "pause",
+                            pygame.KSCAN_R: "reset",
+                            pygame.KSCAN_N: "new",
+                            pygame.KSCAN_TAB: "mode",
+                            pygame.KSCAN_L: "lanes",
+                            pygame.KSCAN_T: "traffic",
+                            pygame.KSCAN_S: "speed",
+                            pygame.KSCAN_F: "traffic_speed",
+                            pygame.KSCAN_1: "preset_1",
+                            pygame.KSCAN_2: "preset_2",
+                            pygame.KSCAN_3: "preset_3",
+                            pygame.KSCAN_4: "preset_4",
+                        }
+                        char_map = {
+                            "r": "reset",
+                            "n": "new",
+                            "l": "lanes",
+                            "t": "traffic",
+                            "s": "speed",
+                            "f": "traffic_speed",
+                            "1": "preset_1",
+                            "2": "preset_2",
+                            "3": "preset_3",
+                            "4": "preset_4",
+                        }
+                        command = key_map.get(event.key) or scan_map.get(scancode) or char_map.get(ch)
                         if mode == "keyboard" and not paused and not done:
-                            pending_action = {pygame.K_LEFT: 0, pygame.K_RIGHT: 2, pygame.K_UP: 3, pygame.K_DOWN: 4}.get(event.key, pending_action)
+                            pending_action = {
+                                pygame.K_LEFT: 0,
+                                pygame.K_RIGHT: 2,
+                                pygame.K_UP: 3,
+                                pygame.K_DOWN: 4,
+                            }.get(event.key, pending_action)
                 if command == "pause":
                     paused = not paused
                     accumulator, pending_action = 0.0, 1
@@ -391,7 +465,8 @@ def main():
                     agent.reset(seed=seed)
                     pending_action = 1
                     if view:
-                        m_str = "AI tự lái (DQN)" if mode == "agent" else "Người tự lái (Phím)"
+                        ai_name = "Double Dueling DQN" if algo == "ddqn" else ("DQN" if algo == "dqn" else "Q-Learning")
+                        m_str = f"AI tự lái ({ai_name})" if mode == "agent" else "Người tự lái (Phím)"
                         view.show_toast(f"Chế độ: {m_str}")
                 elif command == "lanes":
                     next_lanes = 2 if current_lanes >= 6 else current_lanes + 1

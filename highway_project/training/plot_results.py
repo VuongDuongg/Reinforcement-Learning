@@ -14,6 +14,7 @@ import numpy as np
 
 RESULTS_DIR = Path(__file__).resolve().parent.parent / "results"
 DQN_REPORT_PATH = RESULTS_DIR / "dqn_report.json"
+DDQN_REPORT_PATH = RESULTS_DIR / "ddqn_report.json"
 Q_REPORT_PATH = RESULTS_DIR / "q_learning_report.json"
 OUTPUT_PLOT = RESULTS_DIR / "dqn_performance.png"
 
@@ -22,11 +23,13 @@ def plot_dqn_metrics(
     dqn_report_path: Path = DQN_REPORT_PATH,
     q_report_path: Path = Q_REPORT_PATH,
     output_path: Path = OUTPUT_PLOT,
+    ddqn_report_path: Path = DDQN_REPORT_PATH,
 ):
     if not dqn_report_path.exists():
         raise FileNotFoundError(f"Không tìm thấy file báo cáo tại: {dqn_report_path}")
 
     dqn_data = json.loads(dqn_report_path.read_text(encoding="utf-8"))
+    ddqn_data = json.loads(ddqn_report_path.read_text(encoding="utf-8")) if ddqn_report_path.exists() else None
     q_data = json.loads(q_report_path.read_text(encoding="utf-8")) if q_report_path.exists() else None
 
     history = dqn_data.get("training_history", [])
@@ -88,7 +91,27 @@ def plot_dqn_metrics(
 
         x = np.arange(len(traffics))
 
-        if q_data and "evaluation" in q_data:
+        if q_data and "evaluation" in q_data and ddqn_data and "evaluation" in ddqn_data:
+            q_eval = q_data["evaluation"]
+            ddqn_eval = ddqn_data["evaluation"]
+            q_success = [row["after"]["success_rate"] * 100 for row in q_eval]
+            ddqn_success = [row["after"]["success_rate"] * 100 for row in ddqn_eval]
+            width = 0.18
+
+            rects_q = ax3.bar(x - 1.5 * width, q_success, width, label="Q-learning Dạng Bảng (%)", color="#f59e0b")
+            rects_dqn = ax3.bar(x - 0.5 * width, dqn_success, width, label="Deep Q-Network (DQN) (%)", color="#10b981")
+            rects_ddqn = ax3.bar(x + 0.5 * width, ddqn_success, width, label="Double Dueling DQN (%)", color="#3b82f6")
+            rects_col = ax3.bar(x + 1.5 * width, dqn_collision, width, label="Tỷ lệ va chạm DQN (%)", color="#ef4444")
+
+            for rect in rects_q:
+                h = rect.get_height()
+                ax3.annotate(f"{h:.0f}%", xy=(rect.get_x() + rect.get_width() / 2, h), xytext=(0, 3),
+                             textcoords="offset points", ha="center", va="bottom", fontsize=9)
+            for rect in rects_ddqn:
+                h = rect.get_height()
+                ax3.annotate(f"{h:.0f}%", xy=(rect.get_x() + rect.get_width() / 2, h), xytext=(0, 3),
+                             textcoords="offset points", ha="center", va="bottom", fontweight="bold", color="#1d4ed8", fontsize=10)
+        elif q_data and "evaluation" in q_data:
             q_eval = q_data["evaluation"]
             q_success = [row["after"]["success_rate"] * 100 for row in q_eval]
             width = 0.22

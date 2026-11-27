@@ -6,4 +6,6 @@ __pycache__/
 *$py.class
 .superpowers/
 highway_project/results/.matplotlib/
+.vscode/
+~$*.docx
 
