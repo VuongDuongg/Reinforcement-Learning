@@ -141,7 +141,7 @@ class EnvironmentTests(unittest.TestCase):
                 "menu_spd_54", "menu_spd_72", "menu_spd_90", "menu_spd_108",
                 "menu_flow_slow", "menu_flow_normal", "menu_flow_fast",
                 "menu_preset_1", "menu_preset_2", "menu_preset_3", "menu_preset_4",
-                "menu_mode_agent", "menu_mode_keyboard", "menu_close_btn"
+                "menu_mode_agent", "menu_mode_ddqn", "menu_mode_keyboard", "menu_close_btn"
             )
             for m_btn in menu_expected:
                 self.assertIn(m_btn, view.buttons)

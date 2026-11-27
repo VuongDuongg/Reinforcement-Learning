@@ -34,7 +34,9 @@ class HighwayView:
     def __init__(self, *, headless: bool = False):
         pygame.init()
         self.screen = pygame.Surface((self.WIDTH, self.HEIGHT)) if headless else pygame.display.set_mode((self.WIDTH, self.HEIGHT))
-        pygame.display.set_caption("Học Tăng Cường | Điều Khiển Xe Tự Hành Né Vật Cản Cao Tốc (DQN)")
+        if not headless and hasattr(pygame.key, "stop_text_input"):
+            pygame.key.stop_text_input()
+        pygame.display.set_caption("Học Tăng Cường | Điều Khiển Xe Tự Hành Né Vật Cản Cao Tốc (RL)")
         
         # Nạp các cỡ font chuẩn giao diện
         self.fonts = {size: pygame.font.SysFont("segoeui,arial,dejavusans", size) for size in (11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 24, 26, 28, 32, 36)}
@@ -94,10 +96,18 @@ class HighwayView:
         # ---------------------------------------------------------
         # 1. TIÊU ĐỀ CHÍNH & HUY HIỆU TRẠNG THÁI (HEADER)
         # ---------------------------------------------------------
-        self.text("RL / GYMNASIUM HIGHWAY-ENV  ·  DOUBLE DQN", 38, 16, 12, MINT)
+        is_ddqn = "Dueling" in str(agent_label)
+        is_dqn = "DQN" in str(agent_label)
+        header_algo = "DOUBLE DUELING DQN" if is_ddqn else ("DOUBLE DQN" if is_dqn else "Q-LEARNING")
+        self.text(f"RL / GYMNASIUM HIGHWAY-ENV  ·  {header_algo}", 38, 16, 12, MINT)
         self.text(f"Cao tốc {lanes_count} làn · Né chướng ngại vật tự động", 36, 34, 30)
 
-        algo_title = "Deep Q-Network (PyTorch)" if "DQN" in str(agent_label) else "Q-learning (Bảng Q)"
+        if is_ddqn:
+            algo_title = "Double Dueling DQN (Ngô Tuấn Anh)"
+        elif is_dqn:
+            algo_title = "Deep Q-Network (PyTorch)"
+        else:
+            algo_title = "Q-learning (Bảng Q)"
         density = info.get("sensors", {}).get("traffic_density", "normal")
         density_vi = {
             "sparse": "Thưa thớt",
@@ -276,25 +286,27 @@ class HighwayView:
         is_changing = sensors.get("changing", False)
         status_text = "Đang đổi làn..." if is_changing else ("Cảnh báo va chạm!" if ego_front_gap < 25 else "Đường thông thoáng")
         status_col = YELLOW if is_changing else (RED if ego_front_gap < 25 else MUTED)
-        self.text(f"Trạng thái: {status_text}", 980, panel_y + 28, 13, status_col)
+        self.text(f"Trạng thái: {status_text}", 965, panel_y + 48, 13, status_col)
 
         # ---------------------------------------------------------
         # 5. THANH ĐIỀU KHIỂN CHÍNH GỌN GÀNG (MAIN VIEW - CHỈ 4 NÚT)
         # ---------------------------------------------------------
         pause_label = "Space · Tiếp tục" if paused else "Space · Tạm dừng"
-        mode_btn_label = "Tab · AI: DQN" if mode == "agent" else "Tab · Lái: Phím"
+        ai_short = "DDQN" if is_ddqn else ("DQN" if is_dqn else "Q-Learn")
+        mode_btn_label = f"Tab · AI: {ai_short}" if mode == "agent" else "Tab · Lái: Phím"
 
         main_buttons = [
             ("pause", pause_label, 36, 175, False),
             ("mode", mode_btn_label, 226, 210, False),
-            ("menu_toggle", "☰ CÀI ĐẶT & KỊCH BẢN (M)", 451, 270, True),
+            ("menu_toggle", "≡ CÀI ĐẶT & KỊCH BẢN (M)", 451, 270, True),
             ("reset", "R · Chạy lại từ đầu", 736, 185, False),
         ]
 
         for key, label, x, width, is_highlight in main_buttons:
             rect = pygame.Rect(x, 580, width, 44)
-            self.buttons[key] = rect
-            is_hover = rect.collidepoint(mouse_pos)
+            if not self.menu_open:
+                self.buttons[key] = rect
+            is_hover = (not self.menu_open) and rect.collidepoint(mouse_pos)
             bg_col = PANEL_HOVER if is_hover else (PANEL if not is_highlight else (25, 42, 58))
             border_col = MINT if (is_hover or is_highlight) else PANEL_BORDER
             pygame.draw.rect(self.screen, bg_col, rect, border_radius=8)
@@ -310,9 +322,9 @@ class HighwayView:
         if pygame.time.get_ticks() < self.toast_expire and self.toast_text:
             pygame.draw.rect(self.screen, (24, 42, 54), toast_rect, border_radius=8)
             pygame.draw.rect(self.screen, self.toast_color, toast_rect, width=1, border_radius=8)
-            self.text(f"✓ {self.toast_text}", 946, 594, 12, self.toast_color)
+            self.text(f"● {self.toast_text}", 946, 594, 12, self.toast_color)
         else:
-            self.text("Bấm M hoặc nút ☰ để mở Cài đặt", 946, 594, 12, MUTED)
+            self.text("Bấm M hoặc nút ≡ để mở Cài đặt", 946, 594, 12, MUTED)
 
         # Chú thích phím tắt chân trang
         self.text(
@@ -345,7 +357,7 @@ class HighwayView:
             pygame.draw.rect(self.screen, MODAL_BORDER, modal_rect, width=2, border_radius=14)
 
             # --- Header Menu ---
-            self.text("☰ BẢNG CÀI ĐẶT & KỊCH BẢN MÔ PHỎNG", modal_rect.x + 28, modal_rect.y + 20, 20, MINT)
+            self.text("≡ BẢNG CÀI ĐẶT & KỊCH BẢN MÔ PHỎNG", modal_rect.x + 28, modal_rect.y + 20, 20, MINT)
             self.text("Thay đổi có hiệu lực ngay lập tức — Xe tiếp tục chạy không bị reset", modal_rect.x + 28, modal_rect.y + 46, 13, MUTED)
 
             # Nút đóng góc phải
@@ -354,7 +366,7 @@ class HighwayView:
             is_ct_hover = close_top_rect.collidepoint(mouse_pos)
             pygame.draw.rect(self.screen, PANEL_HOVER if is_ct_hover else PANEL, close_top_rect, border_radius=6)
             pygame.draw.rect(self.screen, RED if is_ct_hover else PANEL_BORDER, close_top_rect, width=1, border_radius=6)
-            self.text("✕ Đóng (M / Esc)", close_top_rect.x + 14, close_top_rect.y + 8, 13, RED if is_ct_hover else TEXT)
+            self.text("× Đóng (M / Esc)", close_top_rect.x + 14, close_top_rect.y + 8, 13, RED if is_ct_hover else TEXT)
 
             pygame.draw.line(self.screen, PANEL_BORDER, (modal_rect.x + 28, modal_rect.y + 76), (modal_rect.right - 28, modal_rect.y + 76), 1)
 
@@ -458,8 +470,9 @@ class HighwayView:
             sec5_y = modal_rect.y + 424
             self.text("6. CHẾ ĐỘ ĐIỀU KHIỂN & THUẬT TOÁN:", modal_rect.x + 28, sec5_y, 13, MINT)
             mode_opts = [
-                ("menu_mode_agent", "Deep Q-Network (PyTorch Double DQN AI tự lái)", modal_rect.x + 28, sec5_y + 22, 442, mode == "agent"),
-                ("menu_mode_keyboard", "Người tự lái bằng bàn phím (Phím mũi tên ← → ↑ ↓)", modal_rect.x + 482, sec5_y + 22, 442, mode == "keyboard"),
+                ("menu_mode_agent", "DQN (Deep Q-Network)", modal_rect.x + 28, sec5_y + 22, 294, mode == "agent" and not is_ddqn),
+                ("menu_mode_ddqn", "Double Dueling DQN (Tuấn Anh)", modal_rect.x + 333, sec5_y + 22, 294, mode == "agent" and is_ddqn),
+                ("menu_mode_keyboard", "Bàn phím (← → ↑ ↓)", modal_rect.x + 638, sec5_y + 22, 294, mode == "keyboard"),
             ]
             for btn_key, m_lbl, mx, my, mw, is_active in mode_opts:
                 m_rect = pygame.Rect(mx, my, mw, 38)
@@ -478,7 +491,7 @@ class HighwayView:
             is_foot_hover = foot_btn_rect.collidepoint(mouse_pos)
             pygame.draw.rect(self.screen, (32, 60, 52) if is_foot_hover else (22, 42, 38), foot_btn_rect, border_radius=8)
             pygame.draw.rect(self.screen, MINT, foot_btn_rect, width=1, border_radius=8)
-            self.text("✕  ĐÓNG CÀI ĐẶT & TIẾP TỤC CHẠY (Bấm phím M hoặc Esc)", foot_btn_rect.x + 240, foot_btn_rect.y + 13, 15, MINT)
+            self.text("×  ĐÓNG CÀI ĐẶT & TIẾP TỤC CHẠY (Bấm phím M hoặc Esc)", foot_btn_rect.x + 240, foot_btn_rect.y + 13, 15, MINT)
 
     def save(self, path: str | Path):
         target = Path(path)

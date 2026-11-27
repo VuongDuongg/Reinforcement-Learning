@@ -1,0 +1,1962 @@
+{
+  "algorithm": "double_dueling_dqn_pytorch",
+  "author": "Ngo Tuan Anh (2351170570)",
+  "model": "D:\\PTAPP\\Reinforcement-Learning\\highway_project\\models\\ddqn_model.pth",
+  "training_steps": 22135,
+  "buffer_size": 22198,
+  "tau": 0.005,
+  "training_history": [
+    {
+      "episode": 1,
+      "reward": 10.99091388218542,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.8,
+      "seed": 26417
+    },
+    {
+      "episode": 2,
+      "reward": 10.225421270981645,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.7909661897063557,
+      "seed": 639913
+    },
+    {
+      "episode": 3,
+      "reward": 12.518906226348294,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.7819780048023001,
+      "seed": 643451
+    },
+    {
+      "episode": 4,
+      "reward": 9.658198926274013,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.7730355032622994,
+      "seed": 354917
+    },
+    {
+      "episode": 5,
+      "reward": -20.14136615932814,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.7641387435056461,
+      "seed": 721208
+    },
+    {
+      "episode": 6,
+      "reward": 12.467712918353683,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.7552877844027563,
+      "seed": 177353
+    },
+    {
+      "episode": 7,
+      "reward": 12.483489586974452,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.7464826852815982,
+      "seed": 165673
+    },
+    {
+      "episode": 8,
+      "reward": -19.23522329541463,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.7377235059342541,
+      "seed": 966962
+    },
+    {
+      "episode": 9,
+      "reward": 12.497785450308697,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.7290103066236201,
+      "seed": 604174
+    },
+    {
+      "episode": 10,
+      "reward": -19.836919250190594,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.7203431480902487,
+      "seed": 752732
+    },
+    {
+      "episode": 11,
+      "reward": -19.458522583133856,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.7117220915593351,
+      "seed": 656086
+    },
+    {
+      "episode": 12,
+      "reward": 12.480644365447446,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.7031471987478541,
+      "seed": 448380
+    },
+    {
+      "episode": 13,
+      "reward": 12.489019773856032,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.6946185318718521,
+      "seed": 146127
+    },
+    {
+      "episode": 14,
+      "reward": -19.37498311254442,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.6861361536538941,
+      "seed": 226333
+    },
+    {
+      "episode": 15,
+      "reward": 12.45746759379319,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.6777001273306776,
+      "seed": 270785
+    },
+    {
+      "episode": 16,
+      "reward": -20.934883204050383,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.6693105166608109,
+      "seed": 663180
+    },
+    {
+      "episode": 17,
+      "reward": 9.946111766364046,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.6609673859327652,
+      "seed": 990701
+    },
+    {
+      "episode": 18,
+      "reward": 12.486544516679851,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.6526707999730039,
+      "seed": 365180
+    },
+    {
+      "episode": 19,
+      "reward": 12.469408281740698,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.6444208241542947,
+      "seed": 326566
+    },
+    {
+      "episode": 20,
+      "reward": -21.485337100297105,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.6362175244042094,
+      "seed": 435313
+    },
+    {
+      "episode": 21,
+      "reward": 12.506026404566919,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.6280609672138182,
+      "seed": 935244
+    },
+    {
+      "episode": 22,
+      "reward": -19.176296463490473,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.6199512196465826,
+      "seed": 874624
+    },
+    {
+      "episode": 23,
+      "reward": -20.652786333860398,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.6118883493474551,
+      "seed": 206695
+    },
+    {
+      "episode": 24,
+      "reward": 12.466623969393622,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.6038724245521893,
+      "seed": 345100
+    },
+    {
+      "episode": 25,
+      "reward": 12.515001301789043,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.59590351409687,
+      "seed": 595057
+    },
+    {
+      "episode": 26,
+      "reward": -19.26177182468833,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.587981687427668,
+      "seed": 432762
+    },
+    {
+      "episode": 27,
+      "reward": 12.503229739833126,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.5801070146108265,
+      "seed": 408366
+    },
+    {
+      "episode": 28,
+      "reward": 12.484770868052388,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.5722795663428877,
+      "seed": 695994
+    },
+    {
+      "episode": 29,
+      "reward": -21.517554505423796,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.564499413961167,
+      "seed": 105724
+    },
+    {
+      "episode": 30,
+      "reward": 12.488361462895204,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.5567666294544812,
+      "seed": 700840
+    },
+    {
+      "episode": 31,
+      "reward": -20.7348583873109,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.5490812854741407,
+      "seed": 472761
+    },
+    {
+      "episode": 32,
+      "reward": 10.068988428284957,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.5414434553452138,
+      "seed": 580028
+    },
+    {
+      "episode": 33,
+      "reward": 12.495179745786732,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.5338532130780708,
+      "seed": 972641
+    },
+    {
+      "episode": 34,
+      "reward": -20.181969669304106,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.5263106333802188,
+      "seed": 548483
+    },
+    {
+      "episode": 35,
+      "reward": 10.397971438709762,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.5188157916684363,
+      "seed": 358750
+    },
+    {
+      "episode": 36,
+      "reward": 10.970512386210038,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.511368764081217,
+      "seed": 420193
+    },
+    {
+      "episode": 37,
+      "reward": -21.05651829878673,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.5039696274915334,
+      "seed": 33987
+    },
+    {
+      "episode": 38,
+      "reward": 10.382429433287776,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.49661845951993266,
+      "seed": 675639
+    },
+    {
+      "episode": 39,
+      "reward": 12.52374579991218,
+      "success": true,
+      "traffic": 0,
+      "epsilon": 0.48931533854797327,
+      "seed": 797115
+    },
+    {
+      "episode": 40,
+      "reward": -20.97422088056396,
+      "success": false,
+      "traffic": 0,
+      "epsilon": 0.48206034373201734,
+      "seed": 1802
+    },
+    {
+      "episode": 41,
+      "reward": 10.243690878337706,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.47485355501738846,
+      "seed": 519384
+    },
+    {
+      "episode": 42,
+      "reward": -21.017987716419892,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.4676950531529098,
+      "seed": 499955
+    },
+    {
+      "episode": 43,
+      "reward": -19.592437430931778,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.46058491970583443,
+      "seed": 904704
+    },
+    {
+      "episode": 44,
+      "reward": -20.991976431528652,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.4535232370771832,
+      "seed": 58735
+    },
+    {
+      "episode": 45,
+      "reward": -21.65675121061702,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.44651008851750396,
+      "seed": 730064
+    },
+    {
+      "episode": 46,
+      "reward": 12.52048152214023,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.4395455581430683,
+      "seed": 567049
+    },
+    {
+      "episode": 47,
+      "reward": 10.983623918468592,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.43262973095252033,
+      "seed": 774212
+    },
+    {
+      "episode": 48,
+      "reward": 12.516287512769118,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.4257626928439968,
+      "seed": 888395
+    },
+    {
+      "episode": 49,
+      "reward": 11.457119409133785,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.41894453063273335,
+      "seed": 160274
+    },
+    {
+      "episode": 50,
+      "reward": -20.723102533900487,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.4121753320691771,
+      "seed": 23632
+    },
+    {
+      "episode": 51,
+      "reward": -19.665079750156305,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.4054551858576246,
+      "seed": 281613
+    },
+    {
+      "episode": 52,
+      "reward": 10.240960887651273,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.39878418167540397,
+      "seed": 487363
+    },
+    {
+      "episode": 53,
+      "reward": 8.896852726422019,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.3921624101926248,
+      "seed": 12857
+    },
+    {
+      "episode": 54,
+      "reward": 12.495602086603789,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.38558996309251514,
+      "seed": 491483
+    },
+    {
+      "episode": 55,
+      "reward": 10.400499663268928,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.37906693309237116,
+      "seed": 564023
+    },
+    {
+      "episode": 56,
+      "reward": 10.12385123285824,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.37259341396514234,
+      "seed": 918396
+    },
+    {
+      "episode": 57,
+      "reward": 12.500543214529145,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.36616950056167874,
+      "seed": 942120
+    },
+    {
+      "episode": 58,
+      "reward": -21.295830526836472,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.35979528883366635,
+      "seed": 639026
+    },
+    {
+      "episode": 59,
+      "reward": 12.244089648396535,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.3534708758572799,
+      "seed": 546060
+    },
+    {
+      "episode": 60,
+      "reward": -18.987134727099082,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.34719635985758146,
+      "seed": 233263
+    },
+    {
+      "episode": 61,
+      "reward": -18.886953670621587,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.34097184023369737,
+      "seed": 814243
+    },
+    {
+      "episode": 62,
+      "reward": -19.11666603384814,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.33479741758480547,
+      "seed": 615508
+    },
+    {
+      "episode": 63,
+      "reward": -19.680958394856926,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.3286731937369674,
+      "seed": 766036
+    },
+    {
+      "episode": 64,
+      "reward": 12.51338940426247,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.3225992717708428,
+      "seed": 606814
+    },
+    {
+      "episode": 65,
+      "reward": -20.881068198933036,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.31657575605032345,
+      "seed": 628347
+    },
+    {
+      "episode": 66,
+      "reward": -20.85484171692147,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.3106027522521282,
+      "seed": 655796
+    },
+    {
+      "episode": 67,
+      "reward": -20.246830769792528,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.3046803673964009,
+      "seed": 668592
+    },
+    {
+      "episode": 68,
+      "reward": -20.161064727281985,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.29880870987835684,
+      "seed": 279991
+    },
+    {
+      "episode": 69,
+      "reward": 12.514899946627825,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.29298788950102567,
+      "seed": 83909
+    },
+    {
+      "episode": 70,
+      "reward": 12.528708654895492,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.2872180175091401,
+      "seed": 231698
+    },
+    {
+      "episode": 71,
+      "reward": -19.902967571805675,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.28149920662422523,
+      "seed": 659569
+    },
+    {
+      "episode": 72,
+      "reward": 12.52913684560382,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.2758315710809432,
+      "seed": 355061
+    },
+    {
+      "episode": 73,
+      "reward": -19.514363899010274,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.27021522666475406,
+      "seed": 313666
+    },
+    {
+      "episode": 74,
+      "reward": -20.307680296537132,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.26465029075095575,
+      "seed": 663183
+    },
+    {
+      "episode": 75,
+      "reward": 12.520008691840404,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.2591368823451701,
+      "seed": 473004
+    },
+    {
+      "episode": 76,
+      "reward": 12.521107199046504,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.25367512212534593,
+      "seed": 958480
+    },
+    {
+      "episode": 77,
+      "reward": 11.899947985394707,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.248265132485355,
+      "seed": 745034
+    },
+    {
+      "episode": 78,
+      "reward": 10.112216956808032,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.24290703758026116,
+      "seed": 215790
+    },
+    {
+      "episode": 79,
+      "reward": 9.497919614377318,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.23760096337334735,
+      "seed": 717394
+    },
+    {
+      "episode": 80,
+      "reward": -21.735436034567062,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.23234703768499207,
+      "seed": 343785
+    },
+    {
+      "episode": 81,
+      "reward": 10.70267765007332,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.2271453902434909,
+      "seed": 604400
+    },
+    {
+      "episode": 82,
+      "reward": -19.579502995401427,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.2219961527379271,
+      "seed": 101685
+    },
+    {
+      "episode": 83,
+      "reward": 10.263429700974289,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.2168994588732004,
+      "seed": 963484
+    },
+    {
+      "episode": 84,
+      "reward": 12.557259936740946,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.21185544442733076,
+      "seed": 113637
+    },
+    {
+      "episode": 85,
+      "reward": 12.535568061177106,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.2068642473111636,
+      "seed": 100980
+    },
+    {
+      "episode": 86,
+      "reward": 12.546576971034169,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.20192600763060833,
+      "seed": 914456
+    },
+    {
+      "episode": 87,
+      "reward": -21.229251214184735,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.19704086775155524,
+      "seed": 585889
+    },
+    {
+      "episode": 88,
+      "reward": 10.247541492805842,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.19220897236762224,
+      "seed": 667979
+    },
+    {
+      "episode": 89,
+      "reward": 12.53910532759299,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.1874304685708971,
+      "seed": 789809
+    },
+    {
+      "episode": 90,
+      "reward": 10.455313397000458,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.18270550592585033,
+      "seed": 183660
+    },
+    {
+      "episode": 91,
+      "reward": 11.338536620918237,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.17803423654660877,
+      "seed": 554282
+    },
+    {
+      "episode": 92,
+      "reward": -19.356791821083657,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.17341681517779273,
+      "seed": 240626
+    },
+    {
+      "episode": 93,
+      "reward": 12.531332433747277,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.16885339927913576,
+      "seed": 365285
+    },
+    {
+      "episode": 94,
+      "reward": 12.544993925964356,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.1643441491141229,
+      "seed": 965369
+    },
+    {
+      "episode": 95,
+      "reward": -20.91819182348577,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.15988922784290155,
+      "seed": 120469
+    },
+    {
+      "episode": 96,
+      "reward": 10.229326582721939,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.1554888016197394,
+      "seed": 207854
+    },
+    {
+      "episode": 97,
+      "reward": 12.522645160288679,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.15114303969532622,
+      "seed": 567565
+    },
+    {
+      "episode": 98,
+      "reward": 10.231772581809553,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.1468521145242402,
+      "seed": 936312
+    },
+    {
+      "episode": 99,
+      "reward": -20.180818953611276,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.14261620187792706,
+      "seed": 853313
+    },
+    {
+      "episode": 100,
+      "reward": 12.361554639621428,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.13843548096356836,
+      "seed": 811432
+    },
+    {
+      "episode": 101,
+      "reward": 10.853570345556427,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.13431013454924956,
+      "seed": 717834
+    },
+    {
+      "episode": 102,
+      "reward": 12.511935130578173,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.13024034909587265,
+      "seed": 850551
+    },
+    {
+      "episode": 103,
+      "reward": 12.526037680573321,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.12622631489629904,
+      "seed": 275480
+    },
+    {
+      "episode": 104,
+      "reward": -20.141480985767572,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.12226822622225175,
+      "seed": 739260
+    },
+    {
+      "episode": 105,
+      "reward": 12.544876757816233,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.11836628147955511,
+      "seed": 662961
+    },
+    {
+      "episode": 106,
+      "reward": 12.504990692179014,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.1145206833723438,
+      "seed": 161469
+    },
+    {
+      "episode": 107,
+      "reward": 11.193682269247349,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.1107316390769349,
+      "seed": 461883
+    },
+    {
+      "episode": 108,
+      "reward": 12.534289063536592,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.10699936042612208,
+      "seed": 641917
+    },
+    {
+      "episode": 109,
+      "reward": 12.575255818856823,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.1033240641047289,
+      "seed": 905150
+    },
+    {
+      "episode": 110,
+      "reward": 12.543177275751093,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.0997059718573406,
+      "seed": 288791
+    },
+    {
+      "episode": 111,
+      "reward": -20.588983865303,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.0961453107092304,
+      "seed": 774382
+    },
+    {
+      "episode": 112,
+      "reward": 12.521057308530715,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.09264231320160216,
+      "seed": 206422
+    },
+    {
+      "episode": 113,
+      "reward": -19.45179296148462,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.08919721764239286,
+      "seed": 771537
+    },
+    {
+      "episode": 114,
+      "reward": 12.529178370716595,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.08581026837401373,
+      "seed": 78372
+    },
+    {
+      "episode": 115,
+      "reward": -21.158870819557958,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.08248171605956474,
+      "seed": 895385
+    },
+    {
+      "episode": 116,
+      "reward": 11.651548243247726,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.07921181798923183,
+      "seed": 205572
+    },
+    {
+      "episode": 117,
+      "reward": 10.381977940891748,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.07600083840877751,
+      "seed": 262683
+    },
+    {
+      "episode": 118,
+      "reward": 12.539164856577859,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.07284904887226422,
+      "seed": 20944
+    },
+    {
+      "episode": 119,
+      "reward": -19.788201060934043,
+      "success": false,
+      "traffic": 6,
+      "epsilon": 0.06975672862141226,
+      "seed": 270680
+    },
+    {
+      "episode": 120,
+      "reward": 10.256248577908496,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.06672416499429615,
+      "seed": 587970
+    },
+    {
+      "episode": 121,
+      "reward": 12.474293210433146,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.06375165386643182,
+      "seed": 427564
+    },
+    {
+      "episode": 122,
+      "reward": 11.95776330724746,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.060839500127710125,
+      "seed": 637360
+    },
+    {
+      "episode": 123,
+      "reward": 12.527075422033619,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.0579880181990996,
+      "seed": 420992
+    },
+    {
+      "episode": 124,
+      "reward": 12.582482283935159,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05519753259358954,
+      "seed": 574999
+    },
+    {
+      "episode": 125,
+      "reward": 12.48488762561026,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.0524683785264813,
+      "seed": 552986
+    },
+    {
+      "episode": 126,
+      "reward": 12.546094703064623,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 15272
+    },
+    {
+      "episode": 127,
+      "reward": -21.57482922653134,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 864767
+    },
+    {
+      "episode": 128,
+      "reward": 10.43371114827049,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 487558
+    },
+    {
+      "episode": 129,
+      "reward": 12.511156014671418,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 295265
+    },
+    {
+      "episode": 130,
+      "reward": 12.520789885210082,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 365735
+    },
+    {
+      "episode": 131,
+      "reward": 12.534997005794663,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 776848
+    },
+    {
+      "episode": 132,
+      "reward": -20.988122582615468,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 993656
+    },
+    {
+      "episode": 133,
+      "reward": 12.537165494337582,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 138169
+    },
+    {
+      "episode": 134,
+      "reward": 12.508131389622793,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 494656
+    },
+    {
+      "episode": 135,
+      "reward": 12.556573562428758,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 117713
+    },
+    {
+      "episode": 136,
+      "reward": 12.494370594637044,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 991993
+    },
+    {
+      "episode": 137,
+      "reward": -18.76979432729036,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 110132
+    },
+    {
+      "episode": 138,
+      "reward": -18.921756934664668,
+      "success": false,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 622069
+    },
+    {
+      "episode": 139,
+      "reward": 12.477828658303727,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 354733
+    },
+    {
+      "episode": 140,
+      "reward": 12.047158636423108,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 976100
+    },
+    {
+      "episode": 141,
+      "reward": 11.752482923398397,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 986840
+    },
+    {
+      "episode": 142,
+      "reward": 12.487057580601972,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 439740
+    },
+    {
+      "episode": 143,
+      "reward": 10.218272832327154,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 644247
+    },
+    {
+      "episode": 144,
+      "reward": -19.74176037340635,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 514939
+    },
+    {
+      "episode": 145,
+      "reward": 12.535361183218468,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 875659
+    },
+    {
+      "episode": 146,
+      "reward": 10.381955374902253,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 46187
+    },
+    {
+      "episode": 147,
+      "reward": 11.747951810889473,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 999436
+    },
+    {
+      "episode": 148,
+      "reward": 12.482542173216723,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 431323
+    },
+    {
+      "episode": 149,
+      "reward": 12.50564838767531,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 10231
+    },
+    {
+      "episode": 150,
+      "reward": -21.85970051309278,
+      "success": false,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 330999
+    },
+    {
+      "episode": 151,
+      "reward": 12.467128884406776,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 755948
+    },
+    {
+      "episode": 152,
+      "reward": 12.499219519357801,
+      "success": true,
+      "traffic": 6,
+      "epsilon": 0.05,
+      "seed": 116104
+    },
+    {
+      "episode": 153,
+      "reward": 12.500065020553398,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 888032
+    },
+    {
+      "episode": 154,
+      "reward": 12.407784761377277,
+      "success": true,
+      "traffic": 12,
+      "epsilon": 0.05,
+      "seed": 741916
+    },
+    {
+      "episode": 155,
+      "reward": 12.503586325331343,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 522092
+    },
+    {
+      "episode": 156,
+      "reward": 10.831571679667888,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 417177
+    },
+    {
+      "episode": 157,
+      "reward": 12.47329657120553,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 910822
+    },
+    {
+      "episode": 158,
+      "reward": 10.70820597283443,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 746471
+    },
+    {
+      "episode": 159,
+      "reward": 10.215095196564999,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 112212
+    },
+    {
+      "episode": 160,
+      "reward": 12.531540766991055,
+      "success": true,
+      "traffic": 3,
+      "epsilon": 0.05,
+      "seed": 510122
+    }
+  ],
+  "evaluation": [
+    {
+      "traffic": 0,
+      "before": {
+        "traffic": 0,
+        "episodes": 10,
+        "success_rate": 1.0,
+        "collision_rate": 0.0,
+        "mean_reward": 19.99653971708376,
+        "mean_speed_kmh": 103.91799130115744,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000001,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000002,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000003,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000004,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000005,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000006,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000007,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000008,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000009,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          }
+        ]
+      },
+      "after": {
+        "traffic": 0,
+        "episodes": 10,
+        "success_rate": 1.0,
+        "collision_rate": 0.0,
+        "mean_reward": 19.831539717083757,
+        "mean_speed_kmh": 99.76116845718681,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000001,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000002,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000003,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000004,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000005,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000006,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000007,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000008,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000009,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          }
+        ]
+      }
+    },
+    {
+      "traffic": 6,
+      "before": {
+        "traffic": 6,
+        "episodes": 10,
+        "success_rate": 1.0,
+        "collision_rate": 0.0,
+        "mean_reward": 19.951539717083765,
+        "mean_speed_kmh": 104.53925644503283,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.8765559891124,
+            "reward": 19.946539717083752,
+            "mean_speed_kmh": 105.44473172449453,
+            "lane_change_requests": 5,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000001,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000002,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.7643643847023,
+            "reward": 19.82653971708382,
+            "mean_speed_kmh": 103.9297212112119,
+            "lane_change_requests": 11,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000003,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000004,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.2043267931767,
+            "reward": 19.911539717083762,
+            "mean_speed_kmh": 105.59515491667142,
+            "lane_change_requests": 6,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000005,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000006,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.6751701760495,
+            "reward": 20.006539717083754,
+            "mean_speed_kmh": 104.32237855925325,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000007,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.6751701760495,
+            "reward": 19.996539717083763,
+            "mean_speed_kmh": 103.91799130115744,
+            "lane_change_requests": 1,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000008,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.5249425448671,
+            "reward": 19.906539717083746,
+            "mean_speed_kmh": 104.83345791739603,
+            "lane_change_requests": 7,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000009,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.3724389561448,
+            "reward": 19.93153971708376,
+            "mean_speed_kmh": 105.59515491667142,
+            "lane_change_requests": 5,
+            "end_reason": "success"
+          }
+        ]
+      },
+      "after": {
+        "traffic": 6,
+        "episodes": 10,
+        "success_rate": 1.0,
+        "collision_rate": 0.0,
+        "mean_reward": 19.61421267263761,
+        "mean_speed_kmh": 99.22546669859142,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.8488727531187,
+            "reward": 19.661539717083755,
+            "mean_speed_kmh": 99.43436433288119,
+            "lane_change_requests": 21,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000001,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000002,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.0753415056629,
+            "reward": 19.761539717083757,
+            "mean_speed_kmh": 99.78386496281439,
+            "lane_change_requests": 15,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000003,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.8776073697165,
+            "reward": 19.841539717083755,
+            "mean_speed_kmh": 99.78386496281439,
+            "lane_change_requests": 11,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000004,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.5964262038706,
+            "reward": 19.708269272622257,
+            "mean_speed_kmh": 94.94427659170637,
+            "lane_change_requests": 17,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000005,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.1266924495574,
+            "reward": 18.461539717083788,
+            "mean_speed_kmh": 99.78386496281439,
+            "lane_change_requests": 20,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000006,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.5057003195664,
+            "reward": 19.701539717083758,
+            "mean_speed_kmh": 99.78386496281439,
+            "lane_change_requests": 18,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000007,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.0717990882515,
+            "reward": 19.831539717083757,
+            "mean_speed_kmh": 99.76116845718681,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000008,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.559621639489,
+            "reward": 19.701539717083758,
+            "mean_speed_kmh": 99.78386496281439,
+            "lane_change_requests": 18,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000009,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.6138784445861,
+            "reward": 19.64153971708376,
+            "mean_speed_kmh": 99.43436433288119,
+            "lane_change_requests": 22,
+            "end_reason": "success"
+          }
+        ]
+      }
+    },
+    {
+      "traffic": 12,
+      "before": {
+        "traffic": 12,
+        "episodes": 10,
+        "success_rate": 0.9,
+        "collision_rate": 0.1,
+        "mean_reward": 15.645041145780976,
+        "mean_speed_kmh": 104.84936431677075,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.3240266093228,
+            "reward": 19.83153971708376,
+            "mean_speed_kmh": 107.0578194718983,
+            "lane_change_requests": 11,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000001,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.4295564378624,
+            "reward": 19.83153971708376,
+            "mean_speed_kmh": 105.59515491667142,
+            "lane_change_requests": 10,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000002,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.069513978405,
+            "reward": 17.74653971708381,
+            "mean_speed_kmh": 105.54252333772405,
+            "lane_change_requests": 9,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000003,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.4397954673439,
+            "reward": 19.69653971708376,
+            "mean_speed_kmh": 105.5496879927161,
+            "lane_change_requests": 18,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000004,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.8487274689483,
+            "reward": 19.971539717083758,
+            "mean_speed_kmh": 107.1618486097971,
+            "lane_change_requests": 3,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000005,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.3397107260514,
+            "reward": 19.81153971708376,
+            "mean_speed_kmh": 105.59515491667142,
+            "lane_change_requests": 11,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000006,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.773798795137,
+            "reward": 19.971539717083758,
+            "mean_speed_kmh": 105.59515491667142,
+            "lane_change_requests": 3,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000007,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.8687301269642,
+            "reward": 19.926539717083752,
+            "mean_speed_kmh": 105.54252333772405,
+            "lane_change_requests": 5,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000008,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.7738025064,
+            "reward": 19.961539717083745,
+            "mean_speed_kmh": 105.18234105394062,
+            "lane_change_requests": 3,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000009,
+            "success": false,
+            "crashed": true,
+            "distance_m": 176.37822589266744,
+            "reward": -20.298445995944085,
+            "mean_speed_kmh": 95.67143461389294,
+            "lane_change_requests": 5,
+            "end_reason": "collision"
+          }
+        ]
+      },
+      "after": {
+        "traffic": 12,
+        "episodes": 10,
+        "success_rate": 1.0,
+        "collision_rate": 0.0,
+        "mean_reward": 18.949973059700703,
+        "mean_speed_kmh": 95.32921846518127,
+        "details": [
+          {
+            "seed": 1000000,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.6583582010451,
+            "reward": 19.65154040255912,
+            "mean_speed_kmh": 99.33574095674749,
+            "lane_change_requests": 21,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000001,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.1856431487895,
+            "reward": 19.731539717083756,
+            "mean_speed_kmh": 98.33027984103703,
+            "lane_change_requests": 16,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000002,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.079968806471,
+            "reward": 19.586550155430935,
+            "mean_speed_kmh": 85.67276728026341,
+            "lane_change_requests": 24,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000003,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.606861508732,
+            "reward": 19.36653971708377,
+            "mean_speed_kmh": 100.66539717083785,
+            "lane_change_requests": 20,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000004,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.634616925297,
+            "reward": 19.721539717083758,
+            "mean_speed_kmh": 99.78386496281439,
+            "lane_change_requests": 17,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000005,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.1260798555518,
+            "reward": 16.563269858515827,
+            "mean_speed_kmh": 94.77747125497909,
+            "lane_change_requests": 26,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000006,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1002.0266038584164,
+            "reward": 19.316539717083767,
+            "mean_speed_kmh": 100.20868226934151,
+            "lane_change_requests": 23,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000007,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1000.7623370293095,
+            "reward": 19.75153971708375,
+            "mean_speed_kmh": 98.33027984103703,
+            "lane_change_requests": 15,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000008,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.8680936402579,
+            "reward": 18.41067159508234,
+            "mean_speed_kmh": 99.0557861811376,
+            "lane_change_requests": 23,
+            "end_reason": "success"
+          },
+          {
+            "seed": 1000009,
+            "success": true,
+            "crashed": false,
+            "distance_m": 1001.3318228454882,
+            "reward": 17.400000000000045,
+            "mean_speed_kmh": 77.13191489361736,
+            "lane_change_requests": 21,
+            "end_reason": "success"
+          }
+        ]
+      }
+    }
+  ],
+  "elapsed_s": 368.1308253999996
+}
